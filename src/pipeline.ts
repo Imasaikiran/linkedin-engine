@@ -9,7 +9,7 @@ import { runScrape } from './stages/scrape.js';
 import { runCluster } from './stages/cluster.js';
 import { runScore } from './stages/score.js';
 import { runAngleStage } from './stages/angle.js';
-import { runDraftStage } from './stages/draft.js';
+import { runDraftStage, extractJson } from './stages/draft.js';
 import { runPolishStage } from './stages/polish.js';
 import { makeClient, complete } from './lib/llm.js';
 import { DraftSchema } from './lib/schema.js';
@@ -150,11 +150,15 @@ export async function makeRetry(client: ReturnType<typeof makeClient>, prev: Dra
     ? `Your previous draft failed checks. Fix these issues:\nVoice failures: ${info.voice_failures.join('; ')}\nClaim failures: ${info.hallucination_failures.join('; ')}\n\nReturn corrected JSON.`
     : `Facts-only mode: only state what the sources literally say. Drop any unverifiable claim. Voice failures to fix: ${info.voice_failures.join('; ')}.`;
   const res = await complete({
-    client, model: 'claude-sonnet-4-6', system: 'Return JSON only.',
+    client, model: 'claude-sonnet-4-6',
+    system: 'Output ONLY a single JSON object. No preamble, no commentary, no code fences.',
     user: `${instruction}\n\nPREVIOUS DRAFT:\n${JSON.stringify(prev)}`,
     maxTokens: 1200,
   });
-  const parsed = JSON.parse(res.text.trim().replace(/^```json\s*|\s*```$/g, '')) as unknown;
+  const parsed = extractJson(res.text);
+  if (parsed === null) {
+    throw new Error(`makeRetry: LLM returned no parseable JSON. Raw text (first 800 chars):\n${res.text.slice(0, 800)}`);
+  }
   return DraftSchema.parse({ ...(parsed as object), attempt, cost_usd: (prev.cost_usd ?? 0) + res.cost_usd });
 }
 
