@@ -1,0 +1,28 @@
+lab_blogs:
+  - { name: anthropic,  rss: "https://www.anthropic.com/news/rss.xml" }
+  - { name: openai,     rss: "https://openai.com/blog/rss.xml" }
+  - { name: deepmind,   rss: "https://deepmind.google/blog/rss.xml" }
+  - { name: mistral,    rss: "https://mistral.ai/news/feed.xml" }
+  - { name: cohere,     rss: "https://cohere.com/blog/rss.xml" }
+  - { name: huggingface, rss: "https://huggingface.co/blog/feed.xml" }
+
+curated_newsletters:
+  - { name: latent-space,    rss: "https://www.latent.space/feed" }
+  - { name: the-batch,        rss: "https://www.deeplearning.ai/the-batch/feed/" }
+  - { name: import-ai,        rss: "https://importai.substack.com/feed" }
+  - { name: simon-willison,   rss: "https://simonwillison.net/atom/everything/" }
+  - { name: interconnects,    rss: "https://www.interconnects.ai/feed" }
+
+# voice handles via RSS bridges; replace BRIDGE with your rsshub instance
+voice_handles:
+  - { name: akash-gupta-li,   rss: "https://rsshub.app/linkedin/posts/akash-gupta",      kind: linkedin }
+  - { name: lenny,            rss: "https://www.lennysnewsletter.com/feed",              kind: linkedin }
+  - { name: shreyas-doshi-li, rss: "https://rsshub.app/linkedin/posts/shreyasdoshi",     kind: linkedin }
+  - { name: aakash-gupta-li,  rss: "https://rsshub.app/linkedin/posts/aakashg0",         kind: linkedin }
+  - { name: ethan-mollick,    rss: "https://oneusefulthing.substack.com/feed",           kind: linkedin }
+
+hn:
+  algolia_endpoint: "https://hn.algolia.com/api/v1/search_by_date"
+  query_terms: ["AI", "LLM", "agent", "Claude", "GPT", "Anthropic", "OpenAI"]
+  min_points: 100
+  hours_back: 168     # 7 days
