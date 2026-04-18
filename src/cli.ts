@@ -1,5 +1,6 @@
 import { mkdirSync, renameSync, existsSync, writeFileSync } from 'node:fs';
 import { join, basename } from 'node:path';
+import type { VoiceHandle } from './voice-refresh.js';
 import { computeIsoWeek } from './pipeline.js';
 
 export type CliArgs =
@@ -61,6 +62,19 @@ async function main(): Promise<void> {
       const meta = join(postedDir, `${args.day}.json`);
       writeFileSync(meta, JSON.stringify({ url: args.flags.url, posted_at: new Date().toISOString(), source_file: basename(dest) }, null, 2));
       console.log(`marked posted: ${args.day} (${args.flags.url})`);
+      return;
+    }
+    case 'voice:refresh': {
+      const { parse: parseYaml } = await import('yaml');
+      const { readFileSync } = await import('node:fs');
+      const { refreshVoiceCorpus } = await import('./voice-refresh.js');
+      const cfg = parseYaml(readFileSync(join(process.cwd(), 'config', 'sources.yaml'), 'utf8'));
+      const out = await refreshVoiceCorpus({
+        handles: (cfg as { voice_handles: VoiceHandle[] }).voice_handles,
+        outDir: join(process.cwd(), 'data', 'voice-corpus'),
+        samplesPerHandle: 5,
+      });
+      console.log(out);
       return;
     }
     default:
