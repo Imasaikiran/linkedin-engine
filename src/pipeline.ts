@@ -1,8 +1,9 @@
-import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
+import { readFileSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek.js';
 dayjs.extend(isoWeek);
+import { parse as parseYaml } from 'yaml';
 import { runScrape } from './stages/scrape.js';
 import { runCluster } from './stages/cluster.js';
 import { runScore } from './stages/score.js';
@@ -11,12 +12,33 @@ import { runDraftStage } from './stages/draft.js';
 import { runPolishStage } from './stages/polish.js';
 import { makeClient, complete } from './lib/llm.js';
 import { DraftSchema } from './lib/schema.js';
-import type { Draft, RunSummary } from './lib/schema.js';
+import type { Angle, Draft, Day, RunSummary } from './lib/schema.js';
 import { makeLogger } from './lib/log.js';
 
 export function computeIsoWeek(d: Date): string {
   const w = dayjs(d).isoWeek();
   return `${dayjs(d).isoWeekYear()}-W${String(w).padStart(2, '0')}`;
+}
+
+interface PillarsConfig {
+  cadence: Record<Day, { pillars: string[]; word_count: [number, number] }>;
+  voice_corpus?: { samples_per_draft?: number };
+}
+
+interface SkipDatesConfig {
+  skip: { date: string; reason: string }[];
+}
+
+const DAY_OFFSET: Record<Day, number> = { mon: 0, wed: 2, fri: 4 };
+
+export function dateForDay(week: string, day: Day): string {
+  const m = week.match(/^(\d{4})-W(\d{2})$/);
+  if (!m) throw new Error(`bad week format: ${week}`);
+  const year = parseInt(m[1]!, 10);
+  const wk = parseInt(m[2]!, 10);
+  // Jan 4 is always in ISO week 1 of its iso-week-year, anchoring the lookup.
+  const monday = dayjs(`${year}-01-04`).isoWeek(wk).isoWeekday(1).startOf('day');
+  return monday.add(DAY_OFFSET[day], 'day').format('YYYY-MM-DD');
 }
 
 const REPO_ROOT = process.cwd();
@@ -26,6 +48,13 @@ async function main(): Promise<void> {
   const week = computeIsoWeek(new Date());
   const dataDir = join(REPO_ROOT, 'data');
   const sourcesYaml = readFileSync(join(REPO_ROOT, 'config', 'sources.yaml'), 'utf8');
+  const pillarsCfg = parseYaml(readFileSync(join(REPO_ROOT, 'config', 'pillars.yaml'), 'utf8')) as PillarsConfig;
+  const skipDatesPath = join(REPO_ROOT, 'config', 'skip-dates.yaml');
+  const skipMap = new Map<string, string>();
+  if (existsSync(skipDatesPath)) {
+    const cfg = parseYaml(readFileSync(skipDatesPath, 'utf8')) as SkipDatesConfig;
+    for (const entry of cfg.skip ?? []) skipMap.set(entry.date, entry.reason);
+  }
   const client = makeClient();
 
   const summary: RunSummary = {
@@ -55,12 +84,20 @@ async function main(): Promise<void> {
     const angle = await runAngleStage({ client, dataDir, week, promptPath: join(REPO_ROOT, 'prompts', 'pick-angle.md') });
     tEnd(st, { llm_calls: 1, cost_usd: angle.cost_usd });
 
+    const draftsRoot = join(REPO_ROOT, 'drafts');
+    mkdirSync(join(draftsRoot, week), { recursive: true });
+    const filtered = filterAngles(angle.angles, week, skipMap, pillarsCfg.cadence, draftsRoot, log);
+    if (filtered.length < angle.angles.length) {
+      writeFileSync(join(dataDir, 'angles', `${week}.json`), JSON.stringify(filtered, null, 2));
+    }
+
     st = tStart('draft');
     const draft = await runDraftStage({
       client, dataDir, week,
       voiceSystemPath: join(REPO_ROOT, 'prompts', 'voice-system.md'),
       pillarPromptDir: join(REPO_ROOT, 'prompts', 'pillars'),
       voiceCorpusDir: join(dataDir, 'voice-corpus'),
+      samplesPerDraft: pillarsCfg.voice_corpus?.samples_per_draft ?? 3,
     });
     tEnd(st, { llm_calls: Object.keys(draft.drafts).length, cost_usd: draft.cost_usd });
 
@@ -91,7 +128,7 @@ async function main(): Promise<void> {
   }
 }
 
-async function makeRetry(client: ReturnType<typeof makeClient>, prev: Draft, info: { voice_failures: string[]; hallucination_failures: string[] }, attempt: number): Promise<Draft> {
+export async function makeRetry(client: ReturnType<typeof makeClient>, prev: Draft, info: { voice_failures: string[]; hallucination_failures: string[] }, attempt: number): Promise<Draft> {
   const instruction = attempt === 1
     ? `Your previous draft failed checks. Fix these issues:\nVoice failures: ${info.voice_failures.join('; ')}\nClaim failures: ${info.hallucination_failures.join('; ')}\n\nReturn corrected JSON.`
     : `Facts-only mode: only state what the sources literally say. Drop any unverifiable claim. Voice failures to fix: ${info.voice_failures.join('; ')}.`;
@@ -102,6 +139,34 @@ async function makeRetry(client: ReturnType<typeof makeClient>, prev: Draft, inf
   });
   const parsed = JSON.parse(res.text.trim().replace(/^```json\s*|\s*```$/g, '')) as unknown;
   return DraftSchema.parse({ ...(parsed as object), attempt, cost_usd: (prev.cost_usd ?? 0) + res.cost_usd });
+}
+
+function filterAngles(
+  angles: Angle[],
+  week: string,
+  skipMap: Map<string, string>,
+  cadence: PillarsConfig['cadence'],
+  draftsRoot: string,
+  log: ReturnType<typeof makeLogger>,
+): Angle[] {
+  const kept: Angle[] = [];
+  for (const a of angles) {
+    const date = dateForDay(week, a.day);
+    const skipReason = skipMap.get(date);
+    if (skipReason) {
+      writeFileSync(join(draftsRoot, week, `${a.day}.SKIPPED.md`), `# ${a.day} SKIPPED\n\nReason: ${skipReason} (${date})\n`);
+      log.info({ day: a.day, date, reason: skipReason }, 'skip-date hit, skipping draft');
+      continue;
+    }
+    const allowed = cadence[a.day]?.pillars ?? [];
+    if (allowed.length > 0 && !allowed.includes(a.pillar)) {
+      writeFileSync(join(draftsRoot, week, `${a.day}.SKIPPED.md`), `# ${a.day} SKIPPED\n\nReason: cadence violation - LLM picked pillar "${a.pillar}" but ${a.day} allows ${allowed.join('|')}\n`);
+      log.warn({ day: a.day, picked: a.pillar, allowed }, 'cadence violation, skipping draft');
+      continue;
+    }
+    kept.push(a);
+  }
+  return kept;
 }
 
 function appendQualityRow(s: RunSummary): void {

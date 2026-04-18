@@ -77,8 +77,89 @@ async function main(): Promise<void> {
       console.log(out);
       return;
     }
+    case 'stage': {
+      await runStage(args.name, args.flags);
+      return;
+    }
+    case 'rerun': {
+      const stage = args.flags.stage;
+      if (!stage) { console.error('rerun requires --stage <name>'); process.exitCode = 1; return; }
+      await runStage(stage, args.flags);
+      return;
+    }
     default:
       console.log(JSON.stringify(args));
+  }
+}
+
+async function runStage(name: string, flags: Record<string, string>): Promise<void> {
+  const { readFileSync } = await import('node:fs');
+  const week = flags.week ?? computeIsoWeek(new Date());
+  const dataDir = join(process.cwd(), 'data');
+  switch (name) {
+    case 'scrape': {
+      const { runScrape } = await import('./stages/scrape.js');
+      const sourcesYaml = readFileSync(join(process.cwd(), 'config', 'sources.yaml'), 'utf8');
+      const r = await runScrape({ sourcesYaml, week, dataDir });
+      console.log(JSON.stringify(r, null, 2));
+      return;
+    }
+    case 'cluster': {
+      const { runCluster } = await import('./stages/cluster.js');
+      const r = await runCluster({ dataDir, week });
+      console.log(`clusters: ${r.length}`);
+      return;
+    }
+    case 'score': {
+      const { runScore } = await import('./stages/score.js');
+      const r = runScore({ dataDir, week });
+      console.log(`scored clusters: ${r.length}`);
+      return;
+    }
+    case 'angle': {
+      const { runAngleStage } = await import('./stages/angle.js');
+      const { makeClient } = await import('./lib/llm.js');
+      const r = await runAngleStage({
+        client: makeClient(), dataDir, week,
+        promptPath: join(process.cwd(), 'prompts', 'pick-angle.md'),
+      });
+      console.log(`angles: ${r.angles.length}, cost=$${r.cost_usd.toFixed(4)}`);
+      return;
+    }
+    case 'draft': {
+      const { runDraftStage } = await import('./stages/draft.js');
+      const { makeClient } = await import('./lib/llm.js');
+      const { parse: parseYaml } = await import('yaml');
+      const pillarsCfg = parseYaml(readFileSync(join(process.cwd(), 'config', 'pillars.yaml'), 'utf8')) as { voice_corpus?: { samples_per_draft?: number } };
+      const r = await runDraftStage({
+        client: makeClient(), dataDir, week,
+        voiceSystemPath: join(process.cwd(), 'prompts', 'voice-system.md'),
+        pillarPromptDir: join(process.cwd(), 'prompts', 'pillars'),
+        voiceCorpusDir: join(dataDir, 'voice-corpus'),
+        samplesPerDraft: pillarsCfg.voice_corpus?.samples_per_draft ?? 3,
+      });
+      console.log(`drafts: ${Object.keys(r.drafts).length}, cost=$${r.cost_usd.toFixed(4)}`);
+      return;
+    }
+    case 'polish': {
+      const { runPolishStage } = await import('./stages/polish.js');
+      const { makeClient } = await import('./lib/llm.js');
+      const { makeRetry } = await import('./pipeline.js');
+      const client = makeClient();
+      const r = await runPolishStage({
+        client, dataDir, week,
+        draftsRoot: join(process.cwd(), 'drafts'),
+        voiceCorpusDir: join(dataDir, 'voice-corpus'),
+        retryFn: async (attempt, prev, info) => makeRetry(client, prev, info, attempt),
+        maxRetries: 2,
+      });
+      const skipped = Object.values(r).filter((p) => p.skipped).length;
+      console.log(`polished: ${Object.keys(r).length - skipped} produced, ${skipped} skipped`);
+      return;
+    }
+    default:
+      console.error(`unknown stage: ${name}. expected one of scrape|cluster|score|angle|draft|polish`);
+      process.exitCode = 1;
   }
 }
 

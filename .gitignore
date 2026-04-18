@@ -7,3 +7,13 @@ dist/
 build/
 coverage/
 .cache/
+
+# pipeline intermediate artifacts (keep data/runs/, drafts/, posted/, QUALITY.md)
+data/raw/
+data/clusters/
+data/scored/
+data/angles/
+data/drafts/
+data/embeddings/
+data/voice-corpus/
+logs/
