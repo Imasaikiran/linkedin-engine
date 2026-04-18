@@ -1,5 +1,6 @@
 import { readFileSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek.js';
 dayjs.extend(isoWeek);
@@ -196,6 +197,6 @@ function appendQualityRow(s: RunSummary): void {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   void main();
 }

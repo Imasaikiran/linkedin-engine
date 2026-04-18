@@ -1,5 +1,6 @@
 import { mkdirSync, renameSync, existsSync, writeFileSync } from 'node:fs';
 import { join, basename } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import type { VoiceHandle } from './voice-refresh.js';
 import { computeIsoWeek } from './pipeline.js';
 
@@ -163,6 +164,6 @@ async function runStage(name: string, flags: Record<string, string>): Promise<vo
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   void main();
 }
