@@ -34,6 +34,18 @@ jobs:
           git add drafts/ posted/ data/runs/ QUALITY.md || true
           git diff --cached --quiet || git commit -m "chore: weekly pipeline run [skip ci]"
           git push
+      - name: upload diagnostic artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-data
+          path: |
+            data/drafts/
+            data/angles/
+            data/clusters/
+            data/scored/
+            logs/
+          retention-days: 7
       - name: write step summary
         if: always()
         run: |
