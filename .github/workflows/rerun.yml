@@ -1,0 +1,39 @@
+name: rerun
+
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: stage to rerun (scrape|cluster|score|angle|draft|polish)
+        required: true
+      week:
+        description: ISO week (e.g. 2026-W17)
+        required: true
+      day:
+        description: optional day (mon|wed|fri) for polish
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  rerun:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          VOYAGE_API_KEY: ${{ secrets.VOYAGE_API_KEY }}
+        run: pnpm stage ${{ github.event.inputs.stage }} --week ${{ github.event.inputs.week }} ${{ github.event.inputs.day && format('--day {0}', github.event.inputs.day) || '' }}
+      - name: commit
+        run: |
+          git config user.name "linkedin-engine-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add drafts/ data/ logs/ || true
+          git diff --cached --quiet || git commit -m "chore: rerun ${{ github.event.inputs.stage }} for ${{ github.event.inputs.week }}"
+          git push
