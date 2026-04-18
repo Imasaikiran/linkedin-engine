@@ -96,7 +96,6 @@ export interface HallGateInput {
 }
 export interface HallGateResult { pass: boolean; verdicts: ClaimVerdict[]; }
 
-const PROPER_NOUN_RE = /\b[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+){0,3}\b/;
 const DIGIT_RE = /\d/;
 
 export function runHallucinationGate(input: HallGateInput): HallGateResult {
@@ -113,7 +112,7 @@ export function runHallucinationGate(input: HallGateInput): HallGateResult {
         verdicts.push({ claim, verdict: 'FAIL', reason: 'opinion contains a digit (must be qualified as stat)' });
         continue;
       }
-      if (PROPER_NOUN_RE.test(claim.claim_text)) {
+      if (containsProperNoun(claim.claim_text)) {
         verdicts.push({ claim, verdict: 'FAIL', reason: 'opinion contains proper noun (must be attribution)' });
         continue;
       }
@@ -161,7 +160,7 @@ function mapClaim(claim: Claim, body: string): { verdict: 'PASS' | 'FAIL' | 'SOF
       return { verdict: 'FAIL', reason: 'quoted text not exact in source' };
     }
     case 'attribution': {
-      const names = claim.claim_text.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?\b/g) ?? [];
+      const names = claim.claim_text.match(/\b[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+){0,3}\b/g) ?? [];
       if (names.length === 0) return { verdict: 'FAIL', reason: 'attribution has no proper noun' };
       for (const n of names) {
         if (!body.includes(n)) return { verdict: 'FAIL', reason: `name "${n}" not in source` };
@@ -185,4 +184,14 @@ function mapClaim(claim: Claim, body: string): { verdict: 'PASS' | 'FAIL' | 'SOF
     }
   }
   return { verdict: 'FAIL', reason: 'unknown claim type' };
+}
+
+// Detects proper nouns: capitalized words that are NOT sentence-initial.
+// Skips the first word of the text and the first word after each ". " boundary.
+function containsProperNoun(text: string): boolean {
+  // Strip first word of text and first word after each sentence boundary.
+  const stripped = text
+    .replace(/^[^.!?]*?(\s|$)/, (match) => ' '.repeat(match.length))           // mask first word run
+    .replace(/(?<=[.!?]\s)[A-Za-z][a-zA-Z]*/g, (m) => ' '.repeat(m.length));  // mask first word after boundary
+  return /\b[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+){0,3}\b/.test(stripped);
 }

@@ -50,4 +50,24 @@ describe('runHallucinationGate', () => {
     const r = runHallucinationGate({ claims: ok, sources: SOURCES, voiceCorpusUrls: [] });
     expect(r.pass).toBe(true);
   });
+
+  it('rejects opinion with proper noun (mid-sentence capital name)', () => {
+    const claims: Claim[] = [{
+      claim_text: 'most teams overcomplicate evals because Sam Altman said so',
+      type: 'opinion',
+      confidence: 0.5,
+    }];
+    const r = runHallucinationGate({ claims, sources: SOURCES, voiceCorpusUrls: [] });
+    expect(r.pass).toBe(false);
+  });
+
+  it('passes opinion that starts with a capital but has no real proper noun', () => {
+    const claims: Claim[] = [{
+      claim_text: 'Most teams overcomplicate evals',
+      type: 'opinion',
+      confidence: 0.5,
+    }];
+    const r = runHallucinationGate({ claims, sources: SOURCES, voiceCorpusUrls: [] });
+    expect(r.pass).toBe(true);
+  });
 });
