@@ -1,0 +1,52 @@
+{
+  "week": "2026-W16",
+  "started_at": "2026-04-18T23:28:50.124Z",
+  "stages": [
+    {
+      "stage": "scrape",
+      "duration_ms": 12243,
+      "llm_calls": 0,
+      "cost_usd": 0,
+      "ok": true
+    },
+    {
+      "stage": "cluster",
+      "duration_ms": 4732,
+      "llm_calls": 0,
+      "cost_usd": 0,
+      "ok": true
+    },
+    {
+      "stage": "score",
+      "duration_ms": 4,
+      "llm_calls": 0,
+      "cost_usd": 0,
+      "ok": true
+    },
+    {
+      "stage": "angle",
+      "duration_ms": 9529,
+      "llm_calls": 1,
+      "cost_usd": 0.011892,
+      "ok": true
+    },
+    {
+      "stage": "draft",
+      "duration_ms": 29659,
+      "llm_calls": 3,
+      "cost_usd": 0.031794,
+      "ok": true
+    },
+    {
+      "stage": "polish",
+      "duration_ms": 41263,
+      "llm_calls": 0,
+      "cost_usd": 0,
+      "ok": true
+    }
+  ],
+  "total_cost_usd": 0.043686,
+  "drafts_produced": 0,
+  "drafts_skipped": 3,
+  "finished_at": "2026-04-18T23:30:27.555Z"
+}
