@@ -56,7 +56,7 @@ export const ClaimTypeEnum = z.enum(['stat', 'quote', 'attribution', 'capability
 export const ClaimSchema = z.object({
   claim_text: z.string().min(1),
   type: ClaimTypeEnum,
-  source_url: z.string().url().optional(),
+  source_url: z.preprocess((v) => v ?? undefined, z.string().url().optional()),
   confidence: z.number().min(0).max(1),
 }).refine(
   (c) => c.type === 'opinion' || c.source_url !== undefined,
