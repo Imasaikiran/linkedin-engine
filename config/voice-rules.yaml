@@ -1,0 +1,28 @@
+banned_phrases:
+  - "I recently"
+  - "Excited to share"
+  - "Today I want to share"
+  - "In today's"
+  - "game-changer"
+  - "game changer"
+  - "thought leader"
+  - "deep dive"
+  - "delve"
+  - "leverage"
+  - "synergy"
+  - "ecosystem"
+  - "unpack"
+  - "unlock"
+  - "Let that sink in"
+  - "Here's the thing"
+  - "needless to say"
+  - "Furthermore"
+  - "Moreover"
+  - "In conclusion"
+  - "It's worth noting"
+banned_open_emojis: ["🚀", "✨", "🎯", "💡", "🔥"]
+max_emojis_total: 2
+max_hashtags: 3
+first_line_word_range: [8, 18]
+max_paragraph_lines: 3
+i_frequency_max: 0.05
