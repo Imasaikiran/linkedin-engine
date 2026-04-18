@@ -23,7 +23,7 @@ export type RawItem = z.infer<typeof RawItemSchema>;
 
 // ---------- stage 2: cluster ----------
 export const ClusterSchema = z.object({
-  topic: z.string(),
+  topic: z.string().min(1),
   items: z.array(RawItemSchema).min(1),
   earliest_date: z.string().datetime(),
   source_count: z.number().int().positive(),
@@ -46,8 +46,8 @@ export const AngleSchema = z.object({
   pillar: PillarEnum,
   cluster_topic: z.string(),
   cluster_urls: z.array(z.string().url()).min(1),
-  one_line_angle: z.string(),
-  why_this_pillar: z.string(),
+  one_line_angle: z.string().min(1),
+  why_this_pillar: z.string().min(1),
 });
 export type Angle = z.infer<typeof AngleSchema>;
 
