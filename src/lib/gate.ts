@@ -73,9 +73,12 @@ export function runVoiceGate(post: string, opts: VoiceGateInput): VoiceGateResul
     if (/^\s*[-*\d]\.?\s+/m.test(post)) failures.push('bullet/numbered list in non-framework post');
   }
 
+  // First-person threshold: story/lesson are inherently first-person and need a wider band.
+  // Other pillars cap at 8% to discourage navel-gazing.
+  const iThreshold = (opts.pillar === 'story' || opts.pillar === 'lesson') ? 0.15 : 0.08;
   const iCount = (post.match(/\bI\b/g) ?? []).length;
-  if (allWords.length > 0 && iCount / allWords.length >= 0.05) {
-    failures.push(`"I" frequency ${(iCount / allWords.length).toFixed(2)} >= 0.05`);
+  if (allWords.length > 0 && iCount / allWords.length >= iThreshold) {
+    failures.push(`"I" frequency ${(iCount / allWords.length).toFixed(2)} >= ${iThreshold}`);
   }
 
   return { pass: failures.length === 0, failures };
@@ -97,6 +100,26 @@ export interface HallGateInput {
 export interface HallGateResult { pass: boolean; verdicts: ClaimVerdict[]; }
 
 const DIGIT_RE = /\d/;
+
+// Acronyms + brand/product names that legitimately appear in opinion text without being attribution claims.
+const PROPER_NOUN_WHITELIST = new Set([
+  'AI', 'AGI', 'API', 'LLM', 'LLMs', 'ML', 'GPT', 'RAG', 'MCP', 'SDK', 'CLI', 'IDE', 'PM', 'PMs',
+  'CEO', 'CTO', 'PR', 'QA', 'UX', 'UI', 'OS', 'OSS', 'SaaS', 'B2B', 'B2C', 'KPI', 'OKR', 'ROI',
+  'OpenAI', 'Anthropic', 'Claude', 'Gemini', 'Meta', 'Google', 'Microsoft', 'Apple', 'GitHub',
+  'LinkedIn', 'Twitter', 'X', 'YouTube', 'Reddit', 'HN', 'Slack', 'Notion', 'Figma',
+  'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
+  'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December',
+]);
+
+function normalizeQuotes(s: string): string {
+  return s
+    .replace(/[\u2018\u2019\u201A\u201B]/g, "'")
+    .replace(/[\u201C\u201D\u201E\u201F]/g, '"')
+    .replace(/&quot;/g, '"')
+    .replace(/&#34;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&#39;/g, "'");
+}
 
 export function runHallucinationGate(input: HallGateInput): HallGateResult {
   const verdicts: ClaimVerdict[] = [];
@@ -151,11 +174,13 @@ function mapClaim(claim: Claim, body: string): { verdict: 'PASS' | 'FAIL' | 'SOF
       return { verdict: 'PASS', reason: 'all digits present in source' };
     }
     case 'quote': {
-      const quoted = claim.claim_text.match(/"([^"]+)"/);
+      const normalizedClaim = normalizeQuotes(claim.claim_text);
+      const quoted = normalizedClaim.match(/"([^"]+)"/);
       if (!quoted) return { verdict: 'FAIL', reason: 'quote claim has no quoted substring' };
-      const target = quoted[1]!;
-      if (lcBody.includes(target.toLowerCase())) {
-        return { verdict: 'PASS', reason: 'exact quote in source', matched_excerpt: target };
+      const target = quoted[1]!.toLowerCase();
+      const normalizedBody = normalizeQuotes(body).toLowerCase();
+      if (normalizedBody.includes(target)) {
+        return { verdict: 'PASS', reason: 'exact quote in source', matched_excerpt: quoted[1] };
       }
       return { verdict: 'FAIL', reason: 'quoted text not exact in source' };
     }
@@ -186,12 +211,15 @@ function mapClaim(claim: Claim, body: string): { verdict: 'PASS' | 'FAIL' | 'SOF
   return { verdict: 'FAIL', reason: 'unknown claim type' };
 }
 
-// Detects proper nouns: capitalized words that are NOT sentence-initial.
-// Skips the first word of the text and the first word after each ". " boundary.
+// Detects proper nouns: capitalized words that are NOT sentence-initial and NOT in the whitelist.
 function containsProperNoun(text: string): boolean {
-  // Strip first word of text and first word after each sentence boundary.
   const stripped = text
-    .replace(/^[^.!?]*?(\s|$)/, (match) => ' '.repeat(match.length))           // mask first word run
-    .replace(/(?<=[.!?]\s)[A-Za-z][a-zA-Z]*/g, (m) => ' '.repeat(m.length));  // mask first word after boundary
-  return /\b[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+){0,3}\b/.test(stripped);
+    .replace(/^[^.!?]*?(\s|$)/, (match) => ' '.repeat(match.length))
+    .replace(/(?<=[.!?]\s)[A-Za-z][a-zA-Z]*/g, (m) => ' '.repeat(m.length));
+  const matches = stripped.match(/\b[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+){0,3}\b/g) ?? [];
+  for (const m of matches) {
+    const tokens = m.split(/\s+/);
+    if (tokens.some((t) => !PROPER_NOUN_WHITELIST.has(t))) return true;
+  }
+  return false;
 }

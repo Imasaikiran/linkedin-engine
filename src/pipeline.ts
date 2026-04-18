@@ -66,11 +66,25 @@ async function main(): Promise<void> {
     summary.total_cost_usd += extras.cost_usd ?? 0;
   };
 
+  const MIN_ITEMS_TO_PROCEED = 5;
+
   try {
     let st = tStart('scrape');
     const scrape = await runScrape({ sourcesYaml, week, dataDir });
     tEnd(st, { ok: true });
     log.info({ counts: scrape.counts, errors: scrape.errors }, 'scrape done');
+
+    const totalItems = Object.values(scrape.counts).reduce((a, b) => a + b, 0);
+    if (totalItems < MIN_ITEMS_TO_PROCEED) {
+      log.warn({ totalItems, threshold: MIN_ITEMS_TO_PROCEED }, 'too few scraped items, aborting run');
+      const draftsRoot = join(REPO_ROOT, 'drafts');
+      mkdirSync(join(draftsRoot, week), { recursive: true });
+      for (const day of ['mon', 'wed', 'fri'] as const) {
+        writeFileSync(join(draftsRoot, week, `${day}.SKIPPED.md`), `# ${day} SKIPPED\n\nReason: only ${totalItems} items scraped (need ${MIN_ITEMS_TO_PROCEED})\n`);
+      }
+      summary.drafts_skipped = 3;
+      return;
+    }
 
     st = tStart('cluster');
     await runCluster({ dataDir, week });

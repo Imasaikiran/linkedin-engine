@@ -73,7 +73,7 @@ export async function runDraftStage(p: RunDraftStageParams): Promise<{ drafts: R
     const pillarTemplate = readFileSync(join(p.pillarPromptDir, `${angle.pillar}.md`), 'utf8');
     const cluster = clusters.find((c) => angle.cluster_urls.some((u) => c.items.some((i) => i.url === u)));
     const sources = cluster?.items.map((i) => ({ url: i.url, body: i.body })) ?? [];
-    const samples = pickVoiceSamples(p.voiceCorpusDir, angle.pillar, p.samplesPerDraft ?? 3);
+    const samples = pickVoiceSamples(p.voiceCorpusDir, p.samplesPerDraft ?? 3);
     const userPrompt = buildDraftPrompt({ angle, pillarTemplate, sources, voiceSamples: samples });
     const draft = await runDraftOnce({ client: p.client, systemPrompt, userPrompt, attempt: 0 });
     drafts[angle.day] = draft;
@@ -86,7 +86,7 @@ export async function runDraftStage(p: RunDraftStageParams): Promise<{ drafts: R
   return { drafts, cost_usd: totalCost };
 }
 
-function pickVoiceSamples(corpusDir: string, _pillar: string, n: number): string[] {
+function pickVoiceSamples(corpusDir: string, n: number): string[] {
   const externalDir = join(corpusDir, 'external');
   if (!existsSync(externalDir)) return [];
   const files = readdirSync(externalDir).filter((f) => f.endsWith('.txt'));
