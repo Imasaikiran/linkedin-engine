@@ -40,15 +40,35 @@ export async function runDraftOnce(p: RunDraftOnceParams): Promise<Draft> {
   const res = await complete({
     client: p.client,
     model: 'claude-sonnet-4-6',
-    system: p.systemPrompt,
+    system: p.systemPrompt + '\n\nIMPORTANT: Output ONLY a single JSON object. No preamble, no commentary, no code fences.',
     user: p.userPrompt,
     maxTokens: 1200,
     temperature: 0.7,
   });
-  const cleaned = res.text.trim().replace(/^```json\s*|\s*```$/g, '');
-  const parsed = JSON.parse(cleaned);
-  const draft = DraftSchema.parse({ ...parsed, attempt: p.attempt ?? 0, cost_usd: res.cost_usd });
-  return draft;
+  const parsed = extractJson(res.text);
+  if (parsed === null) {
+    throw new Error(`draft: LLM returned no parseable JSON. Raw text (first 800 chars):\n${res.text.slice(0, 800)}`);
+  }
+  return DraftSchema.parse({ ...parsed, attempt: p.attempt ?? 0, cost_usd: res.cost_usd });
+}
+
+export function extractJson(text: string): unknown | null {
+  const cleaned = text.trim().replace(/^```json\s*|\s*```$/g, '').replace(/^```\s*|\s*```$/g, '');
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    // Fall through to brace extraction.
+  }
+  // Find the first `{` and the matching last `}` in case the LLM added prose around the object.
+  const first = cleaned.indexOf('{');
+  const last = cleaned.lastIndexOf('}');
+  if (first === -1 || last === -1 || last <= first) return null;
+  const candidate = cleaned.slice(first, last + 1);
+  try {
+    return JSON.parse(candidate);
+  } catch {
+    return null;
+  }
 }
 
 export interface RunDraftStageParams {
