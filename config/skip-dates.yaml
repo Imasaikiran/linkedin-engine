@@ -1,0 +1,4 @@
+# ISO dates to skip (no draft attempted; SKIPPED.md written with reason)
+skip:
+  - { date: "2026-12-25", reason: "Christmas" }
+  - { date: "2026-01-01", reason: "New Year" }
