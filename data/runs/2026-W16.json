@@ -1,17 +1,17 @@
 {
   "week": "2026-W16",
-  "started_at": "2026-04-18T23:28:50.124Z",
+  "started_at": "2026-04-18T23:32:19.747Z",
   "stages": [
     {
       "stage": "scrape",
-      "duration_ms": 12243,
+      "duration_ms": 9750,
       "llm_calls": 0,
       "cost_usd": 0,
       "ok": true
     },
     {
       "stage": "cluster",
-      "duration_ms": 4732,
+      "duration_ms": 4994,
       "llm_calls": 0,
       "cost_usd": 0,
       "ok": true
@@ -25,28 +25,28 @@
     },
     {
       "stage": "angle",
-      "duration_ms": 9529,
+      "duration_ms": 9835,
       "llm_calls": 1,
-      "cost_usd": 0.011892,
+      "cost_usd": 0.012072,
       "ok": true
     },
     {
       "stage": "draft",
-      "duration_ms": 29659,
+      "duration_ms": 28287,
       "llm_calls": 3,
-      "cost_usd": 0.031794,
+      "cost_usd": 0.028725,
       "ok": true
     },
     {
       "stage": "polish",
-      "duration_ms": 41263,
+      "duration_ms": 11635,
       "llm_calls": 0,
       "cost_usd": 0,
       "ok": true
     }
   ],
-  "total_cost_usd": 0.043686,
-  "drafts_produced": 0,
-  "drafts_skipped": 3,
-  "finished_at": "2026-04-18T23:30:27.555Z"
+  "total_cost_usd": 0.040797,
+  "drafts_produced": 2,
+  "drafts_skipped": 1,
+  "finished_at": "2026-04-18T23:33:24.254Z"
 }
