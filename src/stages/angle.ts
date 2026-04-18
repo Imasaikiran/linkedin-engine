@@ -36,9 +36,18 @@ export async function pickAngles(client: Anthropic, scored: ScoredCluster[], pro
     final_score: c.final_score,
   })), null, 2)}`;
   const res = await complete({ client, model: 'claude-sonnet-4-6', system: 'Respond with valid JSON only.', user: userPrompt, maxTokens: 1500 });
-  const json = JSON.parse(res.text.trim().replace(/^```json\s*|\s*```$/g, ''));
-  const parsed = AnglesResponseSchema.parse(json);
-  return { angles: parsed.angles.map((a) => AngleSchema.parse(a)), cost_usd: res.cost_usd };
+  const cleaned = res.text.trim().replace(/^```json\s*|\s*```$/g, '');
+  let json: unknown;
+  try {
+    json = JSON.parse(cleaned);
+  } catch (e) {
+    throw new Error(`angle: LLM returned non-JSON. Raw text (first 800 chars):\n${cleaned.slice(0, 800)}`);
+  }
+  const result = AnglesResponseSchema.safeParse(json);
+  if (!result.success) {
+    throw new Error(`angle: LLM JSON failed schema. Issues: ${JSON.stringify(result.error.issues)}\nRaw JSON:\n${JSON.stringify(json, null, 2).slice(0, 1500)}`);
+  }
+  return { angles: result.data.angles.map((a) => AngleSchema.parse(a)), cost_usd: res.cost_usd };
 }
 
 export async function runAngleStage(opts: { client: Anthropic; dataDir: string; week: string; promptPath: string; recentWeeksLookback?: number; dedupThreshold?: number }): Promise<{ angles: Angle[]; cost_usd: number }> {

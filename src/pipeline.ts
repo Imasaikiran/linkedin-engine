@@ -130,7 +130,9 @@ async function main(): Promise<void> {
     summary.drafts_skipped = Object.values(polished).filter((p) => p.skipped).length;
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
-    log.error({ err: msg }, 'pipeline aborted');
+    const stack = e instanceof Error ? e.stack : undefined;
+    log.error({ err: msg, stack }, 'pipeline aborted');
+    console.error(`[pipeline aborted] ${msg}${stack ? '\n' + stack : ''}`);
     summary.stages.push({ stage: 'aborted', duration_ms: 0, llm_calls: 0, cost_usd: 0, ok: false, error: msg });
     process.exitCode = 1;
   } finally {
