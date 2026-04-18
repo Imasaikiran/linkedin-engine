@@ -44,8 +44,10 @@ export async function runScrape(opts: ScrapeOpts): Promise<{ counts: Record<stri
       const filtered: RawItem[] = items
         .filter((i) => Date.parse(i.published_at) >= since)
         .map((i) => ({ ...i, source_kind: src.kind }))
-        .filter((i) => RawItemSchema.safeParse(i).success)
-        .map((i) => RawItemSchema.parse(i));
+        .flatMap((i) => {
+          const v = RawItemSchema.safeParse(i);
+          return v.success ? [v.data] : [];
+        });
       writeFileSync(join(outDir, `${src.name}.json`), JSON.stringify(filtered, null, 2));
       counts[src.name] = filtered.length;
       log.info({ source: src.name, count: filtered.length }, 'scraped');
@@ -56,29 +58,33 @@ export async function runScrape(opts: ScrapeOpts): Promise<{ counts: Record<stri
   }));
 
   // HN
-  try {
-    const url = `${cfg.hn.algolia_endpoint}?tags=story&hitsPerPage=50&numericFilters=points>${cfg.hn.min_points},created_at_i>${Math.floor((Date.now() - cfg.hn.hours_back * 3600 * 1000) / 1000)}&query=${encodeURIComponent(cfg.hn.query_terms.join(' '))}`;
-    const res = await httpGet(url);
-    const json = JSON.parse(res.body) as { hits: any[] };
-    const items: RawItem[] = json.hits.flatMap((h) => {
-      if (!h.url) return [];
-      const candidate = {
-        url: h.url,
-        title: h.title ?? '',
-        body: `${h.title ?? ''}\n\nHN: ${h.points} points, ${h.num_comments} comments`,
-        author: h.author,
-        published_at: new Date(h.created_at_i * 1000).toISOString(),
-        source: 'hn',
-        source_kind: 'hn' as const,
-      };
-      const v = RawItemSchema.safeParse(candidate);
-      return v.success ? [v.data] : [];
-    });
-    writeFileSync(join(outDir, 'hn.json'), JSON.stringify(items, null, 2));
-    counts['hn'] = items.length;
-  } catch (e: any) {
-    log.warn({ source: 'hn', err: e.message }, 'hn failed');
-    errors.push({ source: 'hn', error: e.message });
+  if (!cfg.hn) {
+    errors.push({ source: 'hn', error: 'hn key missing from sources YAML' });
+  } else {
+    try {
+      const url = `${cfg.hn.algolia_endpoint}?tags=story&hitsPerPage=50&numericFilters=points>${cfg.hn.min_points},created_at_i>${Math.floor((Date.now() - cfg.hn.hours_back * 3600 * 1000) / 1000)}&query=${encodeURIComponent(cfg.hn.query_terms.join(' '))}`;
+      const res = await httpGet(url);
+      const json = JSON.parse(res.body) as { hits: any[] };
+      const items: RawItem[] = json.hits.flatMap((h) => {
+        if (!h.url) return [];
+        const candidate = {
+          url: h.url,
+          title: h.title ?? '',
+          body: `${h.title ?? ''}\n\nHN: ${h.points} points, ${h.num_comments} comments`,
+          author: h.author,
+          published_at: new Date(h.created_at_i * 1000).toISOString(),
+          source: 'hn',
+          source_kind: 'hn' as const,
+        };
+        const v = RawItemSchema.safeParse(candidate);
+        return v.success ? [v.data] : [];
+      });
+      writeFileSync(join(outDir, 'hn.json'), JSON.stringify(items, null, 2));
+      counts['hn'] = items.length;
+    } catch (e: any) {
+      log.warn({ source: 'hn', err: e.message }, 'hn failed');
+      errors.push({ source: 'hn', error: e.message });
+    }
   }
 
   return { counts, errors };
