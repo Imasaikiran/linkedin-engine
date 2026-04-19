@@ -1,22 +1,22 @@
 # Monday — Hot take
 
-Codex isn't a coding tool, it's proof the engineering job has already inverted
+Software engineers are not becoming more productive, they are becoming reviewers
 
-The common assumption is that AI coding assistants make engineers faster at writing code. Teams are optimizing for speed, measuring lines generated, tracking time saved.
+The common assumption is that tools like Codex make engineers faster at writing code. Teams are hiring for coding speed, measuring output in lines, and treating AI as an accelerant.
 
-That framing is wrong. When a tool handles browsing, image generation, memory, and plugins autonomously, the bottleneck is no longer production. It's judgment.
+That framing is wrong. When a single tool handles browsing, image generation, memory, plugins, and computer use inside one workflow, the bottleneck is no longer writing. It is judgment.
 
-Engineers are becoming the reviewers, the approvers, the people who decide what good looks like. That is a fundamentally different identity. Most teams are still hiring, onboarding, and evaluating people as if the old identity still holds. 🔄
+The engineer who thrives next is not the fastest coder. It is the person who can evaluate what an agent produced, catch subtle failures, and decide when to trust the output. That is a reviewer's job, not a builder's.
 
-The org chart hasn't caught up to the agent. 🚨
+Most teams are still hiring and training for the old identity. That gap will cost them.
 
-Is the engineering manager role actually better positioned for this shift than the senior IC?
+Is "software reviewer" a promotion or a demotion?
 
 ---
 
 **Sources:**
 - [Codex for (almost) everything](https://openai.com/index/codex-for-almost-everything)
 
-**Why this angle:** The post uses Codex's documented autonomous capabilities to argue that the engineering identity, not just the workflow, is inverting from producer to reviewer, a claim strong enough to draw genuine disagreement from both sides.
+**Why this angle:** Codex's broad capability set, combining computer use, browsing, memory, and plugins, makes the engineer-as-reviewer identity shift concrete and debatable rather than abstract.
 
-**Metadata:** pillar=hottake | retries=0 | cost=$0.01 | gate_pass_rate=100%
+**Metadata:** pillar=hottake | retries=1 | cost=$0.01 | gate_pass_rate=100%

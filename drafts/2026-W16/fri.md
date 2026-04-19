@@ -1,22 +1,20 @@
 # Friday — Hot take
 
-Vertical AI models for life sciences are a detour, not a destination
+Naming a model after Rosalind Franklin does not make it a life sciences breakthrough
 
-The assumption is that drug discovery and genomics need their own specialized models. Build a domain wrapper, ship it, call it progress.
+The assumption is that a frontier model wrapped in domain branding equals specialization. Biotech leaders are celebrating GPT-Rosalind as if the name and the positioning settle the question.
 
-That framing is wrong. Vertical fine-tuning exists because general models still fall short on scientific reasoning, not because the problems are fundamentally separate from general intelligence.
+It does not. OpenAI built GPT-Rosalind to accelerate drug discovery, genomics analysis, protein reasoning, and scientific research workflows. Those are use cases, not architectural choices. A general reasoning model pointed at biology is still a general reasoning model.
 
-GPT-Rosalind accelerates drug discovery, genomics analysis, and protein reasoning. Impressive scope. But the real signal is what it reveals: general models are not yet good enough to handle these workflows without a wrapper. That gap is the problem worth solving.
+Real specialization means training data curation, domain-specific evaluation sets, and failure mode accountability that a broad lab cannot offer at launch. Branding is not a substitute for any of that.
 
-When frontier general models close that gap, purpose-built vertical layers become redundant overhead.
-
-Do you think domain-specific scientific models are a permanent category, or a temporary fix we will look back on as scaffolding?
+What would actually convince you that a model is genuinely specialized for life sciences rather than marketed toward it?
 
 ---
 
 **Sources:**
 - [Introducing GPT-Rosalind for life sciences research](https://openai.com/index/introducing-gpt-rosalind)
 
-**Why this angle:** The post uses GPT-Rosalind as concrete evidence to argue that vertical AI models signal a gap in general model capability rather than a permanent architectural choice, inviting pushback from researchers and builders who believe domain specialization is inherently valuable.
+**Why this angle:** The post challenges the biotech community's reflexive excitement over GPT-Rosalind by drawing a hard line between domain-branded positioning and genuine architectural specialization, a distinction that will invite real disagreement from both OpenAI advocates and life sciences practitioners.
 
 **Metadata:** pillar=hottake | retries=0 | cost=$0.01 | gate_pass_rate=100%
