@@ -35,10 +35,21 @@ describe('brand', () => {
     expect(brand.cadence.fri.pillar).toBe('critique');
   });
 
-  it('invalid YAML throws with clear message including "brand.yaml"', () => {
+  it("schema-invalid YAML throws with 'brand.yaml' in message", () => {
     const dir = mkdtempSync(path.join(tmpdir(), 'brand-test-'));
     const bad = path.join(dir, 'brand.yaml');
     writeFileSync(bad, 'identity:\n  role: 123\n', 'utf8'); // role should be string + missing fields
+    try {
+      expect(() => loadBrand(bad)).toThrow(/brand\.yaml/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('malformed YAML (unterminated string) throws with "brand.yaml" in message', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'brand-test-'));
+    const bad = path.join(dir, 'brand.yaml');
+    writeFileSync(bad, 'identity:\n  role: "unclosed string\n  goal: x\n', 'utf8');
     try {
       expect(() => loadBrand(bad)).toThrow(/brand\.yaml/);
     } finally {
@@ -54,6 +65,30 @@ describe('brand', () => {
   it('BrandSchema rejects out-of-enum white_space', () => {
     const baseline = loadBrand();
     const tampered = { ...baseline, engagement: { ...baseline.engagement, white_space: 'WAY_TOO_MUCH' } };
+    const res = BrandSchema.safeParse(tampered);
+    expect(res.success).toBe(false);
+  });
+
+  it('BrandSchema rejects payload missing top-level agents section', () => {
+    const brand = loadBrand();
+    const tampered = JSON.parse(JSON.stringify(brand));
+    delete tampered.agents;
+    const res = BrandSchema.safeParse(tampered);
+    expect(res.success).toBe(false);
+  });
+
+  it('BrandSchema rejects wrong type for agents.scout.max_tokens', () => {
+    const brand = loadBrand();
+    const tampered = JSON.parse(JSON.stringify(brand));
+    tampered.agents.scout.max_tokens = 'lots';
+    const res = BrandSchema.safeParse(tampered);
+    expect(res.success).toBe(false);
+  });
+
+  it('BrandSchema rejects unknown enum value in voice.must_have_in_every_post', () => {
+    const brand = loadBrand();
+    const tampered = JSON.parse(JSON.stringify(brand));
+    tampered.voice.must_have_in_every_post = ['bogus_value'];
     const res = BrandSchema.safeParse(tampered);
     expect(res.success).toBe(false);
   });

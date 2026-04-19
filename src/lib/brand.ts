@@ -43,8 +43,10 @@ export const VoiceSchema = z.object({
   rhythm: z.object({
     hook_max_words: z.number().int().positive(),
     paragraph_max_lines: z.number().int().positive(),
-    target_words: z.tuple([z.number(), z.number()]),
-    target_chars: z.tuple([z.number(), z.number()]),
+    target_words: z.tuple([z.number().int().positive(), z.number().int().positive()])
+      .refine(([lo, hi]) => lo <= hi, { message: 'target_words: min must be <= max' }),
+    target_chars: z.tuple([z.number().int().positive(), z.number().int().positive()])
+      .refine(([lo, hi]) => lo <= hi, { message: 'target_chars: min must be <= max' }),
   }),
 });
 
@@ -87,7 +89,7 @@ export const SourcesSchema = z.object({
 export const AgentConfigSchema = z.object({
   model: z.string().min(1),
   max_tokens: z.number().int().positive(),
-  parallel: z.boolean().optional(),
+  parallel: z.boolean().default(false),
 });
 export type AgentConfig = z.infer<typeof AgentConfigSchema>;
 
