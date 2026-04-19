@@ -147,8 +147,8 @@ async function main(): Promise<void> {
 
 export async function makeRetry(client: ReturnType<typeof makeClient>, prev: Draft, info: { voice_failures: string[]; hallucination_failures: string[] }, attempt: number): Promise<Draft> {
   const instruction = attempt === 1
-    ? `Your previous draft failed checks. Fix these issues:\nVoice failures: ${info.voice_failures.join('; ')}\nClaim failures: ${info.hallucination_failures.join('; ')}\n\nReturn corrected JSON.`
-    : `Facts-only mode: only state what the sources literally say. Drop any unverifiable claim. Voice failures to fix: ${info.voice_failures.join('; ')}.`;
+    ? `Your previous draft was almost accepted. Make the SMALLEST possible edits to fix these specific issues, preserving every other word, sentence, paragraph break, and claim:\n\nVoice failures: ${info.voice_failures.join('; ') || '(none)'}\nClaim failures: ${info.hallucination_failures.join('; ') || '(none)'}\n\nRules for fixing:\n- em-dash (—): replace with a comma or period. Do NOT rewrite the surrounding sentence.\n- word count outside range: add or remove only enough words to hit the range, leave structure intact.\n- first line ends with period: remove just the trailing period.\n- last line not a question: rephrase only the last sentence into a question, do NOT touch other paragraphs.\n- claim source mismatch: drop or correct only the offending claim, keep others.\n\nReturn the FULL corrected draft as JSON, same shape as before.`
+    : `Surgical pass 2. Same rules as pass 1: minimal edits, preserve text. Remaining issues:\nVoice: ${info.voice_failures.join('; ') || '(none)'}\nClaims: ${info.hallucination_failures.join('; ') || '(none)'}`;
   const res = await complete({
     client, model: 'claude-sonnet-4-6',
     system: 'Output ONLY a single JSON object. No preamble, no commentary, no code fences.',

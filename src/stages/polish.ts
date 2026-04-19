@@ -18,6 +18,11 @@ export async function polishDraft(p: PolishOnceParams): Promise<Polished> {
   let lastVoice = runVoiceGate(current.post_text, { pillar: current.pillar });
   let lastHall = runHallucinationGate({ claims: current.claims, sources: p.sources, voiceCorpusUrls: p.voiceCorpusUrls });
 
+  // Track best-seen attempt across the loop so we publish the closest-to-passing draft if no attempt fully passes.
+  const score = (v: typeof lastVoice, h: typeof lastHall): number =>
+    v.failures.length + h.verdicts.filter((x) => x.verdict === 'FAIL').length;
+  let best = { draft: current, voice: lastVoice, hall: lastHall, score: score(lastVoice, lastHall) };
+
   for (let attempt = 1; attempt <= p.maxRetries && (!lastVoice.pass || !lastHall.pass); attempt++) {
     current = await p.retryFn(attempt, current, {
       voice_failures: lastVoice.failures,
@@ -25,17 +30,23 @@ export async function polishDraft(p: PolishOnceParams): Promise<Polished> {
     });
     lastVoice = runVoiceGate(current.post_text, { pillar: current.pillar });
     lastHall = runHallucinationGate({ claims: current.claims, sources: p.sources, voiceCorpusUrls: p.voiceCorpusUrls });
+    const s = score(lastVoice, lastHall);
+    if (s < best.score) best = { draft: current, voice: lastVoice, hall: lastHall, score: s };
   }
 
-  const ok = lastVoice.pass && lastHall.pass;
+  // Use best-seen attempt for the final verdict, not the last one. Retries can degrade quality.
+  const finalDraft = best.draft;
+  const finalVoice = best.voice;
+  const finalHall = best.hall;
+  const ok = finalVoice.pass && finalHall.pass;
   return {
-    draft: current,
-    verdicts: lastHall.verdicts,
-    voice_gate_pass: lastVoice.pass,
-    voice_gate_failures: lastVoice.failures,
-    hallucination_gate_pass: lastHall.pass,
+    draft: finalDraft,
+    verdicts: finalHall.verdicts,
+    voice_gate_pass: finalVoice.pass,
+    voice_gate_failures: finalVoice.failures,
+    hallucination_gate_pass: finalHall.pass,
     skipped: !ok,
-    skipped_reason: ok ? undefined : `voice: ${lastVoice.failures.join('; ')} | claims: ${lastHall.verdicts.filter(v => v.verdict === 'FAIL').map(v => v.reason).join('; ')}`,
+    skipped_reason: ok ? undefined : `voice: ${finalVoice.failures.join('; ')} | claims: ${finalHall.verdicts.filter(v => v.verdict === 'FAIL').map(v => v.reason).join('; ')}`,
   };
 }
 
