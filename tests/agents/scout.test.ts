@@ -203,7 +203,6 @@ curated_newsletters: []
     );
     const fetchMock = vi.fn(async () => new Response(RSS_FEED, { status: 200 }));
     vi.stubGlobal('fetch', fetchMock);
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     try {
       const client = makeFakeClient({ throws: new Error('web_search down') });
       const out = await runScout({
@@ -212,9 +211,11 @@ curated_newsletters: []
         today: new Date('2026-04-19T00:00:00Z'),
         rssConfigPath: sourcesPath,
       });
+      // The fact that source === 'rss_fallback' (only set in runScoutViaRss)
+      // proves the catch branch ran; the pino warn it logs is best-effort and
+      // not asserted directly because pino's destination flushes async.
       expect(out.source).toBe('rss_fallback');
       expect(out.trending_topics[0]?.title).toBe('Lab post A');
-      expect(warn).toHaveBeenCalled();
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

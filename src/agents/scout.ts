@@ -4,8 +4,11 @@ import Anthropic from '@anthropic-ai/sdk';
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
 import type { Brand } from '../lib/brand.js';
-import { estimateCostUsd, extractJson, resolvePricingModel } from '../lib/llm.js';
+import { estimateCostUsd, extractJson, resolveModelId } from '../lib/llm.js';
+import { makeLogger } from '../lib/log.js';
 import { parseRss } from '../lib/rss.js';
+
+const log = makeLogger({ name: 'scout' });
 
 // ---------- output schema ----------
 export const TopicItemSchema = z.object({
@@ -116,9 +119,9 @@ export async function runScout(p: RunScoutParams): Promise<ScoutOutput> {
       if (err instanceof ScoutSchemaError) throw err;
       // Otherwise (transport / SDK / network) fall back to RSS, but surface a
       // warning so the failure stays visible during runs.
-      // eslint-disable-next-line no-console
-      console.warn(
-        `scout: web_search failed (${err instanceof Error ? err.message : String(err)}); falling back to RSS`,
+      log.warn(
+        { err: err instanceof Error ? err.message : String(err) },
+        'scout: web_search failed; falling back to RSS',
       );
     }
   }
@@ -180,7 +183,7 @@ async function runScoutViaWebSearch(p: {
   const cost_usd = estimateCostUsd({
     inputTokens,
     outputTokens,
-    model: resolvePricingModel(scoutCfg.model),
+    model: resolveModelId(scoutCfg.model),
   });
 
   const result: ScoutOutput = {
@@ -216,8 +219,11 @@ async function runScoutViaRss(p: {
   const collected: TopicItem[] = [];
   for (const feed of feeds) {
     try {
-      const res = await fetch(feed.rss);
-      if (!res.ok) continue;
+      const res = await fetch(feed.rss, { signal: AbortSignal.timeout(5000) });
+      if (!res.ok) {
+        log.warn({ feed: feed.name, status: res.status }, 'scout: feed fetch failed');
+        continue;
+      }
       const xml = await res.text();
       const items = await parseRss(xml, feed.name);
       for (const it of items) {
@@ -228,8 +234,12 @@ async function runScoutViaRss(p: {
           published_at: it.published_at,
         });
       }
-    } catch {
-      // Skip individual feed errors; aggregate what we can.
+    } catch (err) {
+      // Skip individual feed errors (timeout, network, parse) and aggregate what we can.
+      log.warn(
+        { feed: feed.name, err: err instanceof Error ? err.message : String(err) },
+        'scout: feed fetch failed',
+      );
       continue;
     }
   }

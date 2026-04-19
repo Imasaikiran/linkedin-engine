@@ -86,6 +86,9 @@ export const SourcesSchema = z.object({
 });
 
 // ---------- agents ----------
+// Note: `parallel` is only consulted by stages that fan out across multiple
+// units of work (drafter and critic, which run per-day). It is inert for
+// scout and strategist, which produce a single result per run.
 export const AgentConfigSchema = z.object({
   model: z.string().min(1),
   max_tokens: z.number().int().positive(),

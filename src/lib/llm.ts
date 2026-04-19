@@ -2,10 +2,11 @@ import Anthropic from '@anthropic-ai/sdk';
 
 export type Model = 'claude-sonnet-4-6' | 'claude-haiku-4-5-20251001';
 
-const PRICING: Record<Model, { input: number; output: number }> = {
-  // USD per million tokens
-  'claude-sonnet-4-6': { input: 3, output: 15 },
-  'claude-haiku-4-5-20251001': { input: 1, output: 5 },
+// USD per million tokens. `aliases` lets brand.yaml use short ids (e.g.
+// `claude-haiku-4-5`) while pricing/SDK calls use the canonical key.
+const PRICING: Record<Model, { input: number; output: number; aliases: string[] }> = {
+  'claude-sonnet-4-6': { input: 3, output: 15, aliases: [] },
+  'claude-haiku-4-5-20251001': { input: 1, output: 5, aliases: ['claude-haiku-4-5'] },
 };
 
 export interface CompleteParams {
@@ -96,12 +97,17 @@ export function extractJson(text: string): unknown | null {
 }
 
 /**
- * Map a brand-config model alias (e.g. `claude-haiku-4-5`) to the SDK pricing
- * key. Unknown aliases fall back to themselves; throws if no pricing exists.
+ * Map a brand-config model id or alias to the canonical pricing key.
+ * Looks up exact key first, then scans `aliases` on each PRICING entry.
+ * Throws if neither matches — keeps the PRICING table as the single source
+ * of truth for both supported models and their accepted aliases.
  */
-export function resolvePricingModel(modelAlias: string): Model {
-  if (modelAlias === 'claude-haiku-4-5') return 'claude-haiku-4-5-20251001';
-  if (modelAlias === 'claude-sonnet-4-6') return 'claude-sonnet-4-6';
-  if (modelAlias in PRICING) return modelAlias as Model;
-  throw new Error(`unknown model alias for pricing: ${modelAlias}`);
+export function resolveModelId(modelOrAlias: string): Model {
+  if (Object.prototype.hasOwnProperty.call(PRICING, modelOrAlias)) {
+    return modelOrAlias as Model;
+  }
+  for (const [id, info] of Object.entries(PRICING)) {
+    if (info.aliases.includes(modelOrAlias)) return id as Model;
+  }
+  throw new Error(`unknown model id or alias: ${modelOrAlias}`);
 }

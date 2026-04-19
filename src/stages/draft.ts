@@ -4,7 +4,6 @@ import Anthropic from '@anthropic-ai/sdk';
 import { DraftSchema } from '../lib/schema.js';
 import type { Angle, Draft } from '../lib/schema.js';
 import { complete, extractJson } from '../lib/llm.js';
-export { extractJson };
 
 export interface BuildPromptParams {
   angle: Angle;
