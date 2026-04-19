@@ -1,3 +1,3 @@
 # wed SKIPPED
 
-voice: em-dash present; first line word count 21 (need 8-18); first line ends with period | claims: only 0/12 keywords matched; only 0/16 keywords matched; only 0/15 keywords matched
+voice: first line ends with period; word count 148 outside 150-180 for pillar framework | claims: name "IBM Research" not in source; only 0/10 keywords matched; only 0/11 keywords matched; only 0/14 keywords matched

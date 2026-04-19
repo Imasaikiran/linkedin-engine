@@ -1,3 +1,3 @@
 # fri SKIPPED
 
-voice: last line not a question | claims: 
+voice:  | claims: name "Simon Willison" not in source
