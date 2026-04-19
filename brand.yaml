@@ -1,0 +1,118 @@
+identity:
+  role: "Senior AI PM building 0→1 products at AI startups"
+  goal: "Land an AI PM role at a frontier model company"
+  audience:
+    primary: "AI PMs and eng leads at OpenAI, Anthropic, Google DeepMind"
+    secondary: "AI investors, technical founders, applied ML engineers"
+  positioning: "Strategic operator who ships, with strong technical judgment"
+
+voice:
+  must_have_in_every_post:
+    - first_person_past_tense
+    - one_concrete_number
+    - one_named_product_or_person
+  must_not_have:
+    em_dashes: true
+    en_dashes: true
+    banned_phrases:
+      - "game-changer"
+      - "thought leader"
+      - "deep dive"
+      - "delve"
+      - "leverage"
+      - "synergy"
+      - "ecosystem"
+      - "unpack"
+      - "unlock"
+      - "Let that sink in"
+      - "Here's the thing"
+    banned_openers:
+      - "I recently"
+      - "Excited to share"
+      - "Today I want to share"
+  rhythm:
+    hook_max_words: 10
+    paragraph_max_lines: 3
+    target_words: [220, 280]
+    target_chars: [1300, 1700]
+
+cadence:
+  mon:
+    pillar: shipped
+    template: |
+      LINE 1: hook — contradiction or specific number, ≤10 words, no period
+      LINES 2-3: 1-line context
+      LINES 4-6: anecdote with specifics (product, metric, decision)
+      LINES 7-9: tradeoff or lesson learned
+      LAST LINE: closing claim or sharp question
+    requires:
+      - shipping_anecdote
+      - named_product
+      - metric_or_outcome
+
+  wed:
+    pillar: framework
+    template: |
+      LINE 1: hook — name the framework or pattern, ≤10 words
+      LINE 2: 1-line why it matters now
+      LINES 3-N: numbered list, 3 items, 2-line each
+      LAST LINE: application invitation
+    requires:
+      - named_framework
+      - numbered_list
+      - save_worthy_artifact
+
+  fri:
+    pillar: critique
+    template: |
+      LINE 1: hook — name the launch + your contrarian angle
+      LINE 2: 1-line on common interpretation
+      LINES 3-5: "what others miss" with specifics
+      LINES 6-8: your reframe with charity
+      LAST LINE: invitation to debate
+    requires:
+      - specific_recent_launch
+      - contrarian_take
+      - named_company
+
+engagement:
+  hook_patterns:
+    - "I made a $X mistake. Here's what I learned."
+    - "Stop doing X. Start doing Y."
+    - "[Number] reasons [contrarian claim about thing]"
+    - "[Specific PM/company] is wrong about X. Here's why."
+    - "Last week I [specific action]. The unexpected result:"
+  require_save_worthy: true
+  closing_question_optional: true
+  white_space: aggressive
+
+sources:
+  rss_config: config/sources.yaml
+  web_search:
+    enabled: true
+    queries_per_run: 4
+    queries:
+      - "top AI PM LinkedIn posts last 7 days"
+      - "OpenAI Anthropic product launch this week"
+      - "AI product manager framework {today_year_month}"
+      - "frontier model company hiring product"
+  voice_corpus:
+    dir: data/voice-corpus
+    samples_per_draft: 3
+
+agents:
+  scout: { model: claude-haiku-4-5, max_tokens: 800 }
+  strategist: { model: claude-sonnet-4-6, max_tokens: 1500 }
+  drafter: { model: claude-sonnet-4-6, max_tokens: 1500, parallel: true }
+  critic: { model: claude-sonnet-4-6, max_tokens: 600, parallel: true }
+  max_retry_loops: 2
+
+budgets:
+  cost_usd_per_run: 0.50
+  wall_time_seconds: 180
+  fallback_on_overrun: skip_with_summary
+
+quality:
+  publish_only_if_critic_approves: true
+  publish_if_voice_gate_passes_even_if_critic_soft_rejects: false
+  fail_open: false
