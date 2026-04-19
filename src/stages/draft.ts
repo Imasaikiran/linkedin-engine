@@ -3,7 +3,8 @@ import { join } from 'node:path';
 import Anthropic from '@anthropic-ai/sdk';
 import { DraftSchema } from '../lib/schema.js';
 import type { Angle, Draft } from '../lib/schema.js';
-import { complete } from '../lib/llm.js';
+import { complete, extractJson } from '../lib/llm.js';
+export { extractJson };
 
 export interface BuildPromptParams {
   angle: Angle;
@@ -50,25 +51,6 @@ export async function runDraftOnce(p: RunDraftOnceParams): Promise<Draft> {
     throw new Error(`draft: LLM returned no parseable JSON. Raw text (first 800 chars):\n${res.text.slice(0, 800)}`);
   }
   return DraftSchema.parse({ ...parsed, attempt: p.attempt ?? 0, cost_usd: res.cost_usd });
-}
-
-export function extractJson(text: string): unknown | null {
-  const cleaned = text.trim().replace(/^```json\s*|\s*```$/g, '').replace(/^```\s*|\s*```$/g, '');
-  try {
-    return JSON.parse(cleaned);
-  } catch {
-    // Fall through to brace extraction.
-  }
-  // Find the first `{` and the matching last `}` in case the LLM added prose around the object.
-  const first = cleaned.indexOf('{');
-  const last = cleaned.lastIndexOf('}');
-  if (first === -1 || last === -1 || last <= first) return null;
-  const candidate = cleaned.slice(first, last + 1);
-  try {
-    return JSON.parse(candidate);
-  } catch {
-    return null;
-  }
 }
 
 export interface RunDraftStageParams {

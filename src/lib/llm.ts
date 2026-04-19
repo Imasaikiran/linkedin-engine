@@ -69,3 +69,39 @@ export async function completeJson<T>(
   if (!v.success) throw new Error('LLM JSON failed schema validation');
   return { data: v.data, cost_usd: res.cost_usd };
 }
+
+/**
+ * Best-effort JSON extractor for LLM responses. Strips code fences and, if
+ * direct parse fails, falls back to slicing the first `{` through the last `}`
+ * in case the model added prose around the object.
+ *
+ * @returns Parsed value, or `null` if no JSON could be extracted.
+ */
+export function extractJson(text: string): unknown | null {
+  const cleaned = text.trim().replace(/^```json\s*|\s*```$/g, '').replace(/^```\s*|\s*```$/g, '');
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    // Fall through to brace extraction.
+  }
+  const first = cleaned.indexOf('{');
+  const last = cleaned.lastIndexOf('}');
+  if (first === -1 || last === -1 || last <= first) return null;
+  const candidate = cleaned.slice(first, last + 1);
+  try {
+    return JSON.parse(candidate);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Map a brand-config model alias (e.g. `claude-haiku-4-5`) to the SDK pricing
+ * key. Unknown aliases fall back to themselves; throws if no pricing exists.
+ */
+export function resolvePricingModel(modelAlias: string): Model {
+  if (modelAlias === 'claude-haiku-4-5') return 'claude-haiku-4-5-20251001';
+  if (modelAlias === 'claude-sonnet-4-6') return 'claude-sonnet-4-6';
+  if (modelAlias in PRICING) return modelAlias as Model;
+  throw new Error(`unknown model alias for pricing: ${modelAlias}`);
+}
