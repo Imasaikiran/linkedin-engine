@@ -165,7 +165,9 @@ async function runScoutViaWebSearch(p: {
 
   const parsed = extractJson(text);
   if (parsed === null) {
-    throw new ScoutSchemaError(
+    // Not a schema violation — usually means truncation or transport weirdness.
+    // Throw a regular Error so runScout falls back to RSS instead of aborting.
+    throw new Error(
       `scout: LLM returned no parseable JSON. Raw text (first 800 chars):\n${text.slice(0, 800)}`,
     );
   }

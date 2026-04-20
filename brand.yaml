@@ -101,7 +101,7 @@ sources:
     samples_per_draft: 3
 
 agents:
-  scout: { model: claude-haiku-4-5, max_tokens: 800 }
+  scout: { model: claude-haiku-4-5, max_tokens: 3000 }
   strategist: { model: claude-sonnet-4-6, max_tokens: 1500 }
   drafter: { model: claude-sonnet-4-6, max_tokens: 1500, parallel: true }
   critic: { model: claude-sonnet-4-6, max_tokens: 600, parallel: true }

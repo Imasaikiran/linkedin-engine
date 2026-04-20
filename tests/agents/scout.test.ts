@@ -139,12 +139,33 @@ describe('runScout — web_search path', () => {
     expect(captured.tools[0].max_uses).toBe(brand.sources.web_search.queries_per_run);
   });
 
-  it('throws with "scout" in message when LLM returns malformed JSON', async () => {
+  it('falls back to RSS when LLM returns unparseable JSON (e.g. truncation)', async () => {
     const brand = brandWithWebSearch(true);
-    const client = makeFakeClient({ text: 'totally not json no braces' });
-    await expect(
-      runScout({ client, brand, today: new Date('2026-04-19T00:00:00Z') }),
-    ).rejects.toThrow(/scout/);
+    const dir = mkdtempSync(path.join(tmpdir(), 'scout-rss-'));
+    const sourcesPath = path.join(dir, 'sources.yaml');
+    writeFileSync(
+      sourcesPath,
+      `lab_blogs:
+  - { name: anthropic, rss: "https://anthropic.test/rss.xml" }
+curated_newsletters: []
+`,
+      'utf8',
+    );
+    const fetchMock = vi.fn(async () => new Response(RSS_FEED, { status: 200 }));
+    vi.stubGlobal('fetch', fetchMock);
+    try {
+      const client = makeFakeClient({ text: 'totally not json no braces' });
+      const out = await runScout({
+        client,
+        brand,
+        today: new Date('2026-04-19T00:00:00Z'),
+        rssConfigPath: sourcesPath,
+      });
+      expect(out.source).toBe('rss_fallback');
+      expect(out.trending_topics[0]?.title).toBe('Lab post A');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it('throws with "scout" in message when LLM returns wrong-shape JSON', async () => {
