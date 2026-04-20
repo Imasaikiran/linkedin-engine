@@ -159,8 +159,8 @@ describe('runVoiceGate', () => {
   // hook_max_words from brand
   // ───────────────────────────────────────────────────────────────────────────
 
-  it('hook_max_words: 12-word first line fails (brand max=10)', () => {
-    const post = buildPost({ hookWords: 12 });
+  it('hook_max_words: 14-word first line fails (brand max=12)', () => {
+    const post = buildPost({ hookWords: 14 });
     const r = runVoiceGate(post, { brand: BRAND, pillar: 'hottake' });
     expect(r.failures.join(' ')).toMatch(/first line word count/);
   });
@@ -183,8 +183,8 @@ describe('runVoiceGate', () => {
     expect(r.failures.filter((f) => /paragraph has/.test(f))).toEqual([]);
   });
 
-  it('paragraph_max_lines: 4-line paragraph fails with default brand (=3)', () => {
-    const post = buildPost({ paragraphLines: 4 });
+  it('paragraph_max_lines: 5-line paragraph fails with default brand (=4)', () => {
+    const post = buildPost({ paragraphLines: 5 });
     const r = runVoiceGate(post, { brand: BRAND, pillar: 'hottake' });
     expect(r.failures.join(' ')).toMatch(/paragraph has/);
   });

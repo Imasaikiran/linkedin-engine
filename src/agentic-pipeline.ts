@@ -315,11 +315,26 @@ interface HandleDayParams {
   log: Logger;
 }
 
+/**
+ * Deterministic punctuation cleanup. The drafter is instructed to avoid em
+ * and en dashes, but Sonnet still leaks them through occasionally. Strip
+ * them BEFORE the voice gate sees the text — this is a mechanical fix, not
+ * a creative judgment, so doing it server-side is safer than another retry.
+ */
+function sanitizePunctuation(text: string): string {
+  return text
+    // " — " or " – " between words → ". " (sentence break)
+    .replace(/\s+[—–]\s+/g, '. ')
+    // bare "—" or "–" against a word → ", " (clause break)
+    .replace(/[—–]/g, ', ');
+}
+
 function handleDay(p: HandleDayParams): AgenticDaySummary {
   const { dayResult, brand, week, draftsRoot, aborted, abortReason, log } = p;
   const day = dayResult.day;
   const draftAny = dayResult.draft as { post_text?: string; pillar?: string };
-  const postText = typeof draftAny.post_text === 'string' ? draftAny.post_text : '';
+  const rawPostText = typeof draftAny.post_text === 'string' ? draftAny.post_text : '';
+  const postText = sanitizePunctuation(rawPostText);
   const pillar = typeof draftAny.pillar === 'string' ? draftAny.pillar : undefined;
   const cost =
     typeof (dayResult.draft as { cost_usd?: number }).cost_usd === 'number'

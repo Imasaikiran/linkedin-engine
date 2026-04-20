@@ -31,10 +31,10 @@ voice:
       - "Excited to share"
       - "Today I want to share"
   rhythm:
-    hook_max_words: 10
-    paragraph_max_lines: 3
-    target_words: [220, 280]
-    target_chars: [1300, 1700]
+    hook_max_words: 12
+    paragraph_max_lines: 4
+    target_words: [180, 320]
+    target_chars: [1100, 1900]
 
 cadence:
   mon:
