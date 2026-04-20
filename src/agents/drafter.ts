@@ -131,7 +131,7 @@ function buildSystemPrompt(brand: Brand): string {
     '{',
     '  "post_text": "the LinkedIn post body",',
     '  "claims": [',
-    '    { "claim_text": "...", "type": "stat|quote|attribution|capability|date|opinion", "source_url": "https://..." }',
+    '    { "claim_text": "...", "type": "stat|quote|attribution|capability|date|opinion", "source_url": "https://...", "confidence": 0.9 }',
     '  ],',
     '  "pillar": "<pillar slug>",',
     '  "angle_rationale": "one or two sentences"',
@@ -139,7 +139,8 @@ function buildSystemPrompt(brand: Brand): string {
     'Rules for claims:',
     '  - Every factual/numeric/quoted/attribution claim in post_text MUST have a matching claim object.',
     '  - type="opinion" is the ONLY type that may omit source_url; every other type requires a real URL from the SOURCES block.',
-    '  - Do NOT emit claims as bare strings. Each claim is an object with claim_text+type+source_url.',
+    '  - confidence is REQUIRED on every claim. Range [0, 1]. Use 0.9+ for verbatim source facts, 0.6-0.8 for paraphrased/inferred, 0.3-0.5 for opinion.',
+    '  - Do NOT emit claims as bare strings. Each claim is an object with claim_text+type+source_url+confidence.',
   ].join('\n');
 }
 
