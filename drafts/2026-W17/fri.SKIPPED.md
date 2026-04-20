@@ -2,7 +2,7 @@
 week: 2026-W17
 day: fri
 pillar: critique
-retries: 1
+retries: 0
 status: skipped
 reason_class: gate_fail
 ---
@@ -10,22 +10,21 @@ reason_class: gate_fail
 # fri SKIPPED (gate_fail)
 
 Voice gate failed AFTER critic approval (system bug):
-- word count 325 outside 180-320
-- char count 2089 outside 1100-1900
+- banned phrase: "leverage"
 
 Draft text:
-The narrow-access model for security AI may be a strategic mistake
+OpenAI's Codex desktop agent is impressive. The access model is a mistake
 
-Most observers read a 40-org cap on a capable cyber model as responsible AI deployment. Hand-picked organizations, serious guardrails, no wild west.
+Most people read the Codex announcement as a capability story. Cursor control, multi-agent parallel execution, background desktop operation. The demos are genuinely striking.
 
-What that framing misses: network effects in cybersecurity compound on breadth, not depth. Consider how MSRC's bug bounty program scaled. thousands of vetted researchers generating signal volume that no elite cohort of 40 partners could replicate. That is not just a distribution choice. It is a data flywheel that gets faster every week.
+What gets skipped is the distribution question. OpenAI built an agent that can run tasks while you sleep, coordinate across multiple simultaneous threads, and browse the web on your behalf. Then they wrapped it in a platform where permissions, governance, and shared context all flow through OpenAI's own infrastructure.
 
-Forty orgs, however elite. think hyperscalers and major financial institutions. do not generate the signal volume that teaches a model where the real attack surface lives across industries, stack generations, and threat actor profiles.
+That is not a neutral architectural choice. Every enterprise that routes agent workflows through a single vendor's permission layer is making a long-term bet on that vendor's pricing discipline, uptime SLAs, and policy decisions. The more capable the agent, the higher the switching cost if any of those change.
 
-Here is the charitable read: a model that can autonomously find and exploit vulnerabilities carries a misuse blast radius that justifies extreme caution. A single incident at scale could set the entire sector back years. The 40-org ceiling is a calculated bet that quality of oversight beats quantity of deployment.
+I want to be fair to OpenAI here. Centralized governance for autonomous desktop agents is a genuinely hard problem. Letting cursor-controlling, file-reading processes run without a shared permission model is the scarier alternative. The instinct to build guardrails in is right.
 
-For PMs navigating this tradeoff, here is a reusable gate: before widening access to a high-capability security model, score it on three criteria. (1) Signal Density: does each new org add meaningfully distinct attack-surface data, or diminishing returns? (2) Misuse Blast Radius: what is the worst-case harm if one vetted org is compromised or acts in bad faith? (3) Compounding Rate: how quickly does the defender network's collective output improve the model versus a static elite cohort? If (1) is high and (3) is fast, breadth wins. If (2) is catastrophic, gate hard regardless.
+The critique is not about safety. It is about who owns the control plane. When one company controls permissions, memory, and execution context for agents doing real work across local and cloud environments, that company holds compounding structural leverage over every business that depends on it.
 
-I think the narrow-access bet underestimates how quickly a broader vetted-defender network compounds into a structural moat. By the time access widens, the gap in real-world signal may already be decisive.
+GPT-5.4 and Claude Sonnet 4.6 are already competitive enough that model choice is nearly a commodity decision. Agent distribution strategy is where the real lock-in lives now.
 
-If you have run red-team or bug bounty programs at scale, at what organization count did signal quality start degrading. and did elite-cohort depth ever compensate for that volume loss?
+Do you think centralized agent governance is a necessary trade-off, or is there a better architecture? Genuinely curious where frontier-lab PMs land on this.

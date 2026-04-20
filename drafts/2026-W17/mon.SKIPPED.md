@@ -2,7 +2,7 @@
 week: 2026-W17
 day: mon
 pillar: shipped
-retries: 0
+retries: 1
 status: skipped
 reason_class: gate_fail
 ---
@@ -10,29 +10,29 @@ reason_class: gate_fail
 # mon SKIPPED (gate_fail)
 
 Voice gate failed AFTER critic approval (system bug):
-- first line word count 11 (max 10)
-- word count 202 outside 220-280
-- char count 1258 outside 1300-1700
+- first line word count 14 (max 12)
+- word count 357 outside 180-340
+- char count 2157 outside 1100-2150
+- paragraph has 5 lines (>4)
+- bullet/numbered list in non-framework post
 
 Draft text:
-Routing 40% of Claude calls to GPT-5.4 taught me something uncomfortable
+Most PMs misread Claude Design. it's not a Figma killer, it's a category creator
 
-I built our internal triage layer in March, right after GPT-5.4 Thinking shipped on March 5.
-The goal was simple: cut inference costs without sacrificing output quality.
+Anthropic shipped Claude Design last week, and the market noticed before most PMs finished their morning coffee.
 
-I ran 600 production requests through both models over two weeks.
-Claude handled nuanced reasoning tasks with fewer correction loops.
-GPT-5.4 Thinking won on structured extraction and anything with tight formatting constraints.
+The product lets users generate designs, prototypes, slides, and marketing materials from a text prompt. No design background required. That framing matters, because it is not aimed at Figma's core power users. It is aimed at the people who were never Figma's customers in the first place.
 
-The uncomfortable part: I had assumed one model would dominate across the board.
-Instead I found myself maintaining two prompt libraries, two eval sets, and two failure taxonomies.
-Operational overhead nearly erased the 18% cost reduction I had targeted.
+That is the part I kept turning over. Anthropic did not attack an incumbent head-on. They found the adjacent job-to-be-done that incumbents had quietly ignored: the non-designer who still needs a polished output by Friday. The competitive pressure on Figma and Adobe shares was a side effect, not the stated goal.
 
-The real lesson was about where the work actually lives.
-Routing logic is not a one-time architecture decision.
-It is a product surface that needs its own roadmap, its own owner, and its own success metrics.
+Here is how to spot that same gap in your own category. the Non-Customer Wedge, 3 signals:
+1. The incumbent's docs assume expertise the buyer does not have
+2. The workaround is a human (contractor, designer, agency), not a competing tool
+3. The output standard is 'good enough to ship' not 'pixel-perfect'
+All three were true for Claude Design. All three were true when we shipped our own async-first reporting tool: our users were ops leads copy-pasting into slides every Friday, not analysts in BI software.
 
-I kept the split stack, but I scoped it to three task types instead of twelve.
-That constraint brought the overhead down enough to make the economics work.
+The tradeoff is real, though. Shipping a generative design tool before the quality ceiling is fully proven means early users will hit rough edges. Anthropic is betting that speed of iteration covers the gap. the same bet they made with Claude Code before it became a serious enterprise tool. We made the same call: ship to the workaround user first, raise the quality ceiling in public. It cost us two churned pilots and bought us twelve referenceable customers.
 
-If you are running a multi-model stack right now, how many task types are you actually routing across, and do you have a single person accountable for that layer?
+What this told me is that Anthropic's enterprise pivot is not theoretical anymore. Two flagship productivity apps, both targeting workflows that did not exist in software form two years ago.
+
+If I had to bet on the third app: developer documentation. The signal is the same. experts ignore it, non-experts drown in it, and the current workaround is a Slack message to an engineer.
