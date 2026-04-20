@@ -1,9 +1,30 @@
 // tests/stages/polish.test.ts
 import { describe, it, expect, vi } from 'vitest';
 import { polishDraft, formatFinalMarkdown } from '../../src/stages/polish.js';
+import { loadBrand, type Brand } from '../../src/lib/brand.js';
 import type { Draft } from '../../src/lib/schema.js';
 
-// Sized to the brand.yaml rhythm: hook ≤10 words, 220-280 total words,
+const BRAND: Brand = loadBrand();
+
+// Lock in the rhythm values that match `cleanDraft` below so this test does not
+// silently break if brand.yaml drifts. Cloning the loaded brand keeps every other
+// rule (banned phrases/openers, dashes, engagement) honest while pinning the
+// numeric bands the fixture was sized against.
+const FIXTURE_BRAND: Brand = {
+  ...BRAND,
+  voice: {
+    ...BRAND.voice,
+    rhythm: {
+      ...BRAND.voice.rhythm,
+      target_words: [220, 280],
+      target_chars: [1300, 1700],
+      hook_max_words: 10,
+      paragraph_max_lines: 3,
+    },
+  },
+};
+
+// Sized to FIXTURE_BRAND.voice.rhythm: hook ≤10 words, 220-280 total words,
 // 1300-1700 chars, paragraphs ≤3 lines, no banned openers or phrases.
 const cleanDraft: Draft = {
   post_text: `What if every model release felt like a launch
@@ -46,6 +67,7 @@ describe('polish', () => {
       voiceCorpusUrls: [],
       maxRetries: 0,
       retryFn: async () => cleanDraft,
+      brand: FIXTURE_BRAND,
     });
     expect(out.skipped).toBe(false);
     expect(out.voice_gate_pass).toBe(true);
@@ -61,6 +83,7 @@ describe('polish', () => {
       voiceCorpusUrls: [],
       maxRetries: 2,
       retryFn: async () => badDraft,
+      brand: FIXTURE_BRAND,
     });
     expect(out.skipped).toBe(true);
     expect(out.skipped_reason).toBeTruthy();

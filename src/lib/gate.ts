@@ -21,7 +21,11 @@ export interface VoiceGateInput {
 export interface VoiceGateResult { pass: boolean; failures: string[]; }
 
 export function runVoiceGate(post: string, opts: VoiceGateInput): VoiceGateResult {
-  const { brand, pillar } = opts;
+  const { brand } = opts;
+  // Defensively normalize pillar so callers passing "Shipped", " shipped ", "shipped\n",
+  // etc. still hit the correct first-person and list-friendly buckets. The contract
+  // still accepts any string; this just guards against silent fallthrough to defaults.
+  const pillar = opts.pillar.trim().toLowerCase();
   const { must_not_have, rhythm } = brand.voice;
   const failures: string[] = [];
 

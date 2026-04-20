@@ -257,4 +257,26 @@ describe('runVoiceGate', () => {
     const r = runVoiceGate(withIs, { brand: BRAND, pillar: 'critique' });
     expect(r.failures.filter((f) => /"I" frequency/.test(f))).toEqual([]);
   });
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // pillar normalization (defensive against caller casing/whitespace)
+  // ───────────────────────────────────────────────────────────────────────────
+
+  it('pillar input is normalized: " Shipped " behaves identically to "shipped"', () => {
+    // Build a post in the 0.10 first-person band: passes the wider 0.15 (shipped)
+    // but fails the strict 0.08 (default). If pillar normalization is missing,
+    // " Shipped " would fall through to the strict 0.08 bucket and fail.
+    const post = buildPost();
+    const allWords = post.split(/\s+/).filter(Boolean).length;
+    const targetCount = Math.floor(allWords * 0.10);
+    const iLine = Array(targetCount).fill('I').join(' ');
+    const withIs = `${post}\n\n${iLine}`;
+
+    const canonical = runVoiceGate(withIs, { brand: BRAND, pillar: 'shipped' });
+    const padded = runVoiceGate(withIs, { brand: BRAND, pillar: ' Shipped ' });
+
+    expect(padded.pass).toBe(canonical.pass);
+    expect(padded.failures).toEqual(canonical.failures);
+    expect(padded.failures.filter((f) => /"I" frequency/.test(f))).toEqual([]);
+  });
 });
