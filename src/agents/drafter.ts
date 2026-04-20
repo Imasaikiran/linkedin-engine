@@ -138,9 +138,10 @@ function buildSystemPrompt(brand: Brand): string {
     '}',
     'Rules for claims:',
     '  - Every factual/numeric/quoted/attribution claim in post_text MUST have a matching claim object.',
-    '  - type="opinion" is the ONLY type that may omit source_url; every other type requires a real URL from the SOURCES block.',
+    '  - type="opinion" is the ONLY type that may omit source_url. For opinion claims, OMIT the source_url field entirely (do NOT use empty string, "N/A", or null).',
+    '  - For every non-opinion type, source_url MUST be a real https:// URL copied verbatim from the SOURCES block. Never invent URLs.',
     '  - confidence is REQUIRED on every claim. Range [0, 1]. Use 0.9+ for verbatim source facts, 0.6-0.8 for paraphrased/inferred, 0.3-0.5 for opinion.',
-    '  - Do NOT emit claims as bare strings. Each claim is an object with claim_text+type+source_url+confidence.',
+    '  - Do NOT emit claims as bare strings. Each claim is an object with claim_text+type+confidence (and source_url for non-opinion).',
   ].join('\n');
 }
 
