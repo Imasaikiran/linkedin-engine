@@ -167,6 +167,11 @@ export async function runOrchestrator(
         recentAngles,
       }),
     );
+    if (strategist.angles.length !== 3) {
+      throw new OrchestratorAbort(
+        `strategist_incomplete: expected 3 angles (one per day), got ${strategist.angles.length}`,
+      );
+    }
     angles = strategist.angles;
 
     // ---- 4. sourcesByDay + voiceSamplesByDay ----
@@ -230,8 +235,10 @@ export async function runOrchestrator(
         'orchestrator: surgical retry pass',
       );
 
-      // 6a. Surgical retries in parallel.
-      const retryDrafts = await Promise.all(
+      // 6a. Surgical retries in parallel. Use allSettled so a single reject
+      // does NOT kill the whole run and successful-but-abandoned siblings have
+      // their cost folded into the running total.
+      const retrySettled = await Promise.allSettled(
         daysNeedingFix.map((d) =>
           surgicalRetry({
             client: p.client,
@@ -239,32 +246,78 @@ export async function runOrchestrator(
             angle: findAngle(angles, d),
             prevDraft: draftsByDay[d],
             verdict: verdictsByDay[d] as CriticVerdict,
-            sources: sourcesByDay[d] ?? [],
-            voiceSamples: voiceSamplesByDay[d] ?? [],
           }),
         ),
       );
+      // Track which days successfully produced a new draft this pass — only
+      // those get re-critiqued below.
+      const daysRetried: Day[] = [];
       for (let i = 0; i < daysNeedingFix.length; i++) {
         const d = daysNeedingFix[i]!;
-        const newDraft = retryDrafts[i]!;
-        // `cost_usd` on the returned draft is cumulative (prev + delta, matching
-        // the drafter's convention). We only want to add the retry's delta to
-        // the orchestrator's running cost, so we track the delta separately.
-        const stepCost =
-          typeof newDraft.__retry_step_cost_usd === 'number'
-            ? newDraft.__retry_step_cost_usd
-            : 0;
-        // Drop the private marker before handing the draft back to callers.
-        delete newDraft.__retry_step_cost_usd;
-        draftsByDay[d] = newDraft;
-        retriesByDay[d] += 1;
-        costSoFar += stepCost;
+        const settled = retrySettled[i]!;
+        if (settled.status === 'fulfilled') {
+          const newDraft = settled.value;
+          // `cost_usd` on the returned draft is cumulative (prev + delta,
+          // matching the drafter's convention). We only want to add the
+          // retry's delta to the orchestrator's running cost, so we track the
+          // delta separately.
+          const stepCost =
+            typeof newDraft.__retry_step_cost_usd === 'number'
+              ? newDraft.__retry_step_cost_usd
+              : 0;
+          // Drop the private marker before handing the draft back to callers.
+          delete newDraft.__retry_step_cost_usd;
+          draftsByDay[d] = newDraft;
+          retriesByDay[d] += 1;
+          costSoFar += stepCost;
+          daysRetried.push(d);
+        } else {
+          log.warn(
+            { day: d, err: settled.reason instanceof Error ? settled.reason.message : String(settled.reason) },
+            'orchestrator: surgical retry rejected; leaving prior block verdict in place',
+          );
+          // Do NOT update draftsByDay/verdicts — day stays with prior block
+          // verdict and will be marked skipped in the final DAYS.map.
+        }
       }
 
-      // 6b. Re-critique only the retried days. `runCritic` requires length 3,
-      // so we fan out `runCriticOnce` manually for the subset.
-      const reCritic = await Promise.all(
-        daysNeedingFix.map((d) =>
+      // Guards: a retry rejection can still have spent real dollars on
+      // successful siblings; check budget/wall clock before continuing.
+      if (Date.now() - T0 > TIME_BUDGET_MS) {
+        throw new OrchestratorAbort(
+          `wall_time_exceeded after retry-draft pass ${loopIdx} (${Date.now() - T0}ms > ${TIME_BUDGET_MS}ms)`,
+        );
+      }
+      if (costSoFar > BUDGET_USD) {
+        throw new OrchestratorAbort(
+          `cost_exceeded after retry-draft pass ${loopIdx} (${costSoFar.toFixed(4)} > ${BUDGET_USD})`,
+        );
+      }
+
+      // 6b. Re-critique only the days that successfully retried. `runCritic`
+      // requires length 3, so we fan out `runCriticOnce` manually for the
+      // subset. Filter out any malformed drafts defensively.
+      const criticTargets: Day[] = [];
+      for (const d of daysRetried) {
+        const d_draft = draftsByDay[d];
+        if (
+          !d_draft ||
+          typeof (d_draft as { post_text?: unknown }).post_text !== 'string' ||
+          typeof (d_draft as { pillar?: unknown }).pillar !== 'string'
+        ) {
+          // This should be unreachable since surgicalRetry schema-validates;
+          // treat as rejection for this day so the prior block verdict sticks.
+          log.warn(
+            { day: d },
+            'orchestrator: retry produced malformed draft, skipping critic for this day',
+          );
+          continue;
+        }
+        criticTargets.push(d);
+      }
+
+      const reCriticSettled = await Promise.allSettled(
+        criticTargets.map((d) =>
           runCriticOnce({
             client: p.client,
             brand: p.brand,
@@ -276,11 +329,44 @@ export async function runOrchestrator(
           }),
         ),
       );
-      for (let i = 0; i < daysNeedingFix.length; i++) {
-        const d = daysNeedingFix[i]!;
-        const r = reCritic[i]!;
-        verdictsByDay[d] = r.verdict;
-        costSoFar += r.cost_usd;
+      let retryBatchCriticCost = 0;
+      for (let i = 0; i < criticTargets.length; i++) {
+        const d = criticTargets[i]!;
+        const settled = reCriticSettled[i]!;
+        if (settled.status === 'fulfilled') {
+          const r = settled.value;
+          verdictsByDay[d] = r.verdict;
+          costSoFar += r.cost_usd;
+          retryBatchCriticCost += r.cost_usd;
+        } else {
+          log.warn(
+            { day: d, err: settled.reason instanceof Error ? settled.reason.message : String(settled.reason) },
+            'orchestrator: retry-critic rejected; leaving prior block verdict in place',
+          );
+          // Do NOT update verdictsByDay — day stays with prior block verdict.
+        }
+      }
+
+      log.info(
+        {
+          pass: loopIdx,
+          retry_critic_cost_usd_delta: retryBatchCriticCost,
+          total_cost_usd: costSoFar,
+          wall_ms: Date.now() - T0,
+        },
+        'orchestrator: retry-critic pass settled',
+      );
+
+      // Post-critic guards.
+      if (Date.now() - T0 > TIME_BUDGET_MS) {
+        throw new OrchestratorAbort(
+          `wall_time_exceeded after retry-critic pass ${loopIdx} (${Date.now() - T0}ms > ${TIME_BUDGET_MS}ms)`,
+        );
+      }
+      if (costSoFar > BUDGET_USD) {
+        throw new OrchestratorAbort(
+          `cost_exceeded after retry-critic pass ${loopIdx} (${costSoFar.toFixed(4)} > ${BUDGET_USD})`,
+        );
       }
 
       log.info(
@@ -406,8 +492,6 @@ interface SurgicalRetryParams {
   angle: StrategistAngle;
   prevDraft: any;
   verdict: CriticVerdict;
-  sources: DrafterSource[];
-  voiceSamples: string[];
 }
 
 async function surgicalRetry(p: SurgicalRetryParams): Promise<any> {

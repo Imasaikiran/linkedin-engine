@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runOrchestrator } from '../../src/agents/orchestrator.js';
 import { loadBrand, type Brand } from '../../src/lib/brand.js';
+import * as strategistMod from '../../src/agents/strategist.js';
 
 beforeEach(() => {
   vi.restoreAllMocks();
@@ -688,6 +689,189 @@ describe('runOrchestrator — surgical retry prompt', () => {
     const mon = out.days.find((d) => d.day === 'mon')!;
     expect(mon.retries).toBe(1);
     expect(mon.approved).toBe(true);
+  });
+});
+
+// ---------- 11. partial retry failure resilience ----------
+describe('runOrchestrator — partial retry failure resilience', () => {
+  it('one day retry rejects, other days succeed, cost still accounted for', async () => {
+    const brand = getBrand();
+    // Drive mon + wed to block on the initial critic pass. The retry drafter
+    // returns unparseable text for wed (forces surgicalRetry to throw) but
+    // approves mon. fri stays approved throughout.
+    let monCriticCalls = 0;
+    let wedCriticCalls = 0;
+
+    const create = vi.fn(async (input: any) => {
+      const system: string = input.system ?? '';
+      const userMsg: string = input.messages?.[0]?.content ?? '';
+
+      if (system.includes('Trend Scout') || Array.isArray(input.tools)) {
+        return {
+          content: [{ type: 'text', text: JSON.stringify(SCOUT_PAYLOAD) }],
+          usage: { input_tokens: 100, output_tokens: 100 },
+        };
+      }
+      if (system.includes('PM Strategist')) {
+        return {
+          content: [{ type: 'text', text: JSON.stringify(STRATEGIST_PAYLOAD) }],
+          usage: { input_tokens: 200, output_tokens: 200 },
+        };
+      }
+      if (system.includes('SURGICAL')) {
+        // Retry path. mon -> valid draft. wed -> unparseable garbage so the
+        // surgicalRetry throws. fri should not hit this path.
+        const day: 'mon' | 'wed' | 'fri' = userMsg.includes('DAY: mon')
+          ? 'mon'
+          : userMsg.includes('DAY: wed')
+            ? 'wed'
+            : 'fri';
+        if (day === 'wed') {
+          return {
+            content: [{ type: 'text', text: 'not-json-garbage{{{' }],
+            usage: { input_tokens: 300, output_tokens: 200 },
+          };
+        }
+        return {
+          content: [{ type: 'text', text: JSON.stringify(draftPayloadFor(day)) }],
+          usage: { input_tokens: 300, output_tokens: 200 },
+        };
+      }
+      if (system.startsWith('You are Drafter')) {
+        const day: 'mon' | 'wed' | 'fri' = userMsg.includes('(mon')
+          ? 'mon'
+          : userMsg.includes('(wed')
+            ? 'wed'
+            : 'fri';
+        return {
+          content: [{ type: 'text', text: JSON.stringify(draftPayloadFor(day)) }],
+          usage: { input_tokens: 300, output_tokens: 200 },
+        };
+      }
+      if (system.includes('Senior Product Manager')) {
+        const day: 'mon' | 'wed' | 'fri' = userMsg.includes('DAY: mon')
+          ? 'mon'
+          : userMsg.includes('DAY: wed')
+            ? 'wed'
+            : 'fri';
+        if (day === 'mon') {
+          monCriticCalls++;
+          // First pass -> block. Retry critic pass -> approve.
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify(
+                  monCriticCalls === 1 ? FIX_BLOCK_VERDICT : APPROVE_VERDICT,
+                ),
+              },
+            ],
+            usage: { input_tokens: 100, output_tokens: 100 },
+          };
+        }
+        if (day === 'wed') {
+          wedCriticCalls++;
+          // Always block; retry never succeeds, so no retry-critic happens.
+          return {
+            content: [{ type: 'text', text: JSON.stringify(FIX_BLOCK_VERDICT) }],
+            usage: { input_tokens: 100, output_tokens: 100 },
+          };
+        }
+        return {
+          content: [{ type: 'text', text: JSON.stringify(APPROVE_VERDICT) }],
+          usage: { input_tokens: 100, output_tokens: 100 },
+        };
+      }
+      return {
+        content: [{ type: 'text', text: '{}' }],
+        usage: { input_tokens: 1, output_tokens: 1 },
+      };
+    });
+    const client = { messages: { create } } as any;
+
+    const out = await runOrchestrator({
+      client,
+      brand,
+      week: '2026-W16',
+      dataDir: tmpDataDir(),
+    });
+
+    expect(out.aborted).toBe(false);
+    expect(out.abort_reason).toBeUndefined();
+
+    const mon = out.days.find((d) => d.day === 'mon')!;
+    const wed = out.days.find((d) => d.day === 'wed')!;
+    const fri = out.days.find((d) => d.day === 'fri')!;
+
+    // mon: retry succeeded -> approved.
+    expect(mon.approved).toBe(true);
+    expect(mon.skipped).toBe(false);
+    expect(mon.retries).toBe(1);
+
+    // wed: retry rejected every attempt, stays blocked & skipped.
+    expect(wed.approved).toBe(false);
+    expect(wed.skipped).toBe(true);
+    // The retry drafter rejects before retriesByDay is bumped, so wed.retries
+    // stays at 0 for each exhausted attempt — the run still exits the retry
+    // loop because nothing transitions.
+    expect(wed.retries).toBe(0);
+
+    // fri: never needed a retry.
+    expect(fri.approved).toBe(true);
+    expect(fri.skipped).toBe(false);
+    expect(fri.retries).toBe(0);
+
+    // Cost must include scout + strategist + drafter + critic + mon retry
+    // drafter + mon retry critic (wed's rejected retries spent money too but
+    // aren't billed to us since the mock rejects before returning; what we
+    // care about is that out.cost_usd is at least the sum of successful
+    // pipeline steps plus mon's retry critic).
+    expect(out.cost_usd).toBeGreaterThan(0.01);
+
+    // wed's initial critic fired exactly once (the block verdict). No retry
+    // critic should have been attempted because retry drafting rejected.
+    expect(wedCriticCalls).toBe(1);
+  });
+});
+
+// ---------- 12. strategist returns < 3 angles ----------
+describe('runOrchestrator — strategist_incomplete clean abort', () => {
+  it('aborts cleanly with strategist_incomplete reason when angles < 3', async () => {
+    const brand = getBrand();
+    // Bypass runStrategist's own length(3) schema check by spying at the
+    // module boundary — this simulates a future refactor where strategist
+    // might return partial output. The orchestrator's defensive guard must
+    // catch it with a clean `strategist_incomplete` abort.
+    const strategistSpy = vi
+      .spyOn(strategistMod, 'runStrategist')
+      .mockResolvedValue({
+        angles: STRATEGIST_PAYLOAD.angles.slice(0, 2) as any, // only 2 angles
+        cost_usd: 0.005,
+      } as any);
+
+    const { client } = makeRoutedClient({
+      scout: () => ({ text: JSON.stringify(SCOUT_PAYLOAD) }),
+      // strategist handler unreachable — spy intercepts runStrategist.
+      drafter: ({ day }) => ({ text: JSON.stringify(draftPayloadFor(day)) }),
+      critic: () => ({ text: JSON.stringify(APPROVE_VERDICT) }),
+    });
+
+    const out = await runOrchestrator({
+      client,
+      brand,
+      week: '2026-W16',
+      dataDir: tmpDataDir(),
+    });
+
+    expect(strategistSpy).toHaveBeenCalled();
+    expect(out.aborted).toBe(true);
+    expect(out.abort_reason).toMatch(/strategist_incomplete/);
+    // Scout + strategist spend must be reflected (strategist mocked cost 0.005).
+    expect(out.cost_usd).toBeGreaterThan(0.005);
+    // All 3 days present, all marked skipped.
+    expect(out.days).toHaveLength(3);
+    expect(out.days.every((d) => d.skipped)).toBe(true);
+    expect(out.days.every((d) => !d.approved)).toBe(true);
   });
 });
 
