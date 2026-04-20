@@ -5,7 +5,9 @@ import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek.js';
 dayjs.extend(isoWeek);
 import { z } from 'zod';
+import { stringify as stringifyYaml } from 'yaml';
 import type Anthropic from '@anthropic-ai/sdk';
+import type { Logger } from 'pino';
 
 import { loadBrand, type Brand } from './lib/brand.js';
 import { makeClient } from './lib/llm.js';
@@ -43,6 +45,7 @@ export const AgenticDaySummarySchema = z.object({
   day: z.enum(['mon', 'wed', 'fri']),
   status: z.enum(['published', 'skipped']),
   reason: z.string().optional(),
+  reason_class: z.string().optional(),
   retries: z.number().int().nonnegative(),
   pillar: z.string().optional(),
   word_count: z.number().int().nonnegative().optional(),
@@ -80,17 +83,27 @@ export interface RunAgenticPipelineOptions {
   qualityPath?: string;
   /** Defaults to `<cwd>/logs/<week>/agentic-pipeline.log`. */
   logFilePath?: string;
-  /** Defaults to `makeClient()`. Tests inject a mock. */
+  /**
+   * Anthropic client. Optional ONLY when `orchestratorOverride` is provided
+   * (tests supply a synthetic OrchestratorResult and never hit the network).
+   * When the real orchestrator runs, `client` is required.
+   */
   client?: Anthropic;
   /** Test seam: provide a synthetic OrchestratorResult instead of running for real. */
   orchestratorOverride?: (params: {
-    client: Anthropic;
+    client?: Anthropic;
     brand: Brand;
     week: string;
     dataDir: string;
   }) => Promise<OrchestratorResult>;
   /** Optional clock for deterministic tests. */
   today?: Date;
+  /**
+   * Test seam: inject a preconfigured logger (e.g. `makeLogger({ sync: true })`
+   * or a spy) instead of letting the pipeline construct the default pino
+   * logger. Bypasses `logFilePath` entirely when set.
+   */
+  loggerOverride?: Logger;
 }
 
 export interface RunAgenticPipelineResult {
@@ -121,15 +134,29 @@ export async function runAgenticPipeline(
   const logFilePath =
     opts.logFilePath ?? join(REPO_ROOT, 'logs', week, 'agentic-pipeline.log');
 
-  const log = makeLogger({ name: 'agentic-pipeline', filePath: logFilePath });
+  const log =
+    opts.loggerOverride ??
+    makeLogger({ name: 'agentic-pipeline', filePath: logFilePath });
   const startedAt = new Date().toISOString();
   const t0 = Date.now();
 
   const brand = opts.brand ?? loadBrand();
 
-  // Lazy-instantiate the client only if no orchestrator override is provided —
-  // tests with `orchestratorOverride` should not need ANTHROPIC_API_KEY.
-  const client = opts.client ?? (opts.orchestratorOverride ? (undefined as unknown as Anthropic) : makeClient());
+  // Client contract: required unless an orchestratorOverride is provided.
+  // We refuse to silently pass `undefined as Anthropic` — that only NPEs in
+  // prod. Tests that stub the orchestrator may omit both; real callers must
+  // pass one.
+  if (!opts.client && !opts.orchestratorOverride) {
+    throw new Error(
+      'agentic-pipeline: either client or orchestratorOverride is required',
+    );
+  }
+  // Only construct a live client when we're going to run the real orchestrator.
+  // If an override is set, we leave `client` undefined to avoid needing
+  // ANTHROPIC_API_KEY in tests.
+  const client: Anthropic | undefined = opts.orchestratorOverride
+    ? opts.client
+    : (opts.client ?? makeClient());
 
   let orchestratorResult: OrchestratorResult;
   let unexpectedError: Error | undefined;
@@ -142,8 +169,10 @@ export async function runAgenticPipeline(
         dataDir,
       });
     } else {
+      // Unreachable without a client per the contract above; the `!` is
+      // justified because we threw when both client and override were absent.
       orchestratorResult = await runOrchestrator({
-        client,
+        client: client!,
         brand,
         week,
         dataDir,
@@ -181,7 +210,18 @@ export async function runAgenticPipeline(
     };
   }
 
-  mkdirSync(join(draftsRoot, week), { recursive: true });
+  // ── FS containment ───────────────────────────────────────────────────────
+  // Per-day writes happen inside `handleDay`, which now swallows fs errors
+  // and marks the day as `fs_error`. The summary + QUALITY.md writes below
+  // are wrapped in try/finally so a bug in one does not prevent the other.
+
+  try {
+    mkdirSync(join(draftsRoot, week), { recursive: true });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    log.error({ week, err: msg }, 'agentic-pipeline: mkdir drafts dir failed');
+    // Continue — each per-day write will also fail and be marked fs_error.
+  }
 
   const dayResults: AgenticDaySummary[] = [];
   let produced = 0;
@@ -218,10 +258,29 @@ export async function runAgenticPipeline(
     total_cost_usd: orchestratorResult.cost_usd,
   });
 
-  const runDir = join(dataDir, 'runs');
-  mkdirSync(runDir, { recursive: true });
-  writeFileSync(join(runDir, `${week}.json`), JSON.stringify(summary, null, 2));
-  appendQualityRow({ summary, qualityPath });
+  // Always attempt the summary + QUALITY writes, even if something earlier
+  // threw. Each is individually try/caught so one failure does not stop the
+  // other.
+  try {
+    try {
+      const runDir = join(dataDir, 'runs');
+      mkdirSync(runDir, { recursive: true });
+      writeFileSync(
+        join(runDir, `${week}.json`),
+        JSON.stringify(summary, null, 2),
+      );
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      log.error({ week, err: msg }, 'agentic-pipeline: summary write failed');
+    }
+  } finally {
+    try {
+      appendQualityRow({ summary, qualityPath });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      log.error({ week, err: msg }, 'agentic-pipeline: QUALITY.md append failed');
+    }
+  }
 
   log.info(
     {
@@ -253,7 +312,7 @@ interface HandleDayParams {
   draftsRoot: string;
   aborted: boolean;
   abortReason?: string;
-  log: ReturnType<typeof makeLogger>;
+  log: Logger;
 }
 
 function handleDay(p: HandleDayParams): AgenticDaySummary {
@@ -270,18 +329,30 @@ function handleDay(p: HandleDayParams): AgenticDaySummary {
   // 1. Aborted runs and orchestrator-skipped days both go straight to .SKIPPED.md.
   if (aborted) {
     const reason = abortReason ?? 'unknown abort';
-    writeSkipped({
+    const fsErr = writeSkipped({
       draftsRoot,
       week,
       day,
       title: 'aborted',
       body: `Run aborted: ${reason}`,
       meta: { retries: dayResult.retries, pillar },
+      log,
     });
+    if (fsErr) {
+      return {
+        day,
+        status: 'skipped',
+        reason: fsErr,
+        reason_class: 'fs_error',
+        retries: dayResult.retries,
+        pillar,
+      };
+    }
     return {
       day,
       status: 'skipped',
       reason: `aborted: ${reason}`,
+      reason_class: 'aborted',
       retries: dayResult.retries,
       pillar,
     };
@@ -293,7 +364,7 @@ function handleDay(p: HandleDayParams): AgenticDaySummary {
       verdict.reasons.length > 0
         ? verdict.reasons.join('; ')
         : 'skipped (no reason recorded)';
-    writeSkipped({
+    const fsErr = writeSkipped({
       draftsRoot,
       week,
       day,
@@ -304,11 +375,23 @@ function handleDay(p: HandleDayParams): AgenticDaySummary {
           : '(none)'
       }`,
       meta: { retries: dayResult.retries, pillar },
+      log,
     });
+    if (fsErr) {
+      return {
+        day,
+        status: 'skipped',
+        reason: fsErr,
+        reason_class: 'fs_error',
+        retries: dayResult.retries,
+        pillar,
+      };
+    }
     return {
       day,
       status: 'skipped',
       reason: `critic_block: ${reason}`,
+      reason_class: 'critic_block',
       retries: dayResult.retries,
       pillar,
     };
@@ -332,7 +415,7 @@ function handleDay(p: HandleDayParams): AgenticDaySummary {
         },
         'agentic-pipeline: voice gate failed on critic-approved draft (system bug)',
       );
-      writeSkipped({
+      const fsErr = writeSkipped({
         draftsRoot,
         week,
         day,
@@ -341,11 +424,23 @@ function handleDay(p: HandleDayParams): AgenticDaySummary {
           .map((f) => `- ${f}`)
           .join('\n')}\n\nDraft text:\n${postText}`,
         meta: { retries: dayResult.retries, pillar },
+        log,
       });
+      if (fsErr) {
+        return {
+          day,
+          status: 'skipped',
+          reason: fsErr,
+          reason_class: 'fs_error',
+          retries: dayResult.retries,
+          pillar,
+        };
+      }
       return {
         day,
         status: 'skipped',
         reason: `gate_fail: ${gateResult.failures.join('; ')}`,
+        reason_class: 'gate_fail',
         retries: dayResult.retries,
         pillar,
       };
@@ -354,22 +449,34 @@ function handleDay(p: HandleDayParams): AgenticDaySummary {
     // Gate passed — write the published draft.
     const wordCount = postText.split(/\s+/).filter(Boolean).length;
     const charCount = postText.length;
-    const frontmatter = [
-      '---',
-      `week: ${week}`,
-      `day: ${day}`,
-      `pillar: ${pillar ?? ''}`,
-      `cost_usd: ${cost.toFixed(6)}`,
-      `retries: ${dayResult.retries}`,
-      `word_count: ${wordCount}`,
-      `char_count: ${charCount}`,
-      '---',
-      '',
-    ].join('\n');
-    writeFileSync(
-      join(draftsRoot, week, `${day}.md`),
-      `${frontmatter}${postText}\n`,
-    );
+    const fmObj: Record<string, string | number> = {
+      week,
+      day,
+      pillar: pillar ?? '',
+      cost_usd: Number(cost.toFixed(6)),
+      retries: dayResult.retries,
+      word_count: wordCount,
+      char_count: charCount,
+    };
+    const frontmatter = `---\n${stringifyYaml(fmObj)}---\n\n`;
+    const targetPath = join(draftsRoot, week, `${day}.md`);
+    try {
+      writeFileSync(targetPath, `${frontmatter}${postText}\n`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      log.error(
+        { day, err: msg },
+        'agentic-pipeline: per-day draft write failed',
+      );
+      return {
+        day,
+        status: 'skipped',
+        reason: msg,
+        reason_class: 'fs_error',
+        retries: dayResult.retries,
+        pillar,
+      };
+    }
     return {
       day,
       status: 'published',
@@ -382,18 +489,30 @@ function handleDay(p: HandleDayParams): AgenticDaySummary {
 
   // Defensive — shouldn't reach here unless the orchestrator returned a
   // "neither approved nor skipped" day, which the schema rules out today.
-  writeSkipped({
+  const fsErr = writeSkipped({
     draftsRoot,
     week,
     day,
     title: 'unknown',
     body: 'Day produced no terminal status (approved=false, skipped=false). Treating as skipped.',
     meta: { retries: dayResult.retries, pillar },
+    log,
   });
+  if (fsErr) {
+    return {
+      day,
+      status: 'skipped',
+      reason: fsErr,
+      reason_class: 'fs_error',
+      retries: dayResult.retries,
+      pillar,
+    };
+  }
   return {
     day,
     status: 'skipped',
     reason: 'unknown_state',
+    reason_class: 'unknown_state',
     retries: dayResult.retries,
     pillar,
   };
@@ -410,26 +529,36 @@ interface WriteSkippedParams {
   title: string;
   body: string;
   meta: { retries: number; pillar?: string };
+  log: Logger;
 }
 
-function writeSkipped(p: WriteSkippedParams): void {
+/**
+ * Writes the .SKIPPED.md sidecar. Returns undefined on success; returns the
+ * error message string on fs failure (caller converts to `fs_error` reason).
+ */
+function writeSkipped(p: WriteSkippedParams): string | undefined {
   const path = join(p.draftsRoot, p.week, `${p.day}.SKIPPED.md`);
-  const content = [
-    '---',
-    `week: ${p.week}`,
-    `day: ${p.day}`,
-    `pillar: ${p.meta.pillar ?? ''}`,
-    `retries: ${p.meta.retries}`,
-    `status: skipped`,
-    `reason_class: ${p.title}`,
-    '---',
-    '',
-    `# ${p.day} SKIPPED (${p.title})`,
-    '',
-    p.body,
-    '',
-  ].join('\n');
-  writeFileSync(path, content);
+  const fmObj: Record<string, string | number> = {
+    week: p.week,
+    day: p.day,
+    pillar: p.meta.pillar ?? '',
+    retries: p.meta.retries,
+    status: 'skipped',
+    reason_class: p.title,
+  };
+  const content =
+    `---\n${stringifyYaml(fmObj)}---\n\n# ${p.day} SKIPPED (${p.title})\n\n${p.body}\n`;
+  try {
+    writeFileSync(path, content);
+    return undefined;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    p.log.error(
+      { day: p.day, err: msg },
+      'agentic-pipeline: per-day SKIPPED write failed',
+    );
+    return msg;
+  }
 }
 
 interface AppendQualityRowParams {
@@ -458,7 +587,7 @@ function appendQualityRow(p: AppendQualityRowParams): void {
 
 async function main(): Promise<void> {
   try {
-    const { exitCode } = await runAgenticPipeline();
+    const { exitCode } = await runAgenticPipeline({ client: makeClient() });
     process.exitCode = exitCode;
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);

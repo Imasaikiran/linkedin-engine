@@ -6,6 +6,13 @@ export interface LoggerOptions {
   name: string;
   filePath?: string;
   level?: string;
+  /**
+   * When true, the file destination flushes synchronously on every log call.
+   * Trades throughput for determinism — intended for tests that need to read
+   * log contents immediately after the call that produced them. Ignored when
+   * `filePath` is not set.
+   */
+  sync?: boolean;
 }
 
 const REDACT_PATHS = [
@@ -30,7 +37,7 @@ export function makeLogger(opts: LoggerOptions): pino.Logger {
     }
     return pino(
       { name: opts.name, level, redact: redactOpts },
-      pino.destination({ dest: opts.filePath, sync: false }),
+      pino.destination({ dest: opts.filePath, sync: opts.sync === true }),
     );
   }
   return pino({ name: opts.name, level, redact: redactOpts });

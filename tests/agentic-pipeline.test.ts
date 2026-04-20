@@ -1,16 +1,19 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { parse as parseYaml } from 'yaml';
 
 import {
   runAgenticPipeline,
   AgenticRunSummarySchema,
   computeIsoWeek,
 } from '../src/agentic-pipeline.js';
+import { makeLogger } from '../src/lib/log.js';
 import { loadBrand, type Brand } from '../src/lib/brand.js';
 import type { OrchestratorResult } from '../src/agents/orchestrator.js';
 import type Anthropic from '@anthropic-ai/sdk';
+import type { Logger } from 'pino';
 
 // ────────────────────────────────────────────────────────────────────────────
 // Fixtures
@@ -211,11 +214,24 @@ describe('runAgenticPipeline — voice gate fails post-approval', () => {
     // though the orchestrator approved it.
     const bannedPost = buildCleanPost({ bodyPrefix: 'This is a game-changer for teams' });
 
+    // Inject a synchronous logger so we can assert on the error-level call
+    // directly, without sleeping for pino's async destination to flush.
+    const errorSpy = vi.fn();
+    const loggerOverride = {
+      error: errorSpy,
+      info: vi.fn(),
+      warn: vi.fn(),
+      debug: vi.fn(),
+      trace: vi.fn(),
+      fatal: vi.fn(),
+    } as unknown as Logger;
+
     const result = await runAgenticPipeline({
       brand: BRAND,
       week: WEEK,
       ...dirs,
       client: {} as Anthropic,
+      loggerOverride,
       orchestratorOverride: async () =>
         makeOrchestratorResult({
           approvedDays: ['mon', 'wed', 'fri'],
@@ -242,11 +258,14 @@ describe('runAgenticPipeline — voice gate fails post-approval', () => {
     expect(wed.status).toBe('skipped');
     expect(wed.reason).toMatch(/gate_fail/);
 
-    // Verify the error-level log line landed in the log file. Pino's async
-    // file destination needs a tick to flush, so we read after a microtask.
-    await new Promise((r) => setTimeout(r, 50));
-    const logContents = readFileSync(dirs.logFilePath, 'utf8');
-    expect(logContents).toMatch(/voice gate failed on critic-approved draft/);
+    // Assert directly on the captured logger spy — no sleep, no flaky IO.
+    expect(errorSpy).toHaveBeenCalled();
+    const gateErrorCall = errorSpy.mock.calls.find(
+      (call) =>
+        typeof call[1] === 'string' &&
+        /voice gate failed on critic-approved draft/.test(call[1]),
+    );
+    expect(gateErrorCall).toBeDefined();
   });
 });
 
@@ -398,6 +417,151 @@ describe('runAgenticPipeline — exit codes', () => {
     expect(result.exitCode).toBe(0);
     expect(result.summary.drafts_produced).toBe(1);
     expect(result.summary.drafts_skipped).toBe(2);
+  });
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// 8. FS containment — a single-day write failure must not kill the summary
+// ────────────────────────────────────────────────────────────────────────────
+describe('runAgenticPipeline — fs error containment', () => {
+  it('marks wed as fs_error, still produces mon/fri drafts, still writes summary.json', async () => {
+    const dirs = makeTmpDirs();
+
+    // ESM `spyOn` can't redefine `node:fs` exports, so use `vi.doMock` with
+    // dynamic import instead. The mock conditionally throws only for the wed
+    // draft write; every other write passes through to the real impl.
+    const realFs = await import('node:fs');
+    vi.resetModules();
+    vi.doMock('node:fs', () => ({
+      ...realFs,
+      default: realFs,
+      writeFileSync: (
+        path: unknown,
+        data: unknown,
+        ...rest: unknown[]
+      ): void => {
+        if (typeof path === 'string' && path.endsWith(join(WEEK, 'wed.md'))) {
+          throw new Error('ENOSPC: simulated disk full');
+        }
+        (realFs.writeFileSync as unknown as (
+          p: unknown,
+          d: unknown,
+          ...r: unknown[]
+        ) => void)(path, data, ...rest);
+      },
+    }));
+
+    try {
+      const { runAgenticPipeline: runPipeline, AgenticRunSummarySchema: Schema } =
+        await import('../src/agentic-pipeline.js');
+
+      const result = await runPipeline({
+        brand: BRAND,
+        week: WEEK,
+        ...dirs,
+        client: {} as Anthropic,
+        orchestratorOverride: async () => makeOrchestratorResult(),
+      });
+
+      // Pipeline did NOT throw — it absorbed the fs error.
+      expect(result).toBeDefined();
+
+      // mon and fri still land.
+      expect(existsSync(join(dirs.draftsRoot, WEEK, 'mon.md'))).toBe(true);
+      expect(existsSync(join(dirs.draftsRoot, WEEK, 'fri.md'))).toBe(true);
+      expect(existsSync(join(dirs.draftsRoot, WEEK, 'wed.md'))).toBe(false);
+
+      // Summary still written and parses clean against the schema.
+      const summaryPath = join(dirs.dataDir, 'runs', `${WEEK}.json`);
+      expect(existsSync(summaryPath)).toBe(true);
+      const raw = JSON.parse(readFileSync(summaryPath, 'utf8'));
+      const parsed = Schema.safeParse(raw);
+      expect(parsed.success).toBe(true);
+
+      // wed entry marked fs_error with the original error message.
+      const wed = raw.days.find((d: { day: string }) => d.day === 'wed');
+      expect(wed.status).toBe('skipped');
+      expect(wed.reason_class).toBe('fs_error');
+      expect(wed.reason).toMatch(/ENOSPC/);
+
+      // QUALITY.md row still appended (try/finally covered it).
+      expect(existsSync(dirs.qualityPath)).toBe(true);
+    } finally {
+      vi.doUnmock('node:fs');
+      vi.resetModules();
+    }
+  });
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// 9. Frontmatter YAML escaping — pillar containing special chars round-trips
+// ────────────────────────────────────────────────────────────────────────────
+describe('runAgenticPipeline — yaml frontmatter escaping', () => {
+  it('round-trips a pillar value containing YAML-hostile characters', async () => {
+    const dirs = makeTmpDirs();
+    // Synthetic — the real orchestrator never emits this, but defense in
+    // depth is the whole point. A bare `:` plus leading space would break
+    // unquoted YAML.
+    const nastyPillar = 'shipped: ready #1 "yes"';
+
+    // Swap in an orchestrator result with the nasty pillar on mon.
+    const base = makeOrchestratorResult({ approvedDays: ['mon'], skippedDays: ['wed', 'fri'] });
+    const monIdx = base.days.findIndex((d) => d.day === 'mon');
+    const monDay = base.days[monIdx]!;
+    base.days[monIdx] = {
+      ...monDay,
+      draft: { ...monDay.draft, pillar: nastyPillar },
+    } as typeof monDay;
+
+    await runAgenticPipeline({
+      brand: BRAND,
+      week: WEEK,
+      ...dirs,
+      client: {} as Anthropic,
+      orchestratorOverride: async () => base,
+    });
+
+    const md = readFileSync(join(dirs.draftsRoot, WEEK, 'mon.md'), 'utf8');
+    // Extract frontmatter (between first two '---' delimiters).
+    const match = md.match(/^---\n([\s\S]*?)\n---\n/);
+    expect(match).not.toBeNull();
+    const fm = parseYaml(match![1]!);
+    expect(fm.pillar).toBe(nastyPillar);
+    expect(fm.week).toBe(WEEK);
+    expect(fm.day).toBe('mon');
+  });
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// 10. Client contract — missing client AND override => clear error
+// ────────────────────────────────────────────────────────────────────────────
+describe('runAgenticPipeline — client contract', () => {
+  it('throws a clear error when neither client nor orchestratorOverride is provided', async () => {
+    const dirs = makeTmpDirs();
+    await expect(
+      runAgenticPipeline({
+        brand: BRAND,
+        week: WEEK,
+        ...dirs,
+        // no client, no orchestratorOverride
+      }),
+    ).rejects.toThrow(/either client or orchestratorOverride is required/);
+  });
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// 11. makeLogger sync option flushes immediately to disk
+// ────────────────────────────────────────────────────────────────────────────
+describe('makeLogger — sync option', () => {
+  it('writes log line to file without waiting for async flush', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'log-sync-test-'));
+    const logFile = join(dir, 'sync.log');
+    const log = makeLogger({ name: 'sync-test', filePath: logFile, sync: true });
+    log.info({ probe: 'marker' }, 'sync line');
+    // No sleep — sync destination must have written before this reads.
+    const content = readFileSync(logFile, 'utf8');
+    expect(content).toContain('sync line');
+    expect(content).toContain('marker');
   });
 });
 
