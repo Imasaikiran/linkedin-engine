@@ -1,38 +1,38 @@
 {
   "week": "2026-W17",
-  "started_at": "2026-04-20T19:37:07.176Z",
-  "finished_at": "2026-04-20T19:38:34.912Z",
+  "started_at": "2026-04-20T19:47:05.458Z",
+  "finished_at": "2026-04-20T19:48:51.514Z",
   "scout_source": "web_search",
-  "orchestrator_cost_usd": 0.186255,
-  "wall_ms": 87705,
+  "orchestrator_cost_usd": 0.201934,
+  "wall_ms": 106026,
   "aborted": false,
-  "drafts_produced": 0,
-  "drafts_skipped": 3,
+  "drafts_produced": 2,
+  "drafts_skipped": 1,
   "days": [
     {
       "day": "mon",
-      "status": "skipped",
-      "reason": "gate_fail: first line word count 11 (max 10); word count 202 outside 220-280; char count 1258 outside 1300-1700",
-      "reason_class": "gate_fail",
+      "status": "published",
       "retries": 0,
-      "pillar": "shipped"
+      "pillar": "shipped",
+      "word_count": 207,
+      "char_count": 1177
     },
     {
       "day": "wed",
-      "status": "skipped",
-      "reason": "gate_fail: word count 195 outside 220-280; char count 1262 outside 1300-1700",
-      "reason_class": "gate_fail",
+      "status": "published",
       "retries": 0,
-      "pillar": "framework"
+      "pillar": "framework",
+      "word_count": 225,
+      "char_count": 1442
     },
     {
       "day": "fri",
       "status": "skipped",
-      "reason": "gate_fail: em-dash present; first line word count 12 (max 10); char count 1830 outside 1300-1700; paragraph has 4 lines (>3); bullet/numbered list in non-framework post",
+      "reason": "gate_fail: word count 325 outside 180-320; char count 2089 outside 1100-1900",
       "reason_class": "gate_fail",
       "retries": 1,
       "pillar": "critique"
     }
   ],
-  "total_cost_usd": 0.186255
+  "total_cost_usd": 0.201934
 }
