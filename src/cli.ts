@@ -2,7 +2,7 @@ import { mkdirSync, renameSync, existsSync, writeFileSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { VoiceHandle } from './voice-refresh.js';
-import { computeIsoWeek } from './pipeline.js';
+import { computeIsoWeek } from './legacy-pipeline.js';
 
 export type CliArgs =
   | { cmd: 'stage'; name: string; flags: Record<string, string> }
@@ -145,7 +145,7 @@ async function runStage(name: string, flags: Record<string, string>): Promise<vo
     case 'polish': {
       const { runPolishStage } = await import('./stages/polish.js');
       const { makeClient } = await import('./lib/llm.js');
-      const { makeRetry } = await import('./pipeline.js');
+      const { makeRetry } = await import('./legacy-pipeline.js');
       const client = makeClient();
       const r = await runPolishStage({
         client, dataDir, week,

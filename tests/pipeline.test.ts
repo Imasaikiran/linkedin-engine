@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeIsoWeek, dateForDay } from '../src/pipeline.js';
+import { computeIsoWeek, dateForDay } from '../src/legacy-pipeline.js';
 
 describe('pipeline helpers', () => {
   it('computeIsoWeek for known date', () => {
