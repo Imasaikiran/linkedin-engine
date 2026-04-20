@@ -4,18 +4,35 @@ day: mon
 pillar: shipped
 retries: 0
 status: skipped
-reason_class: aborted
+reason_class: gate_fail
 ---
 
-# mon SKIPPED (aborted)
+# mon SKIPPED (gate_fail)
 
-Run aborted: critic: LLM returned no parseable JSON (day=wed). Raw text (first 800 chars):
-```json
-{
-  "verdict": "fix",
-  "severity": "block",
-  "reasons": [
-    "Hook is 5 items but only 3 are delivered — the post promises '5 reasons' and stops at 3, which destroys credibility with a technical audience immediately.",
-    "The stat '2x better PRDs' and '80% hallucination reduction' cite 'ProductSide's 2026 workflow research' — a source that does not exist and reads as fabricated, which is a credibility killer with frontier-lab PMs who will Google it in seconds.",
-    "No PM signal on tradeoffs: the post never acknowledges the cost of this methodology (setup time, context library maintenance, team adoption friction) — a real PM would show they understand the tradeoff, not just the upside.",
-    "Framework name 'methodology-first context engineering' is redundant and circular — i
+Voice gate failed AFTER critic approval (system bug):
+- first line word count 11 (max 10)
+- word count 202 outside 220-280
+- char count 1258 outside 1300-1700
+
+Draft text:
+Routing 40% of Claude calls to GPT-5.4 taught me something uncomfortable
+
+I built our internal triage layer in March, right after GPT-5.4 Thinking shipped on March 5.
+The goal was simple: cut inference costs without sacrificing output quality.
+
+I ran 600 production requests through both models over two weeks.
+Claude handled nuanced reasoning tasks with fewer correction loops.
+GPT-5.4 Thinking won on structured extraction and anything with tight formatting constraints.
+
+The uncomfortable part: I had assumed one model would dominate across the board.
+Instead I found myself maintaining two prompt libraries, two eval sets, and two failure taxonomies.
+Operational overhead nearly erased the 18% cost reduction I had targeted.
+
+The real lesson was about where the work actually lives.
+Routing logic is not a one-time architecture decision.
+It is a product surface that needs its own roadmap, its own owner, and its own success metrics.
+
+I kept the split stack, but I scoped it to three task types instead of twelve.
+That constraint brought the overhead down enough to make the economics work.
+
+If you are running a multi-model stack right now, how many task types are you actually routing across, and do you have a single person accountable for that layer?

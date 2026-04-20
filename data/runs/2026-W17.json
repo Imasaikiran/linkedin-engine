@@ -1,39 +1,38 @@
 {
   "week": "2026-W17",
-  "started_at": "2026-04-20T19:34:22.321Z",
-  "finished_at": "2026-04-20T19:35:37.199Z",
+  "started_at": "2026-04-20T19:37:07.176Z",
+  "finished_at": "2026-04-20T19:38:34.912Z",
   "scout_source": "web_search",
-  "orchestrator_cost_usd": 0.137993,
-  "wall_ms": 74848,
-  "aborted": true,
-  "abort_reason": "critic: LLM returned no parseable JSON (day=wed). Raw text (first 800 chars):\n```json\n{\n  \"verdict\": \"fix\",\n  \"severity\": \"block\",\n  \"reasons\": [\n    \"Hook is 5 items but only 3 are delivered — the post promises '5 reasons' and stops at 3, which destroys credibility with a technical audience immediately.\",\n    \"The stat '2x better PRDs' and '80% hallucination reduction' cite 'ProductSide's 2026 workflow research' — a source that does not exist and reads as fabricated, which is a credibility killer with frontier-lab PMs who will Google it in seconds.\",\n    \"No PM signal on tradeoffs: the post never acknowledges the cost of this methodology (setup time, context library maintenance, team adoption friction) — a real PM would show they understand the tradeoff, not just the upside.\",\n    \"Framework name 'methodology-first context engineering' is redundant and circular — i",
+  "orchestrator_cost_usd": 0.186255,
+  "wall_ms": 87705,
+  "aborted": false,
   "drafts_produced": 0,
   "drafts_skipped": 3,
   "days": [
     {
       "day": "mon",
       "status": "skipped",
-      "reason": "aborted: critic: LLM returned no parseable JSON (day=wed). Raw text (first 800 chars):\n```json\n{\n  \"verdict\": \"fix\",\n  \"severity\": \"block\",\n  \"reasons\": [\n    \"Hook is 5 items but only 3 are delivered — the post promises '5 reasons' and stops at 3, which destroys credibility with a technical audience immediately.\",\n    \"The stat '2x better PRDs' and '80% hallucination reduction' cite 'ProductSide's 2026 workflow research' — a source that does not exist and reads as fabricated, which is a credibility killer with frontier-lab PMs who will Google it in seconds.\",\n    \"No PM signal on tradeoffs: the post never acknowledges the cost of this methodology (setup time, context library maintenance, team adoption friction) — a real PM would show they understand the tradeoff, not just the upside.\",\n    \"Framework name 'methodology-first context engineering' is redundant and circular — i",
-      "reason_class": "aborted",
+      "reason": "gate_fail: first line word count 11 (max 10); word count 202 outside 220-280; char count 1258 outside 1300-1700",
+      "reason_class": "gate_fail",
       "retries": 0,
       "pillar": "shipped"
     },
     {
       "day": "wed",
       "status": "skipped",
-      "reason": "aborted: critic: LLM returned no parseable JSON (day=wed). Raw text (first 800 chars):\n```json\n{\n  \"verdict\": \"fix\",\n  \"severity\": \"block\",\n  \"reasons\": [\n    \"Hook is 5 items but only 3 are delivered — the post promises '5 reasons' and stops at 3, which destroys credibility with a technical audience immediately.\",\n    \"The stat '2x better PRDs' and '80% hallucination reduction' cite 'ProductSide's 2026 workflow research' — a source that does not exist and reads as fabricated, which is a credibility killer with frontier-lab PMs who will Google it in seconds.\",\n    \"No PM signal on tradeoffs: the post never acknowledges the cost of this methodology (setup time, context library maintenance, team adoption friction) — a real PM would show they understand the tradeoff, not just the upside.\",\n    \"Framework name 'methodology-first context engineering' is redundant and circular — i",
-      "reason_class": "aborted",
+      "reason": "gate_fail: word count 195 outside 220-280; char count 1262 outside 1300-1700",
+      "reason_class": "gate_fail",
       "retries": 0,
       "pillar": "framework"
     },
     {
       "day": "fri",
       "status": "skipped",
-      "reason": "aborted: critic: LLM returned no parseable JSON (day=wed). Raw text (first 800 chars):\n```json\n{\n  \"verdict\": \"fix\",\n  \"severity\": \"block\",\n  \"reasons\": [\n    \"Hook is 5 items but only 3 are delivered — the post promises '5 reasons' and stops at 3, which destroys credibility with a technical audience immediately.\",\n    \"The stat '2x better PRDs' and '80% hallucination reduction' cite 'ProductSide's 2026 workflow research' — a source that does not exist and reads as fabricated, which is a credibility killer with frontier-lab PMs who will Google it in seconds.\",\n    \"No PM signal on tradeoffs: the post never acknowledges the cost of this methodology (setup time, context library maintenance, team adoption friction) — a real PM would show they understand the tradeoff, not just the upside.\",\n    \"Framework name 'methodology-first context engineering' is redundant and circular — i",
-      "reason_class": "aborted",
-      "retries": 0,
+      "reason": "gate_fail: em-dash present; first line word count 12 (max 10); char count 1830 outside 1300-1700; paragraph has 4 lines (>3); bullet/numbered list in non-framework post",
+      "reason_class": "gate_fail",
+      "retries": 1,
       "pillar": "critique"
     }
   ],
-  "total_cost_usd": 0.137993
+  "total_cost_usd": 0.186255
 }

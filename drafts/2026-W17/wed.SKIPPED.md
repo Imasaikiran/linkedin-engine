@@ -4,18 +4,33 @@ day: wed
 pillar: framework
 retries: 0
 status: skipped
-reason_class: aborted
+reason_class: gate_fail
 ---
 
-# wed SKIPPED (aborted)
+# wed SKIPPED (gate_fail)
 
-Run aborted: critic: LLM returned no parseable JSON (day=wed). Raw text (first 800 chars):
-```json
-{
-  "verdict": "fix",
-  "severity": "block",
-  "reasons": [
-    "Hook is 5 items but only 3 are delivered — the post promises '5 reasons' and stops at 3, which destroys credibility with a technical audience immediately.",
-    "The stat '2x better PRDs' and '80% hallucination reduction' cite 'ProductSide's 2026 workflow research' — a source that does not exist and reads as fabricated, which is a credibility killer with frontier-lab PMs who will Google it in seconds.",
-    "No PM signal on tradeoffs: the post never acknowledges the cost of this methodology (setup time, context library maintenance, team adoption friction) — a real PM would show they understand the tradeoff, not just the upside.",
-    "Framework name 'methodology-first context engineering' is redundant and circular — i
+Voice gate failed AFTER critic approval (system bug):
+- word count 195 outside 220-280
+- char count 1262 outside 1300-1700
+
+Draft text:
+Stop prompt engineering. Start context engineering
+
+Prompt quality alone stopped being the differentiator a while ago. The PMs pulling ahead now build persistent context workspaces, not better one-liners.
+
+Here is the Context Engineering Framework I use with Claude Projects:
+
+1. Anchor your workspace with a standing brief.
+Drop your product vision, user personas, and decision log into one Project document. Every session inherits that memory automatically.
+
+2. Layer structured inputs, not freeform requests.
+Feed the model sprint goals, metric baselines, and open risks before asking anything. Structured inputs cut revision cycles and produce sharper outputs.
+
+3. Run a synthetic eval before shipping copy or specs.
+Ask the model to argue against its own output using your actual success criteria. This one step caught 3 critical spec gaps in my last planning cycle.
+
+McKinsey research found demand for AI fluency in job postings grew sevenfold in two years. That curve rewards PMs who build systems, not those who chase the newest tool announcement.
+
+Context engineering is not about coding. It is about designing the information architecture your AI collaborator works inside.
+
+Save this, build your own workspace, and tell me what you added to the brief.
