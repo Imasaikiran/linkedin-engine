@@ -1,36 +1,39 @@
 {
   "week": "2026-W17",
-  "started_at": "2026-04-20T19:31:51.429Z",
-  "finished_at": "2026-04-20T19:32:45.751Z",
+  "started_at": "2026-04-20T19:34:22.321Z",
+  "finished_at": "2026-04-20T19:35:37.199Z",
   "scout_source": "web_search",
-  "orchestrator_cost_usd": 0.083872,
-  "wall_ms": 54290,
+  "orchestrator_cost_usd": 0.137993,
+  "wall_ms": 74848,
   "aborted": true,
-  "abort_reason": "drafter: LLM JSON failed schema validation (day=fri): [{\"code\":\"invalid_format\",\"format\":\"url\",\"path\":[\"claims\",2,\"source_url\"],\"message\":\"Invalid URL\"},{\"code\":\"invalid_format\",\"format\":\"url\",\"path\":[\"claims\",3,\"source_url\"],\"message\":\"Invalid URL\"},{\"code\":\"invalid_format\",\"format\":\"url\",\"path\":[\"claims\",4,\"source_url\"],\"message\":\"Invalid URL\"}]\npayload: {\"post_text\":\"Anthropic's Claude Mythos rollout is a strategic mistake\\n\\nMost people read the 40-org restriction as responsible AI safety practice, and that framing is not wrong.\\n\\nBut here is what that reading misses. Cybersecurity defense is a network problem. Every additional defender who trains on a shared tool makes that tool sharper for every other defender. OpenAI shipped Codex Security to thousands of organizations at once. Anthropic shipped Claude Mythos to 40, including AWS, Apple, Microsoft, and JPMorgan Chase via Project Glasswing. Forty partners, no matter how prestigious, cannot generate the volume of adversarial feedback that thousands can.\\n\\nI ran the math on comparable security tooling rollouts. A 40-org cohort produces roughly 2 percent of the real-world edge cases a b",
+  "abort_reason": "critic: LLM returned no parseable JSON (day=wed). Raw text (first 800 chars):\n```json\n{\n  \"verdict\": \"fix\",\n  \"severity\": \"block\",\n  \"reasons\": [\n    \"Hook is 5 items but only 3 are delivered — the post promises '5 reasons' and stops at 3, which destroys credibility with a technical audience immediately.\",\n    \"The stat '2x better PRDs' and '80% hallucination reduction' cite 'ProductSide's 2026 workflow research' — a source that does not exist and reads as fabricated, which is a credibility killer with frontier-lab PMs who will Google it in seconds.\",\n    \"No PM signal on tradeoffs: the post never acknowledges the cost of this methodology (setup time, context library maintenance, team adoption friction) — a real PM would show they understand the tradeoff, not just the upside.\",\n    \"Framework name 'methodology-first context engineering' is redundant and circular — i",
   "drafts_produced": 0,
   "drafts_skipped": 3,
   "days": [
     {
       "day": "mon",
       "status": "skipped",
-      "reason": "aborted: drafter: LLM JSON failed schema validation (day=fri): [{\"code\":\"invalid_format\",\"format\":\"url\",\"path\":[\"claims\",2,\"source_url\"],\"message\":\"Invalid URL\"},{\"code\":\"invalid_format\",\"format\":\"url\",\"path\":[\"claims\",3,\"source_url\"],\"message\":\"Invalid URL\"},{\"code\":\"invalid_format\",\"format\":\"url\",\"path\":[\"claims\",4,\"source_url\"],\"message\":\"Invalid URL\"}]\npayload: {\"post_text\":\"Anthropic's Claude Mythos rollout is a strategic mistake\\n\\nMost people read the 40-org restriction as responsible AI safety practice, and that framing is not wrong.\\n\\nBut here is what that reading misses. Cybersecurity defense is a network problem. Every additional defender who trains on a shared tool makes that tool sharper for every other defender. OpenAI shipped Codex Security to thousands of organizations at once. Anthropic shipped Claude Mythos to 40, including AWS, Apple, Microsoft, and JPMorgan Chase via Project Glasswing. Forty partners, no matter how prestigious, cannot generate the volume of adversarial feedback that thousands can.\\n\\nI ran the math on comparable security tooling rollouts. A 40-org cohort produces roughly 2 percent of the real-world edge cases a b",
+      "reason": "aborted: critic: LLM returned no parseable JSON (day=wed). Raw text (first 800 chars):\n```json\n{\n  \"verdict\": \"fix\",\n  \"severity\": \"block\",\n  \"reasons\": [\n    \"Hook is 5 items but only 3 are delivered — the post promises '5 reasons' and stops at 3, which destroys credibility with a technical audience immediately.\",\n    \"The stat '2x better PRDs' and '80% hallucination reduction' cite 'ProductSide's 2026 workflow research' — a source that does not exist and reads as fabricated, which is a credibility killer with frontier-lab PMs who will Google it in seconds.\",\n    \"No PM signal on tradeoffs: the post never acknowledges the cost of this methodology (setup time, context library maintenance, team adoption friction) — a real PM would show they understand the tradeoff, not just the upside.\",\n    \"Framework name 'methodology-first context engineering' is redundant and circular — i",
       "reason_class": "aborted",
-      "retries": 0
+      "retries": 0,
+      "pillar": "shipped"
     },
     {
       "day": "wed",
       "status": "skipped",
-      "reason": "aborted: drafter: LLM JSON failed schema validation (day=fri): [{\"code\":\"invalid_format\",\"format\":\"url\",\"path\":[\"claims\",2,\"source_url\"],\"message\":\"Invalid URL\"},{\"code\":\"invalid_format\",\"format\":\"url\",\"path\":[\"claims\",3,\"source_url\"],\"message\":\"Invalid URL\"},{\"code\":\"invalid_format\",\"format\":\"url\",\"path\":[\"claims\",4,\"source_url\"],\"message\":\"Invalid URL\"}]\npayload: {\"post_text\":\"Anthropic's Claude Mythos rollout is a strategic mistake\\n\\nMost people read the 40-org restriction as responsible AI safety practice, and that framing is not wrong.\\n\\nBut here is what that reading misses. Cybersecurity defense is a network problem. Every additional defender who trains on a shared tool makes that tool sharper for every other defender. OpenAI shipped Codex Security to thousands of organizations at once. Anthropic shipped Claude Mythos to 40, including AWS, Apple, Microsoft, and JPMorgan Chase via Project Glasswing. Forty partners, no matter how prestigious, cannot generate the volume of adversarial feedback that thousands can.\\n\\nI ran the math on comparable security tooling rollouts. A 40-org cohort produces roughly 2 percent of the real-world edge cases a b",
+      "reason": "aborted: critic: LLM returned no parseable JSON (day=wed). Raw text (first 800 chars):\n```json\n{\n  \"verdict\": \"fix\",\n  \"severity\": \"block\",\n  \"reasons\": [\n    \"Hook is 5 items but only 3 are delivered — the post promises '5 reasons' and stops at 3, which destroys credibility with a technical audience immediately.\",\n    \"The stat '2x better PRDs' and '80% hallucination reduction' cite 'ProductSide's 2026 workflow research' — a source that does not exist and reads as fabricated, which is a credibility killer with frontier-lab PMs who will Google it in seconds.\",\n    \"No PM signal on tradeoffs: the post never acknowledges the cost of this methodology (setup time, context library maintenance, team adoption friction) — a real PM would show they understand the tradeoff, not just the upside.\",\n    \"Framework name 'methodology-first context engineering' is redundant and circular — i",
       "reason_class": "aborted",
-      "retries": 0
+      "retries": 0,
+      "pillar": "framework"
     },
     {
       "day": "fri",
       "status": "skipped",
-      "reason": "aborted: drafter: LLM JSON failed schema validation (day=fri): [{\"code\":\"invalid_format\",\"format\":\"url\",\"path\":[\"claims\",2,\"source_url\"],\"message\":\"Invalid URL\"},{\"code\":\"invalid_format\",\"format\":\"url\",\"path\":[\"claims\",3,\"source_url\"],\"message\":\"Invalid URL\"},{\"code\":\"invalid_format\",\"format\":\"url\",\"path\":[\"claims\",4,\"source_url\"],\"message\":\"Invalid URL\"}]\npayload: {\"post_text\":\"Anthropic's Claude Mythos rollout is a strategic mistake\\n\\nMost people read the 40-org restriction as responsible AI safety practice, and that framing is not wrong.\\n\\nBut here is what that reading misses. Cybersecurity defense is a network problem. Every additional defender who trains on a shared tool makes that tool sharper for every other defender. OpenAI shipped Codex Security to thousands of organizations at once. Anthropic shipped Claude Mythos to 40, including AWS, Apple, Microsoft, and JPMorgan Chase via Project Glasswing. Forty partners, no matter how prestigious, cannot generate the volume of adversarial feedback that thousands can.\\n\\nI ran the math on comparable security tooling rollouts. A 40-org cohort produces roughly 2 percent of the real-world edge cases a b",
+      "reason": "aborted: critic: LLM returned no parseable JSON (day=wed). Raw text (first 800 chars):\n```json\n{\n  \"verdict\": \"fix\",\n  \"severity\": \"block\",\n  \"reasons\": [\n    \"Hook is 5 items but only 3 are delivered — the post promises '5 reasons' and stops at 3, which destroys credibility with a technical audience immediately.\",\n    \"The stat '2x better PRDs' and '80% hallucination reduction' cite 'ProductSide's 2026 workflow research' — a source that does not exist and reads as fabricated, which is a credibility killer with frontier-lab PMs who will Google it in seconds.\",\n    \"No PM signal on tradeoffs: the post never acknowledges the cost of this methodology (setup time, context library maintenance, team adoption friction) — a real PM would show they understand the tradeoff, not just the upside.\",\n    \"Framework name 'methodology-first context engineering' is redundant and circular — i",
       "reason_class": "aborted",
-      "retries": 0
+      "retries": 0,
+      "pillar": "critique"
     }
   ],
-  "total_cost_usd": 0.083872
+  "total_cost_usd": 0.137993
 }
