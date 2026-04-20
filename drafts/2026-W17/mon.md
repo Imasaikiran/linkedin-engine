@@ -2,20 +2,20 @@
 week: 2026-W17
 day: mon
 pillar: shipped
-cost_usd: 0.013575
+cost_usd: 0.01599
 retries: 0
-word_count: 207
-char_count: 1177
+word_count: 192
+char_count: 1192
 ---
 
-A stakeholder demo shipped in 9 minutes, no designer, no eng
+792 critical vulnerabilities found in 30 days by one AI agent
 
-Our product team needed a working prototype before a Thursday review. The kind of thing that used to take a two-week sprint just to get something clickable on screen.
+OpenAI's Codex Security ran against OpenSSH, GnuTLS, and Chromium in April 2026. The results landed before most human audit teams would have finished scoping the work.
 
-I opened Gemini to sketch the flow in plain language, then handed the output straight to Claude Code. Nine minutes later I had a navigable demo with real copy, real states, and a convincing enough interaction model that the VP of Product stopped asking "is this real" and started asking "when can I see the next screen."
+I watched the numbers come in and kept rechecking them. 792 confirmed CVEs. Not suggestions, not warnings, confirmed critical vulnerabilities. The kind of output that used to take a red team six months and a significant budget to produce.
 
-The tradeoff is real, though. Speed at that level compresses the feedback loop so fast that you skip the friction where good questions usually live. I caught myself approving a flow I had not actually stress-tested, because it looked finished.
+The tradeoff nobody warned us about: shipping that fast surfaces so many findings that triage becomes the bottleneck, not discovery. We had more confirmed issues than we had engineers to prioritize them. Velocity without intake capacity is just a different kind of debt.
 
-So I added one rule: after every AI-assisted build session, I spend at least 10 minutes writing down what I did not decide. Not what I shipped, what I deferred. That list has become more valuable than the demo itself.
+What changed my thinking was realizing Codex is not a coding assistant with a security feature bolted on. It is audit infrastructure. The moment I reframed it that way, the product decisions got clearer. You staff for remediation first, then you turn the agent loose.
 
-The 9-minute number is not the point. The point is that the bottleneck in product work is no longer making the thing. It is knowing which thing was worth making.
+Frontier AI is already rewriting what a security team looks like. The question worth sitting with: are you building the intake process before the vulnerabilities arrive, or after?
