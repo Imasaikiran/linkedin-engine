@@ -210,9 +210,10 @@ describe('runAgenticPipeline — one skipped day', () => {
 describe('runAgenticPipeline — voice gate fails post-approval', () => {
   it('marks the day as gate_fail SKIPPED, does NOT publish, and logs error', async () => {
     const dirs = makeTmpDirs();
-    // Inject a banned phrase into the wed post so the voice gate trips even
-    // though the orchestrator approved it.
-    const bannedPost = buildCleanPost({ bodyPrefix: 'This is a game-changer for teams' });
+    // Use a word-count violation (50 words < 180 floor) — the gate has no
+    // sanitizer for this, so it MUST fail and skip. Banned-phrase failures
+    // are now scrubbed pre-gate; covered by the next test.
+    const bannedPost = buildCleanPost({ bodyWords: 50 });
 
     // Inject a synchronous logger so we can assert on the error-level call
     // directly, without sleeping for pino's async destination to flush.
@@ -247,7 +248,7 @@ describe('runAgenticPipeline — voice gate fails post-approval', () => {
     const skippedPath = join(dirs.draftsRoot, WEEK, 'wed.SKIPPED.md');
     expect(existsSync(skippedPath)).toBe(true);
     expect(readFileSync(skippedPath, 'utf8')).toContain('gate_fail');
-    expect(readFileSync(skippedPath, 'utf8')).toContain('game-changer');
+    expect(readFileSync(skippedPath, 'utf8')).toMatch(/word count/);
 
     const summary = JSON.parse(
       readFileSync(join(dirs.dataDir, 'runs', `${WEEK}.json`), 'utf8'),
@@ -266,6 +267,38 @@ describe('runAgenticPipeline — voice gate fails post-approval', () => {
         /voice gate failed on critic-approved draft/.test(call[1]),
     );
     expect(gateErrorCall).toBeDefined();
+  });
+
+  it('sanitizes banned phrases pre-gate so the draft still publishes', async () => {
+    const dirs = makeTmpDirs();
+    // "leverage" and "game-changer" are in brand.yaml banned_phrases. The
+    // pre-gate sanitizer swaps them for safe alternatives so the gate passes
+    // and the post publishes — no SKIPPED, no error log.
+    const dirty = buildCleanPost({
+      bodyPrefix: 'Teams leverage shared tooling. The game-changer was clear',
+    });
+
+    const result = await runAgenticPipeline({
+      brand: BRAND,
+      week: WEEK,
+      ...dirs,
+      client: {} as Anthropic,
+      orchestratorOverride: async () =>
+        makeOrchestratorResult({
+          approvedDays: ['mon', 'wed', 'fri'],
+          postOverrides: { wed: dirty },
+        }),
+    });
+
+    expect(result.exitCode).toBe(0);
+    const wedPath = join(dirs.draftsRoot, WEEK, 'wed.md');
+    expect(existsSync(wedPath)).toBe(true);
+    expect(existsSync(join(dirs.draftsRoot, WEEK, 'wed.SKIPPED.md'))).toBe(false);
+    const wedMd = readFileSync(wedPath, 'utf8');
+    expect(wedMd).not.toMatch(/leverage/i);
+    expect(wedMd).not.toMatch(/game-changer/i);
+    expect(wedMd).toMatch(/\buse\b/);
+    expect(wedMd).toMatch(/\bshift\b/);
   });
 });
 

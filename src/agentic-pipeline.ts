@@ -323,10 +323,41 @@ interface HandleDayParams {
  */
 function sanitizePunctuation(text: string): string {
   return text
-    // " — " or " – " between words → ". " (sentence break)
     .replace(/\s+[—–]\s+/g, '. ')
-    // bare "—" or "–" against a word → ", " (clause break)
     .replace(/[—–]/g, ', ');
+}
+
+/**
+ * Deterministic banned-phrase scrubber. Every key here MUST also live in
+ * brand.yaml voice.must_not_have.banned_phrases (the gate's source of truth).
+ * The gate is what catches anything we miss; this map is the safety net that
+ * keeps drafter slips from becoming SKIPPED drafts. Add a new phrase to brand
+ * AND here together — if you forget the swap, the gate will fail loud.
+ */
+const BANNED_PHRASE_SWAPS: ReadonlyArray<readonly [RegExp, string]> = [
+  [/\bgame[- ]?changer\b/gi, 'shift'],
+  [/\bthought leader\b/gi, 'operator'],
+  [/\bdeep dive\b/gi, 'look'],
+  [/\bdelv(e|es|ed|ing)\b/gi, 'look at'],
+  [/\bleverag(e|es|ed|ing)\b/gi, 'use'],
+  [/\bsynerg(y|ies)\b/gi, 'fit'],
+  [/\becosystem\b/gi, 'stack'],
+  [/\bunpack(s|ed|ing)?\b/gi, 'examine'],
+  [/\bunlock(s|ed|ing)?\b/gi, 'open up'],
+  [/\bLet that sink in[.!?]?\s*/g, ''],
+  [/\bHere'?s the thing[.,]?\s*/gi, ''],
+];
+
+function sanitizeBannedPhrases(text: string): string {
+  let out = text;
+  for (const [pattern, replacement] of BANNED_PHRASE_SWAPS) {
+    out = out.replace(pattern, replacement);
+  }
+  return out;
+}
+
+function sanitizePost(text: string): string {
+  return sanitizeBannedPhrases(sanitizePunctuation(text));
 }
 
 function handleDay(p: HandleDayParams): AgenticDaySummary {
@@ -334,7 +365,7 @@ function handleDay(p: HandleDayParams): AgenticDaySummary {
   const day = dayResult.day;
   const draftAny = dayResult.draft as { post_text?: string; pillar?: string };
   const rawPostText = typeof draftAny.post_text === 'string' ? draftAny.post_text : '';
-  const postText = sanitizePunctuation(rawPostText);
+  const postText = sanitizePost(rawPostText);
   const pillar = typeof draftAny.pillar === 'string' ? draftAny.pillar : undefined;
   const cost =
     typeof (dayResult.draft as { cost_usd?: number }).cost_usd === 'number'
