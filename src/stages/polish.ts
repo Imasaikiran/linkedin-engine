@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import Anthropic from '@anthropic-ai/sdk';
 import type { Angle, Day, Draft, Polished } from '../lib/schema.js';
 import { runVoiceGate, runHallucinationGate } from '../lib/gate.js';
+import { loadBrand, type Brand } from '../lib/brand.js';
 
 export interface PolishOnceParams {
   client: Anthropic;
@@ -11,11 +12,13 @@ export interface PolishOnceParams {
   voiceCorpusUrls: string[];
   maxRetries: number;
   retryFn: (attempt: number, prevDraft: Draft, gateInfo: { voice_failures: string[]; hallucination_failures: string[] }) => Promise<Draft>;
+  brand?: Brand;
 }
 
 export async function polishDraft(p: PolishOnceParams): Promise<Polished> {
+  const brand = p.brand ?? loadBrand();
   let current = p.draft;
-  let lastVoice = runVoiceGate(current.post_text, { pillar: current.pillar });
+  let lastVoice = runVoiceGate(current.post_text, { brand, pillar: current.pillar });
   let lastHall = runHallucinationGate({ claims: current.claims, sources: p.sources, voiceCorpusUrls: p.voiceCorpusUrls });
 
   // Track best-seen attempt across the loop so we publish the closest-to-passing draft if no attempt fully passes.
@@ -28,7 +31,7 @@ export async function polishDraft(p: PolishOnceParams): Promise<Polished> {
       voice_failures: lastVoice.failures,
       hallucination_failures: lastHall.verdicts.filter((v) => v.verdict === 'FAIL').map((v) => v.reason),
     });
-    lastVoice = runVoiceGate(current.post_text, { pillar: current.pillar });
+    lastVoice = runVoiceGate(current.post_text, { brand, pillar: current.pillar });
     lastHall = runHallucinationGate({ claims: current.claims, sources: p.sources, voiceCorpusUrls: p.voiceCorpusUrls });
     const s = score(lastVoice, lastHall);
     if (s < best.score) best = { draft: current, voice: lastVoice, hall: lastHall, score: s };
@@ -106,6 +109,7 @@ export async function runPolishStage(p: RunPolishStageParams): Promise<Record<Da
   const clusters = JSON.parse(readFileSync(join(p.dataDir, 'clusters', `${p.week}.json`), 'utf8')) as { items: { url: string; body: string; title: string }[] }[];
 
   const voiceCorpusUrls = collectVoiceCorpusUrls(p.voiceCorpusDir);
+  const brand = loadBrand();
   const out: Record<string, Polished> = {};
   const outDir = join(p.draftsRoot, p.week);
   mkdirSync(outDir, { recursive: true });
@@ -123,6 +127,7 @@ export async function runPolishStage(p: RunPolishStageParams): Promise<Record<Da
       voiceCorpusUrls,
       maxRetries: p.maxRetries ?? 2,
       retryFn: p.retryFn,
+      brand,
     });
 
     if (polished.skipped) {

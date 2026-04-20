@@ -1,38 +1,43 @@
-import type { Pillar, Claim, ClaimVerdict } from './schema.js';
-
-const BANNED_PHRASES = [
-  'I recently', 'Excited to share', 'Today I want to share', "In today's",
-  'game-changer', 'game changer', 'thought leader', 'deep dive', 'delve',
-  'leverage', 'synergy', 'ecosystem', 'unpack', 'unlock',
-  'Let that sink in', "Here's the thing", 'needless to say',
-  'Furthermore', 'Moreover', 'In conclusion', "It's worth noting",
-];
+import type { Claim, ClaimVerdict } from './schema.js';
+import type { Brand } from './brand.js';
 
 const BANNED_OPEN_EMOJIS = ['🚀', '✨', '🎯', '💡', '🔥'];
 const ALL_EMOJIS_RE = /\p{Extended_Pictographic}/gu;
 
-const WORD_COUNT_RANGES: Record<Pillar, [number, number]> = {
-  framework: [150, 180],
-  hottake: [120, 150],
-  story: [180, 220],
-  lesson: [160, 200],
-  myth: [140, 170],
-  observation: [130, 160],
-  list: [150, 200],
-};
+// First-person POV pillars get a wider 0.15 "I" frequency band. Others cap at 0.08
+// to discourage navel-gazing. Covers both legacy `Pillar` enum values and the
+// new brand cadence pillar names from `brand.yaml`.
+const FIRST_PERSON_POV_PILLARS = new Set(['story', 'lesson', 'shipped', 'critique']);
 
-export interface VoiceGateInput { pillar: Pillar; }
+// Pillars where bullet/numbered lists are expected. `framework` covers both legacy
+// and brand cadence; `list` is legacy-only.
+const LIST_FRIENDLY_PILLARS = new Set(['framework', 'list']);
+
+export interface VoiceGateInput {
+  brand: Brand;
+  /** Pillar string. Brand cadence values (shipped/framework/critique) OR legacy PillarEnum. */
+  pillar: string;
+}
 export interface VoiceGateResult { pass: boolean; failures: string[]; }
 
 export function runVoiceGate(post: string, opts: VoiceGateInput): VoiceGateResult {
+  const { brand, pillar } = opts;
+  const { must_not_have, rhythm } = brand.voice;
   const failures: string[] = [];
 
-  if (post.includes('—')) failures.push('em-dash present');
-  if (post.includes('–')) failures.push('en-dash present');
+  if (must_not_have.em_dashes && post.includes('—')) failures.push('em-dash present');
+  if (must_not_have.en_dashes && post.includes('–')) failures.push('en-dash present');
 
-  for (const phrase of BANNED_PHRASES) {
+  for (const phrase of must_not_have.banned_phrases) {
     const re = new RegExp(`\\b${escapeRegex(phrase)}\\b`, 'i');
     if (re.test(post)) failures.push(`banned phrase: "${phrase}"`);
+  }
+
+  const trimmedStart = post.trimStart().toLowerCase();
+  for (const opener of must_not_have.banned_openers) {
+    if (trimmedStart.startsWith(opener.toLowerCase())) {
+      failures.push(`banned opener: "${opener}"`);
+    }
   }
 
   const lines = post.split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
@@ -43,19 +48,28 @@ export function runVoiceGate(post: string, opts: VoiceGateInput): VoiceGateResul
 
   const firstLine = lines[0]!;
   const firstWords = firstLine.split(/\s+/).filter(Boolean);
-  if (firstWords.length < 8 || firstWords.length > 18) {
-    failures.push(`first line word count ${firstWords.length} (need 8-18)`);
+  if (firstWords.length > rhythm.hook_max_words) {
+    failures.push(`first line word count ${firstWords.length} (max ${rhythm.hook_max_words})`);
   }
   if (firstLine.endsWith('.')) failures.push('first line ends with period');
   if (BANNED_OPEN_EMOJIS.some((e) => firstLine.startsWith(e))) failures.push('opening emoji');
 
-  const lastLine = lines[lines.length - 1]!;
-  if (!lastLine.endsWith('?')) failures.push('last line not a question');
+  // Closing-question check is opt-in via brand. When `closing_question_optional` is true
+  // (the brand.yaml default), skip the check entirely.
+  if (brand.engagement.closing_question_optional === false) {
+    const lastLine = lines[lines.length - 1]!;
+    if (!lastLine.endsWith('?')) failures.push('last line not a question');
+  }
 
   const allWords = post.split(/\s+/).filter(Boolean);
-  const [minW, maxW] = WORD_COUNT_RANGES[opts.pillar];
+  const [minW, maxW] = rhythm.target_words;
   if (allWords.length < minW || allWords.length > maxW) {
-    failures.push(`word count ${allWords.length} outside ${minW}-${maxW} for pillar ${opts.pillar}`);
+    failures.push(`word count ${allWords.length} outside ${minW}-${maxW}`);
+  }
+
+  const [minC, maxC] = rhythm.target_chars;
+  if (post.length < minC || post.length > maxC) {
+    failures.push(`char count ${post.length} outside ${minC}-${maxC}`);
   }
 
   const emojis = post.match(ALL_EMOJIS_RE) ?? [];
@@ -66,16 +80,16 @@ export function runVoiceGate(post: string, opts: VoiceGateInput): VoiceGateResul
 
   for (const para of post.split(/\n{2,}/)) {
     const lc = para.split('\n').filter((l) => l.trim().length > 0).length;
-    if (lc > 3) failures.push(`paragraph has ${lc} lines (>3)`);
+    if (lc > rhythm.paragraph_max_lines) {
+      failures.push(`paragraph has ${lc} lines (>${rhythm.paragraph_max_lines})`);
+    }
   }
 
-  if (opts.pillar !== 'framework' && opts.pillar !== 'list') {
+  if (!LIST_FRIENDLY_PILLARS.has(pillar)) {
     if (/^\s*[-*\d]\.?\s+/m.test(post)) failures.push('bullet/numbered list in non-framework post');
   }
 
-  // First-person threshold: story/lesson are inherently first-person and need a wider band.
-  // Other pillars cap at 8% to discourage navel-gazing.
-  const iThreshold = (opts.pillar === 'story' || opts.pillar === 'lesson') ? 0.15 : 0.08;
+  const iThreshold = FIRST_PERSON_POV_PILLARS.has(pillar) ? 0.15 : 0.08;
   const iCount = (post.match(/\bI\b/g) ?? []).length;
   if (allWords.length > 0 && iCount / allWords.length >= iThreshold) {
     failures.push(`"I" frequency ${(iCount / allWords.length).toFixed(2)} >= ${iThreshold}`);
