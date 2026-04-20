@@ -15,7 +15,9 @@ export const TopicItemSchema = z.object({
   title: z.string().min(1),
   url: z.string().url().optional(),
   summary: z.string().min(1),
-  published_at: z.string().datetime().optional(),
+  // Accept either full ISO 8601 or date-only ("YYYY-MM-DD"); the LLM emits
+  // both shapes. Downstream sort uses Date.parse which handles both.
+  published_at: z.string().min(1).optional(),
 });
 export type TopicItem = z.infer<typeof TopicItemSchema>;
 
