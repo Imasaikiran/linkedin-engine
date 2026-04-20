@@ -5,13 +5,6 @@
   "private": true,
   "scripts": {
     "pipeline": "tsx src/agentic-pipeline.ts",
-    "pipeline:legacy": "tsx src/legacy-pipeline.ts",
-    "pipeline:friday": "tsx src/legacy-pipeline.ts --only fri",
-    "stage": "tsx src/cli.ts stage",
-    "rerun": "tsx src/cli.ts rerun",
-    "voice:refresh": "tsx src/cli.ts voice:refresh",
-    "posted": "tsx src/cli.ts posted",
-    "draft:freeform": "tsx src/cli.ts draft:freeform",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"

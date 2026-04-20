@@ -67,11 +67,6 @@ export class DrafterSchemaError extends Error {
   }
 }
 
-// DraftSchema pins `pillar` to a legacy PillarEnum that does not include the
-// brand.cadence pillars ("shipped", "critique"). Since Task 4 must not modify
-// lib/schema.ts, we parse the LLM payload with a local schema that mirrors
-// DraftSchema's shape but widens `pillar` to `z.string()`, then enforce
-// pillar === angle.pillar explicitly. Revisit in Task 11 when legacy tears down.
 const LlmDraftPayloadSchema = z.object({
   post_text: z.string().min(1),
   claims: z.array(ClaimSchema),
@@ -221,17 +216,14 @@ export async function runDrafterOnce(p: RunDrafterOnceParams): Promise<Draft> {
     );
   }
 
-  // Runtime cast: DraftSchema.pillar is still legacy PillarEnum (see comment on
-  // LlmDraftPayloadSchema). Consumers that re-parse via DraftSchema will reject
-  // brand.cadence pillars until the legacy enum is retired in Task 11.
-  const draft = {
+  const draft: Draft = {
     post_text: v.data.post_text,
     claims: v.data.claims,
     pillar: v.data.pillar,
     angle_rationale: v.data.angle_rationale,
     attempt: p.attempt ?? 0,
     cost_usd: res.cost_usd,
-  } as unknown as Draft;
+  };
 
   return draft;
 }
@@ -262,13 +254,7 @@ export async function runDrafter(p: RunDrafterParams): Promise<DrafterOutput> {
     'drafter: produced drafts',
   );
 
-  // DrafterDayResultSchema wraps DraftSchema, whose pillar is the legacy
-  // PillarEnum. We intentionally bypass that final schema parse here for the
-  // same reason documented on LlmDraftPayloadSchema: the `draft` objects may
-  // carry brand.cadence pillars (e.g. "shipped") which DraftSchema rejects.
-  // We DO validate the outer wrapper shape below, minus DraftSchema.
-  const out: DrafterOutput = { results, cost_usd } as DrafterOutput;
-  return out;
+  return { results, cost_usd };
 }
 
 // ---------- helpers ----------

@@ -1,6 +1,11 @@
 import { z } from 'zod';
 
-export const PillarEnum = z.enum(['framework', 'hottake', 'story', 'lesson', 'myth', 'observation', 'list']);
+// Pillar is an open string now — brand.yaml owns the valid values via
+// brand.cadence[day].pillar (e.g. "shipped", "framework", "critique"). The
+// strategist checks drafts echo the exact brand-configured pillar; the
+// schema stays lenient so new pillars can be added to brand.yaml without a
+// code change.
+export const PillarEnum = z.string().min(1);
 export type Pillar = z.infer<typeof PillarEnum>;
 
 export const DayEnum = z.enum(['mon', 'wed', 'fri']);

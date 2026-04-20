@@ -14,7 +14,7 @@ export type VoiceMustHave = z.infer<typeof VoiceMustHaveEnum>;
 export const WhiteSpaceEnum = z.enum(['aggressive', 'moderate', 'minimal']);
 export type WhiteSpace = z.infer<typeof WhiteSpaceEnum>;
 
-export const FallbackOnOverrunEnum = z.enum(['skip_with_summary', 'use_legacy_pipeline']);
+export const FallbackOnOverrunEnum = z.enum(['skip_with_summary']);
 export type FallbackOnOverrun = z.infer<typeof FallbackOnOverrunEnum>;
 
 export const BrandDayEnum = z.enum(['mon', 'wed', 'fri']);

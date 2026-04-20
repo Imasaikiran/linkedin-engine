@@ -26,12 +26,9 @@ const log = makeLogger({ name: 'orchestrator' });
 // ---------- output schemas ----------
 export const DayRunResultSchema = z.object({
   day: BrandDayEnum,
-  /**
-   * The final draft object. Typed as unknown here because the drafter returns
-   * Draft objects whose `pillar` uses `brand.cadence` values ("shipped",
-   * "critique") which the legacy `DraftSchema.pillar` PillarEnum rejects.
-   * See `src/agents/drafter.ts` for the same parse-avoidance rationale.
-   */
+  // Loose shape: skipped/errored days carry an empty draft sentinel; only
+  // approved days are guaranteed to be a full Draft. Downstream narrows at
+  // the use site.
   draft: z.any(),
   critic_verdict: CriticVerdictSchema,
   retries: z.number().int().nonnegative(),
