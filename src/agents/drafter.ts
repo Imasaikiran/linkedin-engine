@@ -126,7 +126,20 @@ function buildSystemPrompt(brand: Brand): string {
     `  - target_words: [${rhythm.target_words[0]}, ${rhythm.target_words[1]}] (inclusive)`,
     `  - target_chars: [${rhythm.target_chars[0]}, ${rhythm.target_chars[1]}] (inclusive)`,
     '',
-    'Output a SINGLE JSON object. No preamble, no code fences. Shape: { post_text, claims[], pillar, angle_rationale }.',
+    'Output a SINGLE JSON object. No preamble, no code fences.',
+    'Exact shape (claims MUST be an array of objects, NOT strings):',
+    '{',
+    '  "post_text": "the LinkedIn post body",',
+    '  "claims": [',
+    '    { "claim_text": "...", "type": "stat|quote|attribution|capability|date|opinion", "source_url": "https://..." }',
+    '  ],',
+    '  "pillar": "<pillar slug>",',
+    '  "angle_rationale": "one or two sentences"',
+    '}',
+    'Rules for claims:',
+    '  - Every factual/numeric/quoted/attribution claim in post_text MUST have a matching claim object.',
+    '  - type="opinion" is the ONLY type that may omit source_url; every other type requires a real URL from the SOURCES block.',
+    '  - Do NOT emit claims as bare strings. Each claim is an object with claim_text+type+source_url.',
   ].join('\n');
 }
 
