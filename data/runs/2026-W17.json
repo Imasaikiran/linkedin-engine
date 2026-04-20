@@ -1,0 +1,36 @@
+{
+  "week": "2026-W17",
+  "started_at": "2026-04-20T19:16:11.530Z",
+  "finished_at": "2026-04-20T19:16:23.914Z",
+  "scout_source": "web_search",
+  "orchestrator_cost_usd": 0,
+  "wall_ms": 12355,
+  "aborted": true,
+  "abort_reason": "scout: LLM returned no parseable JSON. Raw text (first 800 chars):\nI'll search for the trending AI PM topics and product launches this week.\nBased on my search results, here's the aggregated JSON:\n\n```json\n{\n  \"trending_topics\": [\n    {\n      \"title\": \"AI content sameness problem on LinkedIn - 82% identical openers\",\n      \"url\": \"https://dev.to/adrianvegaresearch/i-analyzed-500-ai-generated-linkedin-posts-heres-what-they-all-have-in-common-2h36\",\n      \"summary\": \"Analysis of 500 AI-generated LinkedIn posts reveals 91% same formatting, 73% same vocabulary, driving engagement decline as AI tools converge on identical patterns. VoiceForge and tools focusing on authentic voice differentiation emerging as response.\",\n      \"published_at\": \"2026-03-02\"\n    },\n    {\n      \"title\": \"Claude Design launch signals Anthropic expanding beyond coding into design auto",
+  "drafts_produced": 0,
+  "drafts_skipped": 3,
+  "days": [
+    {
+      "day": "mon",
+      "status": "skipped",
+      "reason": "aborted: scout: LLM returned no parseable JSON. Raw text (first 800 chars):\nI'll search for the trending AI PM topics and product launches this week.\nBased on my search results, here's the aggregated JSON:\n\n```json\n{\n  \"trending_topics\": [\n    {\n      \"title\": \"AI content sameness problem on LinkedIn - 82% identical openers\",\n      \"url\": \"https://dev.to/adrianvegaresearch/i-analyzed-500-ai-generated-linkedin-posts-heres-what-they-all-have-in-common-2h36\",\n      \"summary\": \"Analysis of 500 AI-generated LinkedIn posts reveals 91% same formatting, 73% same vocabulary, driving engagement decline as AI tools converge on identical patterns. VoiceForge and tools focusing on authentic voice differentiation emerging as response.\",\n      \"published_at\": \"2026-03-02\"\n    },\n    {\n      \"title\": \"Claude Design launch signals Anthropic expanding beyond coding into design auto",
+      "reason_class": "aborted",
+      "retries": 0
+    },
+    {
+      "day": "wed",
+      "status": "skipped",
+      "reason": "aborted: scout: LLM returned no parseable JSON. Raw text (first 800 chars):\nI'll search for the trending AI PM topics and product launches this week.\nBased on my search results, here's the aggregated JSON:\n\n```json\n{\n  \"trending_topics\": [\n    {\n      \"title\": \"AI content sameness problem on LinkedIn - 82% identical openers\",\n      \"url\": \"https://dev.to/adrianvegaresearch/i-analyzed-500-ai-generated-linkedin-posts-heres-what-they-all-have-in-common-2h36\",\n      \"summary\": \"Analysis of 500 AI-generated LinkedIn posts reveals 91% same formatting, 73% same vocabulary, driving engagement decline as AI tools converge on identical patterns. VoiceForge and tools focusing on authentic voice differentiation emerging as response.\",\n      \"published_at\": \"2026-03-02\"\n    },\n    {\n      \"title\": \"Claude Design launch signals Anthropic expanding beyond coding into design auto",
+      "reason_class": "aborted",
+      "retries": 0
+    },
+    {
+      "day": "fri",
+      "status": "skipped",
+      "reason": "aborted: scout: LLM returned no parseable JSON. Raw text (first 800 chars):\nI'll search for the trending AI PM topics and product launches this week.\nBased on my search results, here's the aggregated JSON:\n\n```json\n{\n  \"trending_topics\": [\n    {\n      \"title\": \"AI content sameness problem on LinkedIn - 82% identical openers\",\n      \"url\": \"https://dev.to/adrianvegaresearch/i-analyzed-500-ai-generated-linkedin-posts-heres-what-they-all-have-in-common-2h36\",\n      \"summary\": \"Analysis of 500 AI-generated LinkedIn posts reveals 91% same formatting, 73% same vocabulary, driving engagement decline as AI tools converge on identical patterns. VoiceForge and tools focusing on authentic voice differentiation emerging as response.\",\n      \"published_at\": \"2026-03-02\"\n    },\n    {\n      \"title\": \"Claude Design launch signals Anthropic expanding beyond coding into design auto",
+      "reason_class": "aborted",
+      "retries": 0
+    }
+  ],
+  "total_cost_usd": 0
+}
