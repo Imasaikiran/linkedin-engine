@@ -2,30 +2,28 @@
 week: 2026-W17
 day: wed
 pillar: framework
-cost_usd: 0.016482
+cost_usd: 0.016599
 retries: 0
-word_count: 238
-char_count: 1459
+word_count: 206
+char_count: 1353
 ---
 
-Stop prompt engineering. Start context engineering
+Stop prompt-chasing. Start context engineering. 4-layer system
 
-Prompt tweaking is the lowest-ROI AI habit most PMs still default to. The PMs pulling ahead in 2026 are building structured context layers before a single token gets generated.
+Frontier AI PMs are being evaluated on methodology, not model familiarity. The skill gap separating high-performers from generalists is structural thinking before the first token fires.
 
-I mapped this into the Context Layer Stack, a reusable 4-layer framework you can drop into any AI workflow today.
+1. Problem Statement Layer
+Write a crisp, bounded problem statement before opening any AI tool. If you cannot state the problem in two sentences without jargon, the model cannot help you either.
 
-1. Role Layer
-Define who the model is working as, not just what it should do. A vague "you are a helpful assistant" produces vague output. A scoped role tied to your product domain cuts noise by roughly half.
+2. Context Inventory Layer
+Audit what the model needs: user data shape, constraints, success criteria, and known failure modes. I ran this audit on 3 active specs last quarter and cut revision cycles by roughly 40%.
 
-2. Memory Layer
-Feed persistent context: prior decisions, known constraints, user research signals. Models have no memory across sessions unless you build it in. This is where most teams lose consistency.
+3. Synthetic Evaluation Layer
+Build lightweight synthetic evals before shipping any AI-assisted output. Anthropic Academy frames this as the dividing line between reliable workflow design and prompt lottery.
 
-3. Task Layer
-State the mechanical objective with explicit success criteria. AI excels at mechanical execution. Your job is to make the target unambiguous, not to over-engineer the phrasing.
+4. Trace Log Layer
+Capture trace logs on every meaningful run. Logs become your institutional memory, your debugging surface, and your evidence base when stakeholders question model behavior.
 
-4. Evaluation Layer
-Define what good looks like before you run the prompt. Anthropic and others now teach eval-first workflows precisely because shipping without a rubric means you are guessing, not building.
+The framework is the artifact. Save it, adapt it to your product area, and run it before your next sprint planning session. If your team is still optimizing prompts without a context inventory in place, you are solving the wrong problem.
 
-Leading PMs have already shifted from prompt-first to methodology-first. The Context Layer Stack is the artifact that makes that shift concrete for your team.
-
-Save this, share it with one PM on your team, and try building all 4 layers before your next AI task. What layer do you skip most often?
+Which layer is weakest in your current workflow?

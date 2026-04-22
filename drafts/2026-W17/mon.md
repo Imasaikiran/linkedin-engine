@@ -2,20 +2,22 @@
 week: 2026-W17
 day: mon
 pillar: shipped
-cost_usd: 0.01599
+cost_usd: 0.015141
 retries: 0
-word_count: 192
-char_count: 1192
+word_count: 248
+char_count: 1442
 ---
 
-792 critical vulnerabilities found in 30 days by one AI agent
+I shipped faster last week than any sprint this quarter
 
-OpenAI's Codex Security ran against OpenSSH, GnuTLS, and Chromium in April 2026. The results landed before most human audit teams would have finished scoping the work.
+I made one tool swap on Monday and by Friday my pull request count had doubled. That felt worth examining.
 
-I watched the numbers come in and kept rechecking them. 792 confirmed CVEs. Not suggestions, not warnings, confirmed critical vulnerabilities. The kind of output that used to take a red team six months and a significant budget to produce.
+The switch was to Claude Code. I had been using a mix of Codex and manual review cycles, and the context retention between edits kept breaking my flow. Claude Code held the thread across a 400-line refactor without me re-explaining the architecture once. I stopped narrating and started building.
 
-The tradeoff nobody warned us about: shipping that fast surfaces so many findings that triage becomes the bottleneck, not discovery. We had more confirmed issues than we had engineers to prioritize them. Velocity without intake capacity is just a different kind of debt.
+The tradeoff was real, though. Onboarding a new tool mid-sprint costs attention even when the tool is good. The first two days were slower, not faster. I almost reverted on Tuesday afternoon. I stayed because the third session showed me something: I was writing tests I had been skipping, not because I was more disciplined, but because the tool made the next step obvious.
 
-What changed my thinking was realizing Codex is not a coding assistant with a security feature bolted on. It is audit infrastructure. The moment I reframed it that way, the product decisions got clearer. You staff for remediation first, then you turn the agent loose.
+Ramp data published this week put Anthropic at 37% of Q1 enterprise AI spend versus OpenAI at 33%, with Claude Code cited as a primary driver. OpenAI responded by expanding Codex with desktop automation and parallel agent execution on Mac. Both numbers tell me the productivity argument is no longer theoretical.
 
-Frontier AI is already rewriting what a security team looks like. The question worth sitting with: are you building the intake process before the vulnerabilities arrive, or after?
+The question I keep sitting with is not which tool wins. It is whether I was measuring the right thing before. Pull request count is a proxy. What changed for me was the quality of decisions I made while writing the code.
+
+What metric would actually tell you your AI coding tool is working?

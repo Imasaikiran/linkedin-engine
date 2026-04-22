@@ -1,10 +1,10 @@
 {
   "week": "2026-W17",
-  "started_at": "2026-04-20T19:55:50.671Z",
-  "finished_at": "2026-04-20T19:57:37.112Z",
+  "started_at": "2026-04-22T03:46:53.070Z",
+  "finished_at": "2026-04-22T03:48:52.926Z",
   "scout_source": "web_search",
-  "orchestrator_cost_usd": 0.177875,
-  "wall_ms": 106409,
+  "orchestrator_cost_usd": 0.20213299999999998,
+  "wall_ms": 119821,
   "aborted": false,
   "drafts_produced": 2,
   "drafts_skipped": 1,
@@ -14,25 +14,25 @@
       "status": "published",
       "retries": 0,
       "pillar": "shipped",
-      "word_count": 192,
-      "char_count": 1192
+      "word_count": 248,
+      "char_count": 1442
     },
     {
       "day": "wed",
-      "status": "skipped",
-      "reason": "critic_block: Hook is a decent 'Stop X, Start Y' pattern but 'context engineering' is already a saturated buzzword in 2024-2025 — frontier-lab PMs will eye-roll, not engage.; No PM signal in the framework itself: U.S.I.D.O. describes generic workflow hygiene (define problem, structure inputs, eval, persist context) — any thoughtful engineer could write this. There are zero tradeoffs, no shipping discipline, no metric, no failure mode.; 'The Ainna methodology showed this approach outperforms prompt-first by hours to days' is a vague, unverifiable claim that damages credibility — what is Ainna, what was the study design, what were the actual numbers?; 'Leading AIPM frameworks in 2026' is a fabricated authority signal — the post is being written now, not in 2026, and citing a future year as evidence reads as hallucinated or dishonest.; The acronym U.S.I.D.O. is forced and unmemorable — the D and O collapse into one step ('Deploy and Optimize') which signals the acronym was retrofitted, not discovered.; No save-worthy artifact: the 4 steps are too generic to be a reusable checklist — a frontier-lab PM already does all four implicitly and gains nothing from saving this.; Closing CTA ('which step is your team skipping') is engagement-bait that signals LinkedIn growth-hacking, not serious PM thought leadership — will repel the target audience.",
-      "reason_class": "critic_block",
+      "status": "published",
       "retries": 0,
-      "pillar": "framework"
+      "pillar": "framework",
+      "word_count": 206,
+      "char_count": 1353
     },
     {
       "day": "fri",
-      "status": "published",
-      "retries": 0,
-      "pillar": "critique",
-      "word_count": 261,
-      "char_count": 1680
+      "status": "skipped",
+      "reason": "gate_fail: first line word count 18 (max 12)",
+      "reason_class": "gate_fail",
+      "retries": 1,
+      "pillar": "critique"
     }
   ],
-  "total_cost_usd": 0.177875
+  "total_cost_usd": 0.20213299999999998
 }

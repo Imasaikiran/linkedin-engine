@@ -2,7 +2,7 @@
 week: 2026-W17
 day: fri
 pillar: critique
-retries: 0
+retries: 1
 status: skipped
 reason_class: gate_fail
 ---
@@ -10,21 +10,26 @@ reason_class: gate_fail
 # fri SKIPPED (gate_fail)
 
 Voice gate failed AFTER critic approval (system bug):
-- banned phrase: "leverage"
+- first line word count 18 (max 12)
 
 Draft text:
-OpenAI's Codex desktop agent is impressive. The access model is a mistake
+Anthropic's Responsible Scaling Policy caps cybersecurity model access at a handful of audited orgs. and calls it safety
 
-Most people read the Codex announcement as a capability story. Cursor control, multi-agent parallel execution, background desktop operation. The demos are genuinely striking.
+Most people read tiered rollout as responsible stewardship. Careful. Measured. The grown-up move.
 
-What gets skipped is the distribution question. OpenAI built an agent that can run tasks while you sleep, coordinate across multiple simultaneous threads, and browse the web on your behalf. Then they wrapped it in a platform where permissions, governance, and shared context all flow through OpenAI's own infrastructure.
+What they miss is the cost structure buried in that choice. When you restrict a security-focused model to a small cohort of organizations, you are not just controlling risk. You are deciding which defenders get to be fast. The orgs inside the rope move quicker. Everyone else patches slower. That asymmetry compounds over months, not days.
 
-That is not a neutral architectural choice. Every enterprise that routes agent workflows through a single vendor's permission layer is making a long-term bet on that vendor's pricing discipline, uptime SLAs, and policy decisions. The more capable the agent, the higher the switching cost if any of those change.
+Meanwhile, CISA's broad-distribution partnerships with AI vendors operate on a different theory: more vetted defenders with access means more vulnerabilities found and fixed faster. That is not recklessness. That is a different model of how safety actually works at scale.
 
-I want to be fair to OpenAI here. Centralized governance for autonomous desktop agents is a genuinely hard problem. Letting cursor-controlling, file-reading processes run without a shared permission model is the scarier alternative. The instinct to build guardrails in is right.
+Here is the framework I use to evaluate any tiered AI rollout. I call it the Defender Distribution Tradeoff:
 
-The critique is not about safety. It is about who owns the control plane. When one company controls permissions, memory, and execution context for agents doing real work across local and cloud environments, that company holds compounding structural leverage over every business that depends on it.
+• Fast rollout + low blast-radius control = Reckless Scale
+• Fast rollout + high blast-radius control = Optimal Reach
+• Slow rollout + high blast-radius control = Audited Scarcity (Anthropic's current bet)
+• Slow rollout + low blast-radius control = Security Theater
 
-GPT-5.4 and Claude Sonnet 4.6 are already competitive enough that model choice is nearly a commodity decision. Agent distribution strategy is where the real lock-in lives now.
+Audited Scarcity is coherent. It assumes the orgs you pick are the highest-use nodes in the defender network and that slow, normed rollout produces better long-run security culture. That is a falsifiable bet. and I think it is the wrong one for 2026.
 
-Do you think centralized agent governance is a necessary trade-off, or is there a better architecture? Genuinely curious where frontier-lab PMs land on this.
+In 2026, the real risk is defender lag, not blast radius. Scarcity is the wrong variable to optimize.
+
+If you are evaluating a tiered rollout decision right now, which quadrant does your current policy land in. and can you defend that placement to your security team?
