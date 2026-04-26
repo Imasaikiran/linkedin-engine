@@ -1,38 +1,38 @@
 {
   "week": "2026-W17",
-  "started_at": "2026-04-22T03:46:53.070Z",
-  "finished_at": "2026-04-22T03:48:52.926Z",
+  "started_at": "2026-04-26T04:03:22.339Z",
+  "finished_at": "2026-04-26T04:05:01.794Z",
   "scout_source": "web_search",
-  "orchestrator_cost_usd": 0.20213299999999998,
-  "wall_ms": 119821,
+  "orchestrator_cost_usd": 0.23239600000000005,
+  "wall_ms": 99411,
   "aborted": false,
-  "drafts_produced": 2,
-  "drafts_skipped": 1,
+  "drafts_produced": 1,
+  "drafts_skipped": 2,
   "days": [
     {
       "day": "mon",
       "status": "published",
       "retries": 0,
       "pillar": "shipped",
-      "word_count": 248,
-      "char_count": 1442
+      "word_count": 235,
+      "char_count": 1377
     },
     {
       "day": "wed",
-      "status": "published",
-      "retries": 0,
-      "pillar": "framework",
-      "word_count": 206,
-      "char_count": 1353
+      "status": "skipped",
+      "reason": "gate_fail: first line word count 16 (max 12); first line ends with period",
+      "reason_class": "gate_fail",
+      "retries": 1,
+      "pillar": "framework"
     },
     {
       "day": "fri",
       "status": "skipped",
-      "reason": "gate_fail: first line word count 18 (max 12)",
+      "reason": "gate_fail: first line word count 24 (max 12); first line ends with period",
       "reason_class": "gate_fail",
       "retries": 1,
       "pillar": "critique"
     }
   ],
-  "total_cost_usd": 0.20213299999999998
+  "total_cost_usd": 0.23239600000000005
 }

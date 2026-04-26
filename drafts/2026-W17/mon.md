@@ -2,22 +2,24 @@
 week: 2026-W17
 day: mon
 pillar: shipped
-cost_usd: 0.015141
+cost_usd: 0.013704
 retries: 0
-word_count: 248
-char_count: 1442
+word_count: 235
+char_count: 1377
 ---
 
-I shipped faster last week than any sprint this quarter
+We hardcoded Claude into our stack and paid for it 3 times
 
-I made one tool swap on Monday and by Friday my pull request count had doubled. That felt worth examining.
+Last year, our team built a document-processing feature directly around Claude Sonnet. Not an abstraction layer. The model name was literally in our config files, our prompt templates, our error messages.
 
-The switch was to Claude Code. I had been using a mix of Codex and manual review cycles, and the context retention between edits kept breaking my flow. Claude Code held the thread across a 400-line refactor without me re-explaining the architecture once. I stopped narrating and started building.
+It felt fast. It was fast. We shipped in two weeks and the feature worked beautifully.
 
-The tradeoff was real, though. Onboarding a new tool mid-sprint costs attention even when the tool is good. The first two days were slower, not faster. I almost reverted on Tuesday afternoon. I stayed because the third session showed me something: I was writing tests I had been skipping, not because I was more disciplined, but because the tool made the next step obvious.
+Then Claude Sonnet 4.6 dropped. Then GPT-5.4. Then Gemini 3.1 and Grok 4.20, all within weeks of each other. Suddenly our competitors were testing newer models while we were stuck in a refactor that ate an entire sprint.
 
-Ramp data published this week put Anthropic at 37% of Q1 enterprise AI spend versus OpenAI at 33%, with Claude Code cited as a primary driver. OpenAI responded by expanding Codex with desktop automation and parallel agent execution on Mac. Both numbers tell me the productivity argument is no longer theoretical.
+The tradeoff we missed was not about the models themselves. It was about the assumption baked into our architecture: that the model we chose at launch would stay the best choice. That assumption has a shelf life measured in months, maybe weeks now.
 
-The question I keep sitting with is not which tool wins. It is whether I was measuring the right thing before. Pull request count is a proxy. What changed for me was the quality of decisions I made while writing the code.
+What we should have built was a routing layer with a named interface, something like ModelClient, that swapped providers without touching business logic. We knew this pattern existed. We skipped it because the deadline felt more real than the future technical debt.
 
-What metric would actually tell you your AI coding tool is working?
+The lesson I carried forward: every time you write a model name directly into product code, you are making a bet that the frontier stays still. Right now, that bet loses almost every quarter.
+
+Is your team building for the model you have, or the one you will need six months from now?
