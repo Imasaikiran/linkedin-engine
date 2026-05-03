@@ -1,10 +1,10 @@
 {
   "week": "2026-W18",
-  "started_at": "2026-04-29T04:08:27.233Z",
-  "finished_at": "2026-04-29T04:09:40.225Z",
+  "started_at": "2026-05-03T04:28:17.553Z",
+  "finished_at": "2026-05-03T04:29:20.726Z",
   "scout_source": "web_search",
-  "orchestrator_cost_usd": 0.168418,
-  "wall_ms": 72961,
+  "orchestrator_cost_usd": 0.156564,
+  "wall_ms": 63152,
   "aborted": false,
   "drafts_produced": 3,
   "drafts_skipped": 0,
@@ -14,25 +14,25 @@
       "status": "published",
       "retries": 0,
       "pillar": "shipped",
-      "word_count": 225,
-      "char_count": 1302
+      "word_count": 207,
+      "char_count": 1242
     },
     {
       "day": "wed",
       "status": "published",
       "retries": 0,
       "pillar": "framework",
-      "word_count": 220,
-      "char_count": 1365
+      "word_count": 234,
+      "char_count": 1476
     },
     {
       "day": "fri",
       "status": "published",
       "retries": 0,
       "pillar": "critique",
-      "word_count": 229,
-      "char_count": 1391
+      "word_count": 252,
+      "char_count": 1575
     }
   ],
-  "total_cost_usd": 0.168418
+  "total_cost_usd": 0.156564
 }

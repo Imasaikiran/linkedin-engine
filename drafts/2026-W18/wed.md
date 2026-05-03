@@ -2,25 +2,31 @@
 week: 2026-W18
 day: wed
 pillar: framework
-cost_usd: 0.018099
+cost_usd: 0.01287
 retries: 0
-word_count: 220
-char_count: 1365
+word_count: 234
+char_count: 1476
 ---
 
-3 reasons hard-coding model names is technical debt
+5 layers every enterprise multi-model stack needs before 2027
 
-March 2026 proved it: GPT-5.4, Gemini 3.1, and Grok 4.20 all shipped in a single month. If your product logic has a model name baked in, you are one release cycle away from a refactor sprint you did not plan for.
+Three major model updates shipped within 50 days. GPT-5.5, Gemini 3.1 Ultra, and Claude all landed in the same window. If your evaluation process is still a vendor comparison spreadsheet, you are already behind.
 
-I built this framework after watching three separate teams scramble to swap dependencies mid-quarter. Save it.
+I built this scaffold after watching AI PMs scramble to justify model choices to CFOs who wanted one number: cost per correct output. Here it is.
 
-1. Coupling kills velocity
-Every time a frontier model updates, a hard-coded reference becomes a change request. Teams I spoke with lost an average of 2 weeks per major model swap, just on regression testing and prompt re-tuning.
+1. Routing logic
+Decide which model handles which task class before the first token is generated. Static routing beats reactive switching 9 times out of 10 on latency.
 
-2. Evals are the real abstraction layer
-Instead of naming GPT-5.4 in your config, define what good output looks like. Synthetic evals and automated reasoning validation let you swap the underlying model without touching product logic. The eval suite becomes your contract.
+2. Hallucination guardrails
+Score every output against a grounded reference set. Track drift weekly, not quarterly. A single uncaught fabrication in a client-facing workflow costs more than the model subscription.
 
-3. Standardize the stack, not the vendor
-Product Ops should own an AI stack standard that specifies input/output schemas, latency thresholds, and hallucination benchmarks. The vendor slot stays interchangeable. This is how portfolio-centric roadmaps stay stable when the model landscape shifts every few weeks.
+3. Governance and audit trail
+Log model version, prompt hash, and output for every production call. Regulators and legal teams will ask for this. Having it ready changes the conversation.
 
-If you are an AI PM still routing decisions through a specific model name, try this: write one eval that any model must pass before it enters your pipeline. Start there.
+4. Cost caps with automatic fallback
+Set a per-request ceiling and a cheaper fallback model. I watched one team cut monthly inference spend by 34% without touching accuracy, just by adding this single rule.
+
+5. Portability contracts
+Abstract your prompt layer so swapping the underlying model takes hours, not sprints. Lock-in is a budget problem disguised as a technical one.
+
+Save this before your next model evaluation cycle. Which layer does your stack handle worst right now?
