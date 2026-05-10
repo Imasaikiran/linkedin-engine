@@ -1,38 +1,36 @@
 {
   "week": "2026-W19",
-  "started_at": "2026-05-06T04:11:48.761Z",
-  "finished_at": "2026-05-06T04:12:44.622Z",
+  "started_at": "2026-05-10T04:32:34.700Z",
+  "finished_at": "2026-05-10T04:32:43.248Z",
   "scout_source": "web_search",
-  "orchestrator_cost_usd": 0.14512,
-  "wall_ms": 55833,
-  "aborted": false,
-  "drafts_produced": 2,
-  "drafts_skipped": 1,
+  "orchestrator_cost_usd": 0,
+  "wall_ms": 8525,
+  "aborted": true,
+  "abort_reason": "[\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"trending_topics\",\n      0,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  },\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"trending_topics\",\n      4,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  }\n]",
+  "drafts_produced": 0,
+  "drafts_skipped": 3,
   "days": [
     {
       "day": "mon",
       "status": "skipped",
-      "reason": "gate_fail: char count 1096 outside 1100-2150",
-      "reason_class": "gate_fail",
-      "retries": 0,
-      "pillar": "shipped"
+      "reason": "aborted: [\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"trending_topics\",\n      0,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  },\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"trending_topics\",\n      4,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  }\n]",
+      "reason_class": "aborted",
+      "retries": 0
     },
     {
       "day": "wed",
-      "status": "published",
-      "retries": 0,
-      "pillar": "framework",
-      "word_count": 187,
-      "char_count": 1176
+      "status": "skipped",
+      "reason": "aborted: [\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"trending_topics\",\n      0,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  },\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"trending_topics\",\n      4,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  }\n]",
+      "reason_class": "aborted",
+      "retries": 0
     },
     {
       "day": "fri",
-      "status": "published",
-      "retries": 0,
-      "pillar": "critique",
-      "word_count": 240,
-      "char_count": 1485
+      "status": "skipped",
+      "reason": "aborted: [\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"trending_topics\",\n      0,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  },\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"trending_topics\",\n      4,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  }\n]",
+      "reason_class": "aborted",
+      "retries": 0
     }
   ],
-  "total_cost_usd": 0.14512
+  "total_cost_usd": 0
 }

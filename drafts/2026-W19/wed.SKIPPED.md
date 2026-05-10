@@ -1,13 +1,13 @@
 ---
 week: 2026-W19
-day: mon
+day: wed
 pillar: ""
 retries: 0
 status: skipped
 reason_class: aborted
 ---
 
-# mon SKIPPED (aborted)
+# wed SKIPPED (aborted)
 
 Run aborted: [
   {
