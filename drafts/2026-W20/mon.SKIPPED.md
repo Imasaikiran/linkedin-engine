@@ -17,7 +17,7 @@ Run aborted: [
     "inclusive": true,
     "path": [
       "recent_launches",
-      2,
+      9,
       "summary"
     ],
     "message": "Too small: expected string to have >=1 characters"
