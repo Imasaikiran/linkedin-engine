@@ -17,7 +17,7 @@ Run aborted: [
     "inclusive": true,
     "path": [
       "trending_topics",
-      7,
+      2,
       "summary"
     ],
     "message": "Too small: expected string to have >=1 characters"
@@ -28,31 +28,7 @@ Run aborted: [
     "minimum": 1,
     "inclusive": true,
     "path": [
-      "recent_launches",
-      1,
-      "summary"
-    ],
-    "message": "Too small: expected string to have >=1 characters"
-  },
-  {
-    "origin": "string",
-    "code": "too_small",
-    "minimum": 1,
-    "inclusive": true,
-    "path": [
-      "recent_launches",
-      3,
-      "summary"
-    ],
-    "message": "Too small: expected string to have >=1 characters"
-  },
-  {
-    "origin": "string",
-    "code": "too_small",
-    "minimum": 1,
-    "inclusive": true,
-    "path": [
-      "recent_launches",
+      "trending_topics",
       4,
       "summary"
     ],
@@ -65,7 +41,7 @@ Run aborted: [
     "inclusive": true,
     "path": [
       "recent_launches",
-      6,
+      1,
       "summary"
     ],
     "message": "Too small: expected string to have >=1 characters"
