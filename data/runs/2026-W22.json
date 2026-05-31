@@ -1,33 +1,33 @@
 {
   "week": "2026-W22",
-  "started_at": "2026-05-27T04:54:20.725Z",
-  "finished_at": "2026-05-27T04:54:28.828Z",
+  "started_at": "2026-05-31T05:04:33.987Z",
+  "finished_at": "2026-05-31T05:04:42.994Z",
   "scout_source": "web_search",
   "orchestrator_cost_usd": 0,
-  "wall_ms": 8069,
+  "wall_ms": 8975,
   "aborted": true,
-  "abort_reason": "[\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"trending_topics\",\n      9,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  },\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"recent_launches\",\n      7,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  },\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"recent_launches\",\n      9,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  }\n]",
+  "abort_reason": "[\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"trending_topics\",\n      6,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  },\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"recent_launches\",\n      3,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  },\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"recent_launches\",\n      9,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  }\n]",
   "drafts_produced": 0,
   "drafts_skipped": 3,
   "days": [
     {
       "day": "mon",
       "status": "skipped",
-      "reason": "aborted: [\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"trending_topics\",\n      9,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  },\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"recent_launches\",\n      7,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  },\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"recent_launches\",\n      9,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  }\n]",
+      "reason": "aborted: [\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"trending_topics\",\n      6,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  },\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"recent_launches\",\n      3,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  },\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"recent_launches\",\n      9,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  }\n]",
       "reason_class": "aborted",
       "retries": 0
     },
     {
       "day": "wed",
       "status": "skipped",
-      "reason": "aborted: [\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"trending_topics\",\n      9,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  },\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"recent_launches\",\n      7,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  },\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"recent_launches\",\n      9,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  }\n]",
+      "reason": "aborted: [\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"trending_topics\",\n      6,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  },\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"recent_launches\",\n      3,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  },\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"recent_launches\",\n      9,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  }\n]",
       "reason_class": "aborted",
       "retries": 0
     },
     {
       "day": "fri",
       "status": "skipped",
-      "reason": "aborted: [\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"trending_topics\",\n      9,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  },\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"recent_launches\",\n      7,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  },\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"recent_launches\",\n      9,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  }\n]",
+      "reason": "aborted: [\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"trending_topics\",\n      6,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  },\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"recent_launches\",\n      3,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  },\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"recent_launches\",\n      9,\n      \"summary\"\n    ],\n    \"message\": \"Too small: expected string to have >=1 characters\"\n  }\n]",
       "reason_class": "aborted",
       "retries": 0
     }

@@ -17,7 +17,7 @@ Run aborted: [
     "inclusive": true,
     "path": [
       "trending_topics",
-      9,
+      6,
       "summary"
     ],
     "message": "Too small: expected string to have >=1 characters"
@@ -29,7 +29,7 @@ Run aborted: [
     "inclusive": true,
     "path": [
       "recent_launches",
-      7,
+      3,
       "summary"
     ],
     "message": "Too small: expected string to have >=1 characters"
