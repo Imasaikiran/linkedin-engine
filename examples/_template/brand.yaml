@@ -1,10 +1,10 @@
 identity:
-  role: "Builder writing in public about shipping AI agent products"
-  goal: "Be known for clear, honest writing about building with LLMs"
+  role: "Your one-line role (what you do)"
+  goal: "What you want to be known for"
   audience:
-    primary: "AI PMs and eng leads at OpenAI, Anthropic, Google DeepMind"
-    secondary: "AI investors, technical founders, applied ML engineers"
-  positioning: "Strategic operator who ships, with strong technical judgment"
+    primary: "Who you most want to reach"
+    secondary: "Who else benefits from reading you"
+  positioning: "How you want to be seen, in one line"
 
 voice:
   must_have_in_every_post:
@@ -21,15 +21,9 @@ voice:
       - "delve"
       - "leverage"
       - "synergy"
-      - "ecosystem"
-      - "unpack"
-      - "unlock"
-      - "Let that sink in"
-      - "Here's the thing"
     banned_openers:
       - "I recently"
       - "Excited to share"
-      - "Today I want to share"
   rhythm:
     hook_max_words: 12
     paragraph_max_lines: 4
@@ -40,11 +34,11 @@ cadence:
   mon:
     pillar: shipped
     template: |
-      LINE 1: hook — contradiction or specific number, ≤10 words, no period
-      LINES 2-3: 1-line context
-      LINES 4-6: anecdote with specifics (product, metric, decision)
-      LINES 7-9: tradeoff or lesson learned
-      LAST LINE: closing claim or sharp question
+      LINE 1: hook, a specific number or contradiction, 10 words or fewer, no period
+      LINES 2-3: one line of context
+      LINES 4-6: an anecdote with specifics (product, metric, decision)
+      LINES 7-9: a tradeoff or lesson learned
+      LAST LINE: a closing claim or sharp question
     requires:
       - shipping_anecdote
       - named_product
@@ -53,10 +47,10 @@ cadence:
   wed:
     pillar: framework
     template: |
-      LINE 1: hook — name the framework or pattern, ≤10 words
-      LINE 2: 1-line why it matters now
-      LINES 3-N: numbered list, 3 items, 2-line each
-      LAST LINE: application invitation
+      LINE 1: hook, name the framework or pattern, 10 words or fewer
+      LINE 2: one line on why it matters now
+      LINES 3-N: a numbered list, 3 items, 2 lines each
+      LAST LINE: an invitation to apply it
     requires:
       - named_framework
       - numbered_list
@@ -65,11 +59,11 @@ cadence:
   fri:
     pillar: critique
     template: |
-      LINE 1: hook — name the launch + your contrarian angle
-      LINE 2: 1-line on common interpretation
-      LINES 3-5: "what others miss" with specifics
-      LINES 6-8: your reframe with charity
-      LAST LINE: invitation to debate
+      LINE 1: hook, name the launch plus your contrarian angle
+      LINE 2: one line on the common interpretation
+      LINES 3-5: what others miss, with specifics
+      LINES 6-8: your reframe, charitably
+      LAST LINE: an invitation to debate
     requires:
       - specific_recent_launch
       - contrarian_take
@@ -77,11 +71,9 @@ cadence:
 
 engagement:
   hook_patterns:
-    - "I made a $X mistake. Here's what I learned."
+    - "I made a $X mistake. Here is what I learned."
     - "Stop doing X. Start doing Y."
-    - "[Number] reasons [contrarian claim about thing]"
-    - "[Specific PM/company] is wrong about X. Here's why."
-    - "Last week I [specific action]. The unexpected result:"
+    - "[Number] reasons [contrarian claim]"
   require_save_worthy: true
   closing_question_optional: true
   white_space: aggressive
@@ -92,10 +84,10 @@ sources:
     enabled: true
     queries_per_run: 4
     queries:
-      - "top AI PM LinkedIn posts last 7 days"
-      - "OpenAI Anthropic product launch this week"
-      - "AI product manager framework {today_year_month}"
-      - "frontier model company hiring product"
+      - "your topic this week"
+      - "a launch or release in your space"
+      - "a framework or pattern in your field"
+      - "who is hiring or building in your space"
   voice_corpus:
     dir: voice-corpus/external
     samples_per_draft: 3
@@ -118,5 +110,5 @@ quality:
   fail_open: false
 
 gates:
-  voice_mode: log_only   # log_only for the first 48h, then flip to blocking
+  voice_mode: log_only
   fact_mode: log_only
