@@ -1,0 +1,16 @@
+name: New example profile
+description: Propose a new voice profile under examples/
+labels: [profile]
+body:
+  - type: input
+    id: persona
+    attributes:
+      label: Whose voice
+      placeholder: founder, dev-rel, researcher
+    validations:
+      required: true
+  - type: textarea
+    id: cadence
+    attributes:
+      label: Weekly cadence
+      description: What kind of post each day (Mon/Wed/Fri).
