@@ -7,19 +7,19 @@ import { BrandDayEnum } from '../lib/brand.js';
 import { complete, extractJson, resolveModelId } from '../lib/llm.js';
 import { makeLogger } from '../lib/log.js';
 import { ClaimSchema, type ScoredCluster } from '../lib/schema.js';
-import { runScout, type ScoutOutput, type ScoutSource, type TopicItem } from './scout.js';
+import { runScout, type ScoutOutput, type ScoutSource, type TopicItem } from '../agents/scout.js';
 import {
   runStrategist,
   type RecentAngleHint,
   type StrategistAngle,
-} from './strategist.js';
-import { runDrafter, type DrafterSource } from './drafter.js';
+} from '../agents/strategist.js';
+import { runDrafter, type DrafterSource } from '../agents/drafter.js';
 import {
   runCritic,
   runCriticOnce,
   CriticVerdictSchema,
   type CriticVerdict,
-} from './critic.js';
+} from '../agents/critic.js';
 
 const log = makeLogger({ name: 'orchestrator' });
 

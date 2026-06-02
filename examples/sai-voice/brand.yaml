@@ -1,6 +1,6 @@
 identity:
-  role: "Senior AI PM building 0→1 products at AI startups"
-  goal: "Land an AI PM role at a frontier model company"
+  role: "Builder writing in public about shipping AI agent products"
+  goal: "Be known for clear, honest writing about building with LLMs"
   audience:
     primary: "AI PMs and eng leads at OpenAI, Anthropic, Google DeepMind"
     secondary: "AI investors, technical founders, applied ML engineers"
@@ -97,7 +97,7 @@ sources:
       - "AI product manager framework {today_year_month}"
       - "frontier model company hiring product"
   voice_corpus:
-    dir: data/voice-corpus
+    dir: voice-corpus/external
     samples_per_draft: 3
 
 agents:

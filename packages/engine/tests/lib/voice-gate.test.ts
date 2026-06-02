@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { runVoiceGate } from '../../src/lib/gate.js';
 import { loadBrand, type Brand } from '../../src/lib/brand.js';
 
-const BRAND: Brand = loadBrand();
+const BRAND: Brand = loadBrand('../../examples/sai-voice/brand.yaml');
 
 /** Deep-clone the brand so individual tests can mutate without bleeding state. */
 function cloneBrand(b: Brand = BRAND): Brand {

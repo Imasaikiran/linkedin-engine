@@ -143,7 +143,7 @@ function makeFakeClient(opts: {
 }
 
 function getBrand(): Brand {
-  return loadBrand();
+  return loadBrand('../../examples/sai-voice/brand.yaml');
 }
 
 // ---------- snapshot test ----------

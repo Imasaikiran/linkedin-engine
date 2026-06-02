@@ -18,7 +18,7 @@ afterEach(() => {
 
 // ---------- fixtures ----------
 function getBrand(): Brand {
-  return loadBrand();
+  return loadBrand('../../examples/sai-voice/brand.yaml');
 }
 
 const ANGLE_MON: StrategistAngle = {

@@ -8,10 +8,10 @@ import {
   runAgenticPipeline,
   AgenticRunSummarySchema,
   computeIsoWeek,
-} from '../src/agentic-pipeline.js';
+} from '../src/legacy/agentic-pipeline.js';
 import { makeLogger } from '../src/lib/log.js';
 import { loadBrand, type Brand } from '../src/lib/brand.js';
-import type { OrchestratorResult } from '../src/agents/orchestrator.js';
+import type { OrchestratorResult } from '../src/legacy/orchestrator.js';
 import type Anthropic from '@anthropic-ai/sdk';
 import type { Logger } from 'pino';
 
@@ -19,7 +19,7 @@ import type { Logger } from 'pino';
 // Fixtures
 // ────────────────────────────────────────────────────────────────────────────
 
-const BRAND: Brand = loadBrand();
+const BRAND: Brand = loadBrand('../../examples/sai-voice/brand.yaml');
 const WEEK = '2026-W16';
 
 /**
@@ -486,7 +486,7 @@ describe('runAgenticPipeline — fs error containment', () => {
 
     try {
       const { runAgenticPipeline: runPipeline, AgenticRunSummarySchema: Schema } =
-        await import('../src/agentic-pipeline.js');
+        await import('../src/legacy/agentic-pipeline.js');
 
       const result = await runPipeline({
         brand: BRAND,

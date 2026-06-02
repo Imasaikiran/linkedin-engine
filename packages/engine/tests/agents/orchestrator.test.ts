@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { runOrchestrator } from '../../src/agents/orchestrator.js';
+import { runOrchestrator } from '../../src/legacy/orchestrator.js';
 import { loadBrand, type Brand } from '../../src/lib/brand.js';
 import * as strategistMod from '../../src/agents/strategist.js';
 
@@ -15,7 +15,7 @@ afterEach(() => {
 
 // ---------- fixtures ----------
 function getBrand(): Brand {
-  return loadBrand();
+  return loadBrand('../../examples/sai-voice/brand.yaml');
 }
 
 function tmpDataDir(): string {

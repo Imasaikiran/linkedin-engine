@@ -7,6 +7,8 @@ dist/
 build/
 coverage/
 .cache/
+packages/**/dist/
+*.tsbuildinfo
 
 # pipeline intermediate artifacts (keep data/runs/, drafts/, posted/, QUALITY.md)
 data/raw/

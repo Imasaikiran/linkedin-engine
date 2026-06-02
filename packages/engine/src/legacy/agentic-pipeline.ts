@@ -9,15 +9,15 @@ import { stringify as stringifyYaml } from 'yaml';
 import type Anthropic from '@anthropic-ai/sdk';
 import type { Logger } from 'pino';
 
-import { loadBrand, type Brand } from './lib/brand.js';
-import { makeClient } from './lib/llm.js';
-import { makeLogger } from './lib/log.js';
-import { runVoiceGate } from './lib/gate.js';
+import { loadBrand, type Brand } from '../lib/brand.js';
+import { makeClient } from '../lib/llm.js';
+import { makeLogger } from '../lib/log.js';
+import { runVoiceGate } from '../lib/gate.js';
 import {
   runOrchestrator,
   type DayRunResult,
   type OrchestratorResult,
-} from './agents/orchestrator.js';
+} from './orchestrator.js';
 
 // ────────────────────────────────────────────────────────────────────────────
 // Note on the hallucination gate

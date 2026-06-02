@@ -17,7 +17,7 @@ afterEach(() => {
 
 // ---------- fixtures ----------
 function getBrand(): Brand {
-  return loadBrand();
+  return loadBrand('../../examples/sai-voice/brand.yaml');
 }
 
 // Generic blog-style draft: no PM POV, generic opener, no shipping anecdote,

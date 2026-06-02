@@ -5,11 +5,11 @@ import path from 'node:path';
 import { BrandSchema, loadBrand } from '../../src/lib/brand.js';
 
 const REPO_ROOT = process.cwd();
-const REPO_BRAND = path.join(REPO_ROOT, 'brand.yaml');
+const REPO_BRAND = path.join(REPO_ROOT, '../../examples/sai-voice/brand.yaml');
 
 describe('brand', () => {
   it('loadBrand reads the actual repo brand.yaml without throwing', () => {
-    const brand = loadBrand();
+    const brand = loadBrand(REPO_BRAND);
     expect(brand.identity.role.length).toBeGreaterThan(0);
     expect(brand.identity.audience.primary.length).toBeGreaterThan(0);
     expect(brand.voice.rhythm.target_words[0]).toBeLessThanOrEqual(brand.voice.rhythm.target_words[1]);
@@ -23,7 +23,7 @@ describe('brand', () => {
   });
 
   it('all 3 cadence days (mon/wed/fri) parse correctly', () => {
-    const brand = loadBrand();
+    const brand = loadBrand(REPO_BRAND);
     for (const day of ['mon', 'wed', 'fri'] as const) {
       const cfg = brand.cadence[day];
       expect(cfg.pillar.length).toBeGreaterThan(0);
@@ -63,14 +63,14 @@ describe('brand', () => {
   });
 
   it('BrandSchema rejects out-of-enum white_space', () => {
-    const baseline = loadBrand();
+    const baseline = loadBrand(REPO_BRAND);
     const tampered = { ...baseline, engagement: { ...baseline.engagement, white_space: 'WAY_TOO_MUCH' } };
     const res = BrandSchema.safeParse(tampered);
     expect(res.success).toBe(false);
   });
 
   it('BrandSchema rejects payload missing top-level agents section', () => {
-    const brand = loadBrand();
+    const brand = loadBrand(REPO_BRAND);
     const tampered = JSON.parse(JSON.stringify(brand));
     delete tampered.agents;
     const res = BrandSchema.safeParse(tampered);
@@ -78,7 +78,7 @@ describe('brand', () => {
   });
 
   it('BrandSchema rejects wrong type for agents.scout.max_tokens', () => {
-    const brand = loadBrand();
+    const brand = loadBrand(REPO_BRAND);
     const tampered = JSON.parse(JSON.stringify(brand));
     tampered.agents.scout.max_tokens = 'lots';
     const res = BrandSchema.safeParse(tampered);
@@ -86,7 +86,7 @@ describe('brand', () => {
   });
 
   it('BrandSchema rejects unknown enum value in voice.must_have_in_every_post', () => {
-    const brand = loadBrand();
+    const brand = loadBrand(REPO_BRAND);
     const tampered = JSON.parse(JSON.stringify(brand));
     tampered.voice.must_have_in_every_post = ['bogus_value'];
     const res = BrandSchema.safeParse(tampered);
@@ -94,7 +94,7 @@ describe('brand', () => {
   });
 
   it('BrandSchema accepts the loaded brand round-trip', () => {
-    const brand = loadBrand();
+    const brand = loadBrand(REPO_BRAND);
     const res = BrandSchema.safeParse(brand);
     expect(res.success).toBe(true);
   });

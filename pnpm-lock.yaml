@@ -6,7 +6,9 @@ settings:
 
 importers:
 
-  .:
+  .: {}
+
+  packages/engine:
     dependencies:
       '@anthropic-ai/sdk':
         specifier: ^0.90.0

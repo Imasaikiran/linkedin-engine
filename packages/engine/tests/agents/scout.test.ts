@@ -66,7 +66,7 @@ function makeFakeClient(opts: {
 }
 
 function brandWithWebSearch(enabled: boolean): Brand {
-  const brand = loadBrand();
+  const brand = loadBrand('../../examples/sai-voice/brand.yaml');
   return {
     ...brand,
     sources: {
