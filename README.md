@@ -1,42 +1,82 @@
 # linkedin-engine
 
-3 LinkedIn drafts per week (Mon/Wed/Fri), source-grounded, human voice. Designed to support a 90-day plan to land an AI PM role at a frontier model company.
+An open-source agent that writes three LinkedIn drafts a week in your voice,
+grounded in real sources, with every run fully traced. You give it a profile that
+describes your voice. A graph of small agents does the rest. A human posts.
 
-## What you read
+It writes drafts. It refuses to write bad ones. It shows its work.
 
-Only this folder, ever:
+## How it works
 
 ```
-drafts/YYYY-WW/{mon,wed,fri}.md
+brand.yaml (your voice)  ->  scout -> strategist -> draft x3 -> critic x3
+                                                                    |
+                                                  approve | fix-block (retry <=2)
+                                                                    v
+                                              fact gate + voice gate (deterministic)
+                                                                    |
+                                                                    v
+                                          drafts/YYYY-WW/{mon,wed,fri}.md
 ```
 
-Skipped days write `{day}.SKIPPED.md` with the reason (critic block, voice gate fail, abort). Never published automatically.
+Every model call is a Langfuse span, so a whole run is one readable trace. See
+[ARCHITECTURE.md](./ARCHITECTURE.md) for the full map.
 
-## How it runs
+- **Scout** (Haiku) finds sources from the last seven days.
+- **Strategist** (Sonnet) picks one angle per day, pinned to that day's pillar.
+- **Drafter** (Sonnet, x3 parallel) writes, each draft emitting its claims with source URLs.
+- **Critic** (Sonnet, x3) reads each draft like a target reader.
+- **Fact gate** (deterministic) rejects any claim whose source was not actually scouted.
+- **Voice gate** (deterministic) rejects banned phrases, broken rhythm, dashes.
 
-GitHub Actions cron triggers Sun 00:30 UTC and Wed 00:30 UTC. A single agentic pipeline runs five stages in sequence per day:
+Skipped days write `{day}.SKIPPED.md` with the reason. Nothing posts automatically.
 
-1. **Scout** (Haiku + web_search) — gather recent AI-lab + PM-community signals
-2. **Strategist** (Sonnet) — pick one angle per day, pinned to `brand.cadence[day].pillar`
-3. **Drafter ×3** (Sonnet, parallel) — one post per day
-4. **Critic ×3** (Sonnet, parallel) — approve / fix-soft / fix-block with targeted feedback
-5. **Deterministic voice gate** — brand.yaml-driven checks (banned phrases, rhythm, dashes) as a final safety net
+## Quick start (about 30 minutes)
 
-Runs commit drafts + run summary to `main`. GitHub mobile sends a push.
+```bash
+pnpm install
+cp .env.example .env          # add your Anthropic key (Langfuse optional)
+pnpm pipeline --profile examples/sai-voice --dry-run
+```
+
+A run prints `week ...: N/3 published, $cost` and writes to `drafts/`.
+
+Make your own voice:
+
+```bash
+cp -r examples/_template examples/my-voice
+# edit examples/my-voice/brand.yaml
+pnpm pipeline --profile examples/my-voice
+```
+
+## What it costs
+
+Under fifty cents a run, capped in `brand.yaml`. The whole thing runs on free
+tiers and a GitHub Actions cron. No server.
 
 ## Single source of truth
 
-`brand.yaml` owns everything tunable: voice rules, banned phrases, rhythm bands, per-day pillars, agent models, budgets. Change the band once, the gate and drafter prompts pick it up on the next run. No code edit, no redeploy.
+`brand.yaml` owns everything tunable: voice rules, banned phrases, rhythm bands,
+per-day pillars, agent models, budgets, gate modes. To change strategy you edit
+that file, not code.
 
-## Local
+## Demo
 
-```
-pnpm install
-cp .env.example .env   # fill ANTHROPIC_API_KEY
-pnpm test              # all unit tests
-pnpm pipeline          # full week run
-```
+- Demo profile: [`examples/sai-voice`](./examples/sai-voice)
+- A recent run's drafts: [`drafts/`](./drafts)
+- Public Langfuse trace: [a real run, span per node](https://cloud.langfuse.com/trace/1e5a5622cf85438f2b45e7f50bf983de)
 
-## Spec
+## Design docs
 
-`docs/superpowers/specs/2026-04-19-linkedin-engine-design.md`
+- [Product requirements](./docs/v2/PRD.md)
+- [Technical design](./docs/v2/DESIGN.md)
+- [Architecture](./ARCHITECTURE.md)
+- [How to contribute](./CONTRIBUTING.md)
+
+## Status
+
+v2 MVP. The engine, graph, tracing, and fact gate are live. The LLM judge,
+Supabase stats, and the public dashboard land next. See
+[DESIGN.md](./docs/v2/DESIGN.md) section 14 for the rollout.
+
+MIT licensed. The engine never posts to LinkedIn. A human always posts.

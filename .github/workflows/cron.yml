@@ -1,0 +1,119 @@
+name: cron
+
+on:
+  schedule:
+    - cron: '30 0 * * 0'   # Sun 00:30 UTC = 06:00 IST
+    - cron: '30 0 * * 3'   # Wed 00:30 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with: { version: 10 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: run pipeline
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+          LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+          LANGFUSE_HOST: ${{ secrets.LANGFUSE_HOST }}
+          USER_AGENT: linkedin-engine/0.1 (+github.com/${{ github.repository }})
+        run: pnpm pipeline --profile examples/sai-voice
+      - name: assert cost budget
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          COST_BUDGET_USD: '0.50'
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const runDir = 'data/runs';
+            if (!fs.existsSync(runDir)) {
+              core.info('no data/runs dir, skipping cost budget assertion');
+              return;
+            }
+            const files = fs.readdirSync(runDir)
+              .filter(f => f.endsWith('.json'))
+              .map(f => ({ f, m: fs.statSync(path.join(runDir, f)).mtimeMs }))
+              .sort((a, b) => b.m - a.m);
+            if (files.length === 0) {
+              core.info('no run summary found, skipping cost budget assertion');
+              return;
+            }
+            const summaryPath = path.join(runDir, files[0].f);
+            const summary = JSON.parse(fs.readFileSync(summaryPath, 'utf8'));
+            const budget = parseFloat(process.env.COST_BUDGET_USD);
+            const cost = summary.total_cost_usd ?? 0;
+            core.info(`week=${summary.week} cost=$${cost.toFixed(4)} budget=$${budget.toFixed(2)}`);
+            if (cost > budget) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `cost budget exceeded ${summary.week}`,
+                body: [
+                  `**Week:** ${summary.week}`,
+                  `**Cost:** $${cost.toFixed(4)} (budget: $${budget.toFixed(2)})`,
+                  `**Wall ms:** ${summary.wall_ms}`,
+                  `**Drafts produced:** ${summary.drafts_produced}`,
+                  `**Drafts skipped:** ${summary.drafts_skipped}`,
+                  `**Aborted:** ${summary.aborted}`,
+                  summary.abort_reason ? `**Abort reason:** ${summary.abort_reason}` : '',
+                  ``,
+                  `Run: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+                ].filter(Boolean).join('\n'),
+                labels: ['cost-budget', 'automated'],
+              });
+              core.setFailed(`cost $${cost.toFixed(4)} exceeded budget $${budget.toFixed(2)} for week ${summary.week}`);
+            }
+      - name: commit drafts + run summary
+        if: always()
+        run: |
+          git config user.name "linkedin-engine-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add drafts/ posted/ data/runs/ QUALITY.md || true
+          git diff --cached --quiet || git commit -m "chore: weekly pipeline run [skip ci]"
+          git push
+      - name: upload diagnostic artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-data
+          path: |
+            data/drafts/
+            data/angles/
+            data/clusters/
+            data/scored/
+            logs/
+          retention-days: 7
+      - name: write step summary
+        if: always()
+        run: |
+          echo "## Pipeline run" >> $GITHUB_STEP_SUMMARY
+          LATEST=$(ls -t data/runs/*.json 2>/dev/null | head -1)
+          if [ -n "$LATEST" ] && [ -f "$LATEST" ]; then
+            node -e "const s=require(process.argv[1]); console.log('- **Week:** ' + s.week); console.log('- **Cost:** $' + (s.total_cost_usd ?? 0).toFixed(4)); console.log('- **Wall ms:** ' + s.wall_ms); console.log('- **Drafts produced:** ' + s.drafts_produced); console.log('- **Drafts skipped:** ' + s.drafts_skipped); console.log('- **Aborted:** ' + s.aborted); if (s.abort_reason) console.log('- **Abort reason:** ' + s.abort_reason);" "$PWD/$LATEST" >> $GITHUB_STEP_SUMMARY || true
+          else
+            echo "_No run summary found._" >> $GITHUB_STEP_SUMMARY
+          fi
+          ls drafts/ 2>/dev/null | tail -1 | xargs -I{} ls drafts/{} >> $GITHUB_STEP_SUMMARY || true
+      - name: open issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner, repo: context.repo.repo,
+              title: `pipeline failed ${new Date().toISOString().slice(0,10)}`,
+              body: `Run: ${context.runId}\nLogs: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+            });

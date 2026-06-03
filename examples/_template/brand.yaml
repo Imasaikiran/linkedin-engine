@@ -1,0 +1,114 @@
+identity:
+  role: "Your one-line role (what you do)"
+  goal: "What you want to be known for"
+  audience:
+    primary: "Who you most want to reach"
+    secondary: "Who else benefits from reading you"
+  positioning: "How you want to be seen, in one line"
+
+voice:
+  must_have_in_every_post:
+    - first_person_past_tense
+    - one_concrete_number
+    - one_named_product_or_person
+  must_not_have:
+    em_dashes: true
+    en_dashes: true
+    banned_phrases:
+      - "game-changer"
+      - "thought leader"
+      - "deep dive"
+      - "delve"
+      - "leverage"
+      - "synergy"
+    banned_openers:
+      - "I recently"
+      - "Excited to share"
+  rhythm:
+    hook_max_words: 12
+    paragraph_max_lines: 4
+    target_words: [180, 340]
+    target_chars: [1100, 2150]
+
+cadence:
+  mon:
+    pillar: shipped
+    template: |
+      LINE 1: hook, a specific number or contradiction, 10 words or fewer, no period
+      LINES 2-3: one line of context
+      LINES 4-6: an anecdote with specifics (product, metric, decision)
+      LINES 7-9: a tradeoff or lesson learned
+      LAST LINE: a closing claim or sharp question
+    requires:
+      - shipping_anecdote
+      - named_product
+      - metric_or_outcome
+
+  wed:
+    pillar: framework
+    template: |
+      LINE 1: hook, name the framework or pattern, 10 words or fewer
+      LINE 2: one line on why it matters now
+      LINES 3-N: a numbered list, 3 items, 2 lines each
+      LAST LINE: an invitation to apply it
+    requires:
+      - named_framework
+      - numbered_list
+      - save_worthy_artifact
+
+  fri:
+    pillar: critique
+    template: |
+      LINE 1: hook, name the launch plus your contrarian angle
+      LINE 2: one line on the common interpretation
+      LINES 3-5: what others miss, with specifics
+      LINES 6-8: your reframe, charitably
+      LAST LINE: an invitation to debate
+    requires:
+      - specific_recent_launch
+      - contrarian_take
+      - named_company
+
+engagement:
+  hook_patterns:
+    - "I made a $X mistake. Here is what I learned."
+    - "Stop doing X. Start doing Y."
+    - "[Number] reasons [contrarian claim]"
+  require_save_worthy: true
+  closing_question_optional: true
+  white_space: aggressive
+
+sources:
+  rss_config: config/sources.yaml
+  web_search:
+    enabled: true
+    queries_per_run: 4
+    queries:
+      - "your topic this week"
+      - "a launch or release in your space"
+      - "a framework or pattern in your field"
+      - "who is hiring or building in your space"
+  voice_corpus:
+    dir: voice-corpus/external
+    samples_per_draft: 3
+
+agents:
+  scout: { model: claude-haiku-4-5, max_tokens: 3000 }
+  strategist: { model: claude-sonnet-4-6, max_tokens: 1500 }
+  drafter: { model: claude-sonnet-4-6, max_tokens: 1500, parallel: true }
+  critic: { model: claude-sonnet-4-6, max_tokens: 1200, parallel: true }
+  max_retry_loops: 2
+
+budgets:
+  cost_usd_per_run: 0.50
+  wall_time_seconds: 180
+  fallback_on_overrun: skip_with_summary
+
+quality:
+  publish_only_if_critic_approves: true
+  publish_if_voice_gate_passes_even_if_critic_soft_rejects: false
+  fail_open: false
+
+gates:
+  voice_mode: log_only
+  fact_mode: log_only
