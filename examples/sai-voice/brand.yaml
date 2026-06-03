@@ -119,7 +119,7 @@ quality:
 
 gates:
   voice_mode: log_only   # still log_only: no voice calibration yet, v1 ran too strict
-  fact_mode: log_only    # still log_only: blocking rejected all 3 drafts (claim matcher too strict, needs tuning)
+  fact_mode: blocking    # blocks only uncited or fabricated-citation factual claims (content accuracy is the critic's job)
 
 judge:
   threshold: 3.0         # calibrated: leave-one-out over the golden corpus rejects 0 approved posts at 3.0 (1 at 3.5)

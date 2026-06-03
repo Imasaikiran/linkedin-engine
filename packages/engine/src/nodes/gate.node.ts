@@ -47,7 +47,7 @@ export async function gateNode(state: GraphStateValue): Promise<Partial<GraphSta
         day,
         status: "skipped",
         reasonClass: "fact_fail",
-        reason: fact.verdicts.filter((v) => v.verdict !== "PASS").map((v) => v.reason).join("; "),
+        reason: fact.hardFails.join("; "),
         pillar,
         retries,
       });

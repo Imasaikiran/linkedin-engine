@@ -3,32 +3,26 @@ week: 2026-W23
 day: wed
 pillar: framework
 retries: 0
-word_count: 245
-char_count: 1460
-trace_url: ""
+word_count: 243
+char_count: 1463
+trace_url: https://cloud.langfuse.com/trace/6d259c43043c95c7924c57f686f8b821
 ---
 
-Stop writing PRDs. Start engineering context
+Stop writing acceptance criteria. Start writing synthetic evals
 
-AI PMs at frontier labs are discovering that the PRD is no longer the primary artifact. Persistent context engineering is. Synthetic evals are collapsing feedback loops from weeks to hours, and the teams moving fastest are the ones who have a repeatable stack for it.
+AI PMs at Anthropic, OpenAI, and DeepMind are quietly replacing manual QA checklists with automated validation pipelines. The teams shipping fastest have a shared pattern. I started calling it the Synthetic Eval Stack after watching three product cycles collapse under criteria that looked right but tested nothing real.
 
-I mapped this into a framework I now use every sprint. I call it the Context Engineering Stack.
+Here is the framework, numbered so you can screenshot it and use it Monday.
 
-1. Signal Layer
-Capture the inputs your model will actually see. Raw prompts, retrieved chunks, tool outputs. If you cannot read it, your model cannot reason from it.
+1. Specify behavior, not intent
+Write the expected model output as a concrete string or structured object, not a vague goal. If your eval cannot fail automatically, it is not an eval. It is a wish.
 
-2. Eval Layer
-Write synthetic evaluation tests before you write features. This alone cut our hallucination risk by 80% on one recent production rollout. Validation is now a design step, not a QA step.
+2. Generate 50 adversarial variants before a single human reviews
+Use a judge model (GPT-4o or Claude Sonnet 3.7 both work) to mutate your seed prompt across edge cases. One good seed case typically produces 50 meaningful test variants in under 4 minutes. Human review happens after, not instead of, this step.
 
-3. Memory Layer
-Decide what persists across sessions and what resets. Agentic workflows break without explicit memory contracts. Document them the way you used to document API schemas.
+3. Gate every deploy on a regression score, not a review meeting
+Set a numeric threshold. If the batch pass rate drops below your baseline, the deploy stops. No exceptions, no override culture. The score is the acceptance criterion now.
 
-4. Routing Layer
-Map which tasks go to deterministic logic and which go to probabilistic inference. Mixing them without a clear boundary is where most AI products quietly fail.
+If you manage AI products and your current process still depends on a human reading outputs before each release, this framework is the fastest way to close that gap.
 
-5. Feedback Layer
-Close the loop in hours, not sprints. Synthetic evals give you a signal before real users ever touch the feature.
-
-The PRD told engineers what to build. The Context Engineering Stack tells your model how to think.
-
-Save this. Share it with one AI PM on your team. What step is your team skipping?
+Save this. Share it with your team. Tell me which step breaks first for your stack.

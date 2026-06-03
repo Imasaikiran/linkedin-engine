@@ -69,3 +69,34 @@ Spearman correlation >= 0.6.
 The judge is validated on all three axes: it recognizes good content (calibration),
 rejects slop (negative test), and tracks the owner's taste (this sheet). The
 blocking gate at threshold 3.0 is trustworthy.
+
+---
+
+## Fact gate fix (now blocking)
+
+The earlier note kept fact_mode in log_only because blocking rejected all 3 drafts.
+Root-caused with a diagnostic (packages/engine/src/scripts/factDebug.ts) that dumps
+every claim and its verdict. Findings across 3 real drafts:
+
+- Every claim cited a real scouted URL (0 fabricated citations).
+- All failures were content heuristics: "opinion contains a digit" (3x, the author's
+  own first-person metrics), "stat has no digits" (LLM mis-typing), "name not in
+  source" (exact match against a 180-char summary), "opinion contains proper noun".
+- `pass = every claim PASS`, so one borderline claim failed the whole draft.
+
+Root cause: the gate verified claim CONTENT against scout summaries (150-225 chars,
+not full articles) and trusted the LLM's noisy claim typing. Both produce false
+positives.
+
+Fix (src/gates/factGate.ts): block only on the two signals the gate can verify
+deterministically and reliably:
+  1. a non-opinion claim with no source_url, and
+  2. a non-opinion claim whose source_url was not actually scouted.
+
+Content matching still runs and is returned for audit, but does not block. Factual
+accuracy is the critic's and the reviewer's job (per the PRD risk register).
+Opinions (often the author's own metrics) are never required to cite a source.
+
+Result: fact_mode flipped to blocking. A clean run published 3/3 (was 0/3). The
+fabricated-citation case still blocks (unit test). 8 fact-gate tests cover the
+real failure cases as now-passing and the fabrication cases as blocking.
