@@ -1,3 +1,4 @@
+import path from "node:path";
 import Anthropic from "@anthropic-ai/sdk";
 import { runScout, type ScoutOutput } from "../agents/scout.js";
 import { resolveModelId } from "../lib/llm.js";
@@ -16,12 +17,16 @@ function flattenSources(scout: ScoutOutput): { url: string; body: string }[] {
 export async function scoutNode(state: GraphStateValue): Promise<Partial<GraphStateValue>> {
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY ?? "" });
   const model = resolveModelId(state.profile.brand.agents.scout.model);
+  // rss_config (e.g. "config/sources.yaml") is repo-root relative; the profile
+  // dir sits at <root>/examples/<name>, so the root is two levels up.
+  const repoRoot = path.resolve(state.profile.path, "../..");
+  const rssConfigPath = path.join(repoRoot, state.profile.brand.sources.rss_config);
   const { value: scout, costUsd } = await traced(
     "scout",
     model,
     { window_days: 7 },
     async () => {
-      const r = await runScout({ client, brand: state.profile.brand });
+      const r = await runScout({ client, brand: state.profile.brand, rssConfigPath });
       return { value: r, costUsd: r.cost_usd, output: { source: r.source } };
     },
   );
