@@ -9,6 +9,8 @@ coverage/
 .cache/
 packages/**/dist/
 *.tsbuildinfo
+packages/**/.next/
+next-env.d.ts
 
 # pipeline intermediate artifacts (keep data/runs/, drafts/, posted/, QUALITY.md)
 data/raw/

@@ -3,23 +3,21 @@ week: 2026-W23
 day: mon
 pillar: shipped
 retries: 0
-word_count: 195
-char_count: 1089
-trace_url: https://cloud.langfuse.com/trace/6d259c43043c95c7924c57f686f8b821
+word_count: 197
+char_count: 1213
+trace_url: https://cloud.langfuse.com/trace/b15fa97c8e5919b16512e0b4a6319c9a
 ---
 
-A stakeholder signed off on my prototype in 4 hours
+I vibe-coded a working prototype in 40 minutes last Tuesday
 
-That used to take two weeks of back-and-forth, slide decks, and calendar ping-pong.
+For months I assumed rapid prototyping was an engineer's job. I was wrong.
 
-Last week I vibe-coded a working HTML prototype using Claude Code. Not a mockup. Not a Figma frame. A clickable thing that stakeholders could actually touch. I handed it over at 9 a.m. and had sign-off by 1 p.m.
+Using Claude Code, I built a functional onboarding flow mockup, wired it to dummy data, and walked it into a design review the same afternoon. The room stopped debating requirements and started reacting to something real. We cut a two-week scoping cycle down to a single 90-minute session.
 
-The tradeoff I had to accept was real. The code was messy. I would not ship it to production. But that was never the point. The point was reducing the gap between an idea in my head and a shared artifact someone else could react to.
+The tradeoff nobody warned me about: speed surfaces disagreement faster. We hit three conflicting assumptions about user intent before lunch. That friction would have lived quietly in a PRD for days, only exploding during sprint planning. Getting it out early was uncomfortable and completely worth it.
 
-That gap used to cost me days. Now it costs me a morning.
+What shifted for me was ownership. When a PM can ship a tangible artifact in under an hour, the handoff conversation changes. You stop describing what you want and start showing it. Feedback gets specific. Decisions get made.
 
-What changed my thinking was separating "good enough to decide" from "good enough to deploy." Most prototypes only need to clear the first bar, and I was wasting time building toward the second one out of habit.
+AI-assisted workflows are collapsing product cycles from weeks to days. That is not a prediction, it is already the baseline for teams paying attention.
 
-Claude Code made it fast enough that I stopped treating prototyping as a separate phase. It collapsed into the thinking itself.
-
-If you are still treating prototypes as deliverables, you are probably slowing your own decisions down.
+If you have not tried vibe-coding a prototype before your next design sync, what are you waiting for
