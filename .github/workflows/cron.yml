@@ -1,4 +1,4 @@
-name: pipeline
+name: cron
 
 on:
   schedule:
@@ -17,16 +17,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v3
-        with: { version: 9 }
+        with: { version: 10 }
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: pnpm }
       - run: pnpm install --frozen-lockfile
       - name: run pipeline
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          VOYAGE_API_KEY: ${{ secrets.VOYAGE_API_KEY }}
+          LANGFUSE_PUBLIC_KEY: ${{ secrets.LANGFUSE_PUBLIC_KEY }}
+          LANGFUSE_SECRET_KEY: ${{ secrets.LANGFUSE_SECRET_KEY }}
+          LANGFUSE_HOST: ${{ secrets.LANGFUSE_HOST }}
           USER_AGENT: linkedin-engine/0.1 (+github.com/${{ github.repository }})
-        run: pnpm pipeline
+        run: pnpm pipeline --profile examples/sai-voice
       - name: assert cost budget
         if: always()
         uses: actions/github-script@v7
