@@ -71,6 +71,9 @@ importers:
       '@linkedin-engine/engine':
         specifier: workspace:*
         version: link:../engine
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
       zod:
         specifier: ^4.3.6
         version: 4.3.6
