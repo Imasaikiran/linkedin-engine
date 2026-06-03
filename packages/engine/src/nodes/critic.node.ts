@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { runCritic } from "../agents/critic.js";
 import { resolveModelId } from "../lib/llm.js";
 import { traced } from "./_node.js";
+import { budgetAbort } from "./strategist.node.js";
 import type { GraphStateValue, Day } from "../state.js";
 import type { CriticVerdict } from "../agents/critic.js";
 
@@ -28,5 +29,5 @@ export async function criticNode(state: GraphStateValue): Promise<Partial<GraphS
   );
   const verdicts: Record<Day, CriticVerdict | undefined> = { ...state.verdicts };
   for (const v of value) verdicts[v.day as Day] = v;
-  return { verdicts, costUsd };
+  return { verdicts, costUsd, ...budgetAbort(state, costUsd) };
 }

@@ -25,9 +25,19 @@ function routeAfterCritic(state: GraphStateValue): "retry" | "gate" {
   return "gate";
 }
 
-/** Bump the retry-pass counter when looping back to draft (guards termination). */
+/**
+ * Bump the retry-pass counter when looping back to draft (guards termination)
+ * and bump the per-day retries counter for each day being redrafted (fix-block).
+ */
 async function bumpRetry(state: GraphStateValue): Promise<Partial<GraphStateValue>> {
-  return { retryPass: state.retryPass + 1 };
+  const retries: Partial<Record<Day, number>> = {};
+  for (const d of DAYS) {
+    const v = state.verdicts[d];
+    if (v && v.verdict === "fix" && v.severity === "block") {
+      retries[d] = (state.retries[d] ?? 0) + 1;
+    }
+  }
+  return { retryPass: state.retryPass + 1, retries: retries as Record<Day, number> };
 }
 
 export function buildGraph() {

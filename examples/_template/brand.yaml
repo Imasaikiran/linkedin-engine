@@ -100,7 +100,7 @@ agents:
   max_retry_loops: 2
 
 budgets:
-  cost_usd_per_run: 0.50
+  cost_usd_per_run: 0.40
   wall_time_seconds: 180
   fallback_on_overrun: skip_with_summary
 

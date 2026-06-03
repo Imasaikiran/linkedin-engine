@@ -41,6 +41,7 @@ export async function run(opts: {
     runId,
     week,
     dryRun: opts.dryRun ?? false,
+    startedAt: Date.now(),
     profile: {
       name: opts.profileDir,
       path: profile.profilePath,

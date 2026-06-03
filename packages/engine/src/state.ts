@@ -60,6 +60,7 @@ export const GraphAnnotation = Annotation.Root({
   }),
   retryPass: Annotation<number>({ reducer: lastWins, default: () => 0 }),
   costUsd: Annotation<number>({ reducer: (c, u) => c + u, default: () => 0 }),
+  startedAt: Annotation<number>({ reducer: lastWins, default: () => 0 }),
   days: Annotation<DayOutcome[]>({ reducer: (c, u) => c.concat(u), default: () => [] }),
   aborted: Annotation<boolean>({ reducer: lastWins, default: () => false }),
   abortReason: Annotation<string | undefined>({ reducer: lastWins, default: () => undefined }),

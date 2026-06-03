@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { runDrafter, type DrafterSource } from "../agents/drafter.js";
 import { resolveModelId } from "../lib/llm.js";
 import { traced } from "./_node.js";
+import { budgetAbort } from "./strategist.node.js";
 import type { GraphStateValue, Day } from "../state.js";
 import type { Draft } from "../lib/schema.js";
 
@@ -36,5 +37,5 @@ export async function draftNode(state: GraphStateValue): Promise<Partial<GraphSt
   );
   const drafts: Record<Day, Draft | undefined> = { mon: undefined, wed: undefined, fri: undefined };
   for (const res of value) drafts[res.day as Day] = res.draft;
-  return { drafts, costUsd };
+  return { drafts, costUsd, ...budgetAbort(state, costUsd) };
 }
