@@ -64,7 +64,7 @@ that file, not code.
 
 - Demo profile: [`examples/sai-voice`](./examples/sai-voice)
 - A recent run's drafts: [`drafts/`](./drafts)
-- Public Langfuse trace: published with the first cron run
+- Public Langfuse trace: [a real run, span per node](https://cloud.langfuse.com/trace/1e5a5622cf85438f2b45e7f50bf983de)
 
 ## Design docs
 

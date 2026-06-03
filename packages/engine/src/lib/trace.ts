@@ -107,9 +107,12 @@ export async function observe<T>(
   ) as Promise<T>;
 }
 
-/** Build the public trace URL for a run id, or undefined when disabled. */
+/**
+ * Build the public trace URL for a run id. Relies on the captured trace id, not
+ * the `enabled` flag, so it still works after flushTracing() has shut the SDK
+ * down (run.ts flushes before reading the URL).
+ */
 export function traceUrl(runId: string): string | undefined {
-  if (!enabled) return undefined;
   const tid = traceIdByRun.get(runId);
   if (!tid) return undefined;
   return `${host}/trace/${tid}`;

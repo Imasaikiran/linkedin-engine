@@ -3,26 +3,32 @@ week: 2026-W23
 day: wed
 pillar: framework
 retries: 0
-word_count: 222
-char_count: 1304
+word_count: 245
+char_count: 1460
 trace_url: ""
 ---
 
-5 reasons your AI eval strategy is still theater
+Stop writing PRDs. Start engineering context
 
-Most teams I worked with in the past year treat evals like unit tests: pass or fail, green or red. That framing breaks the moment your model is probabilistic. Anthropic's Claude Opus 4.8 ships with dynamic workflows and agentic capabilities that make deterministic eval logic look like a sundial next to a GPS.
+AI PMs at frontier labs are discovering that the PRD is no longer the primary artifact. Persistent context engineering is. Synthetic evals are collapsing feedback loops from weeks to hours, and the teams moving fastest are the ones who have a repeatable stack for it.
 
-Save this decision matrix before your next hallucination fire.
+I mapped this into a framework I now use every sprint. I call it the Context Engineering Stack.
 
-1. AI vs. Rules Engine trigger
-If the output space has more than 40 valid correct answers, a rules engine will fail you. Route to the model. If it has fewer than 5, skip the model entirely.
+1. Signal Layer
+Capture the inputs your model will actually see. Raw prompts, retrieved chunks, tool outputs. If you cannot read it, your model cannot reason from it.
 
-2. Fallback logic tiers
-Tier 1: retry with a tighter system prompt. Tier 2: route to a smaller, faster model with constrained output schema. Tier 3: surface a human escalation flag and log the failure state for drift review.
+2. Eval Layer
+Write synthetic evaluation tests before you write features. This alone cut our hallucination risk by 80% on one recent production rollout. Validation is now a design step, not a QA step.
 
-3. Drift trigger thresholds
-Set a rolling 7-day window on your confidence distribution. If the mean drops more than 12 percentage points from your baseline, treat it as a model behavior change, not a data anomaly. Investigate before your next release.
+3. Memory Layer
+Decide what persists across sessions and what resets. Agentic workflows break without explicit memory contracts. Document them the way you used to document API schemas.
 
-The teams that stopped asking "did it pass" and started asking "how did the distribution shift" caught regressions 3 sprints earlier on average.
+4. Routing Layer
+Map which tasks go to deterministic logic and which go to probabilistic inference. Mixing them without a clear boundary is where most AI products quietly fail.
 
-What does your current fallback tier look like? Drop it below.
+5. Feedback Layer
+Close the loop in hours, not sprints. Synthetic evals give you a signal before real users ever touch the feature.
+
+The PRD told engineers what to build. The Context Engineering Stack tells your model how to think.
+
+Save this. Share it with one AI PM on your team. What step is your team skipping?
