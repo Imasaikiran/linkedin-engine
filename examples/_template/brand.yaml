@@ -112,3 +112,8 @@ quality:
 gates:
   voice_mode: log_only
   fact_mode: log_only
+
+judge:
+  threshold: 3.5
+  golden_dir: golden
+  mode: log_only

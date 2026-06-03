@@ -129,6 +129,17 @@ export const GatesSchema = z
   })
   .default({ voice_mode: 'blocking', fact_mode: 'blocking' });
 
+// ---------- judge ----------
+// The LLM judge scores a draft 1 to 5 against the golden corpus. `log_only`
+// records the score without blocking; `blocking` skips drafts below threshold.
+export const JudgeSchema = z
+  .object({
+    threshold: z.number().min(1).max(5).default(3.5),
+    golden_dir: z.string().default('golden'),
+    mode: z.enum(['blocking', 'log_only']).default('log_only'),
+  })
+  .default({ threshold: 3.5, golden_dir: 'golden', mode: 'log_only' });
+
 // ---------- root ----------
 export const BrandSchema = z.object({
   identity: IdentitySchema,
@@ -140,6 +151,7 @@ export const BrandSchema = z.object({
   budgets: BudgetsSchema,
   quality: QualitySchema,
   gates: GatesSchema,
+  judge: JudgeSchema,
 });
 export type Brand = z.infer<typeof BrandSchema>;
 
