@@ -118,6 +118,17 @@ export const QualitySchema = z.object({
   fail_open: z.boolean(),
 });
 
+// ---------- gates ----------
+// Mode per gate. `log_only` records failures but never blocks publication
+// (used for the first 48h after launch); `blocking` skips a failing draft.
+// Defaults to blocking so a profile that omits the block stays safe.
+export const GatesSchema = z
+  .object({
+    voice_mode: z.enum(['blocking', 'log_only']).default('blocking'),
+    fact_mode: z.enum(['blocking', 'log_only']).default('blocking'),
+  })
+  .default({ voice_mode: 'blocking', fact_mode: 'blocking' });
+
 // ---------- root ----------
 export const BrandSchema = z.object({
   identity: IdentitySchema,
@@ -128,6 +139,7 @@ export const BrandSchema = z.object({
   agents: AgentsSchema,
   budgets: BudgetsSchema,
   quality: QualitySchema,
+  gates: GatesSchema,
 });
 export type Brand = z.infer<typeof BrandSchema>;
 
