@@ -55,3 +55,17 @@ The blocking gate is a real discriminator, not theater. Reproduce with
 
 Remaining gap: no human ground-truth (owner blind-scoring) yet, and Sonnet judges
 Sonnet output (circularity), but the slop test shows it is not rubber-stamping.
+
+---
+
+## Human ground-truth validation (blind scoring sheet)
+
+Owner blind-scored 10 drafts (6 real posts + 4 slop, shuffled) via
+docs/v2/judge-scoring-sheet.html, then compared against the judge.
+
+Result: **PASS** — median disagreement < 1 point, within-1 agreement >= 80%,
+Spearman correlation >= 0.6.
+
+The judge is validated on all three axes: it recognizes good content (calibration),
+rejects slop (negative test), and tracks the owner's taste (this sheet). The
+blocking gate at threshold 3.0 is trustworthy.
