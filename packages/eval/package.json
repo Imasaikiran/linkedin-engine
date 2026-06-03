@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "eval": "tsx src/runEval.ts",
+    "calibrate": "tsx src/calibrate.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },

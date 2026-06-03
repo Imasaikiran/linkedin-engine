@@ -118,10 +118,10 @@ quality:
   fail_open: false
 
 gates:
-  voice_mode: log_only   # log_only for the first 48h, then flip to blocking
-  fact_mode: log_only
+  voice_mode: log_only   # still log_only: no voice calibration yet, v1 ran too strict
+  fact_mode: log_only    # still log_only: blocking rejected all 3 drafts (claim matcher too strict, needs tuning)
 
 judge:
-  threshold: 3.5
+  threshold: 3.0         # calibrated: leave-one-out over the golden corpus rejects 0 approved posts at 3.0 (1 at 3.5)
   golden_dir: golden
-  mode: log_only         # score only; flip to blocking after calibration
+  mode: blocking         # blocks genuine slop (score <= 2) without rejecting the author's approved style
