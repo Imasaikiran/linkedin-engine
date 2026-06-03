@@ -33,3 +33,25 @@ RECOMMENDATION: keep log_only OR lower the threshold. 1 approved post(s) would b
 Net: only the **judge** flips to blocking this round. Fact and voice gates stay in log_only pending their own tuning.
 
 Re-run `pnpm --filter @linkedin-engine/eval calibrate` after the golden corpus is curated to ~30 posts to re-confirm the threshold.
+
+---
+
+## Negative test (does slop actually score low?)
+
+Fed the judge 4 deliberate AI-slop drafts plus 1 known-good control. A working
+gate must reject the slop and keep the control.
+
+| draft | score |
+|---|---|
+| control (real golden post) | 5 |
+| slop: buzzword soup | 1 |
+| slop: generic listicle | 1 |
+| slop: hustle motivation | 1 |
+| slop: empty thought-leader | 1 |
+
+Clean separation: good = 5, all slop = 1, threshold 3.0 sits in the empty gap.
+The blocking gate is a real discriminator, not theater. Reproduce with
+`pnpm --filter @linkedin-engine/eval exec tsx src/negTest.ts`.
+
+Remaining gap: no human ground-truth (owner blind-scoring) yet, and Sonnet judges
+Sonnet output (circularity), but the slop test shows it is not rubber-stamping.
