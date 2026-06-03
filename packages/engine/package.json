@@ -19,6 +19,7 @@
     "@langfuse/otel": "^5.4.1",
     "@langfuse/tracing": "^5.4.1",
     "@opentelemetry/sdk-node": "^0.218.0",
+    "@supabase/supabase-js": "^2.107.0",
     "dayjs": "^1.11.20",
     "dotenv": "^17.4.2",
     "pino": "^10.3.1",
