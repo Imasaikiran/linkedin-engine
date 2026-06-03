@@ -48,6 +48,9 @@ vi.mock("../src/agents/critic.js", () => ({
     cost_usd: 0.02,
   })),
 }));
+vi.mock("../src/gates/judge.js", () => ({
+  runJudge: vi.fn(async () => ({ result: { score: 4, reason: "ok" }, cost_usd: 0 })),
+}));
 
 import { run } from "../src/run.js";
 
