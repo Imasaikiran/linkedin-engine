@@ -14,7 +14,14 @@ vi.mock("../../src/agents/critic.js", () => ({
 import { criticNode } from "../../src/nodes/critic.node.js";
 
 const baseState = {
-  profile: { brand: { agents: { critic: { model: "claude-sonnet-4-6" } } } },
+  profile: {
+    brand: {
+      agents: { critic: { model: "claude-sonnet-4-6" } },
+      budgets: { cost_usd_per_run: 0.4, wall_time_seconds: 180 },
+    },
+  },
+  costUsd: 0,
+  startedAt: 0,
   drafts: {
     mon: { post_text: "x", pillar: "shipped", claims: [] },
     wed: { post_text: "y", pillar: "framework", claims: [] },

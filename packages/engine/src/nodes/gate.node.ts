@@ -18,6 +18,20 @@ function sanitize(text: string): string {
 export async function gateNode(state: GraphStateValue): Promise<Partial<GraphStateValue>> {
   const brand = state.profile.brand;
   const outcomes: DayOutcome[] = [];
+
+  // Aborted run: skip every day with the abort reason and run no gates.
+  if (state.aborted) {
+    return {
+      days: DAYS.map((day) => ({
+        day,
+        status: "skipped",
+        reasonClass: "aborted",
+        reason: state.abortReason,
+        retries: state.retries[day] ?? 0,
+      })),
+    };
+  }
+
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY ?? "" });
   const judgeModel = resolveModelId(brand.agents.critic.model);
   const goldenDir = path.join(state.profile.path, brand.judge.golden_dir);

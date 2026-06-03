@@ -31,10 +31,10 @@ voice:
       - "Excited to share"
       - "Today I want to share"
   rhythm:
-    hook_max_words: 12
+    hook_max_words: 14         # calibrated: 2 approved hooks run 14 words
     paragraph_max_lines: 4
-    target_words: [180, 340]
-    target_chars: [1100, 2150]
+    target_words: [120, 340]   # calibrated: shortest approved post is 129 words
+    target_chars: [800, 2150]  # calibrated: shortest approved post is 808 chars
 
 cadence:
   mon:
@@ -108,7 +108,7 @@ agents:
   max_retry_loops: 2
 
 budgets:
-  cost_usd_per_run: 0.50
+  cost_usd_per_run: 0.40
   wall_time_seconds: 180
   fallback_on_overrun: skip_with_summary
 
@@ -118,7 +118,7 @@ quality:
   fail_open: false
 
 gates:
-  voice_mode: log_only   # still log_only: no voice calibration yet, v1 ran too strict
+  voice_mode: blocking   # calibrated: with widened rhythm bands, 0/12 approved posts fail
   fact_mode: blocking    # blocks only uncited or fabricated-citation factual claims (content accuracy is the critic's job)
 
 judge:
