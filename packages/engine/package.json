@@ -3,6 +3,10 @@
   "version": "2.0.0-mvp",
   "type": "module",
   "private": true,
+  "exports": {
+    "./lib/*": "./src/lib/*",
+    "./gates/*": "./src/gates/*"
+  },
   "scripts": {
     "pipeline": "tsx src/cli.ts",
     "test": "vitest run",
