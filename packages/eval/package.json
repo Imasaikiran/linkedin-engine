@@ -6,6 +6,8 @@
   "scripts": {
     "eval": "tsx src/runEval.ts",
     "calibrate": "tsx src/calibrate.ts",
+    "neg-test": "tsx src/negTest.ts",
+    "scoring-sheet": "tsx src/buildScoringSheet.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
