@@ -47,7 +47,7 @@ export default async function Page() {
         <p>Run health for the open-source agent that writes three voice-faithful LinkedIn drafts a week.</p>
         <div className="links">
           <a href={GITHUB}>GitHub</a>
-          <a href={`${GITHUB}/tree/main/drafts`}>Latest drafts</a>
+          <a href={`${GITHUB}/tree/weekly-drafts/drafts`}>Latest drafts</a>
           <a href="https://cloud.langfuse.com">Langfuse traces</a>
         </div>
       </header>

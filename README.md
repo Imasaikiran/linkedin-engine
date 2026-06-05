@@ -63,7 +63,7 @@ that file, not code.
 ## Demo
 
 - Demo profile: [`examples/sai-voice`](./examples/sai-voice)
-- A recent run's drafts: [`drafts/`](./drafts)
+- A recent run's drafts: [`drafts/`](./drafts) (the cron archives fresh drafts to the [`weekly-drafts`](https://github.com/Imasaikiran/linkedin-engine/tree/weekly-drafts/drafts) branch, keeping `main` protected)
 - Public Langfuse trace: [a real run, span per node](https://cloud.langfuse.com/trace/1e5a5622cf85438f2b45e7f50bf983de)
 
 ## Design docs
