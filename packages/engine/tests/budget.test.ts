@@ -1,6 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
 import path from "node:path";
 
+// Nodes now build their client via makeClient(), which throws on a missing key.
+// Agents are mocked, so the client is built but never used; a dummy key keeps
+// construction from throwing.
+process.env.ANTHROPIC_API_KEY = "test-key";
+
 // Critic agent returns a fix-block verdict for every day so the graph retries.
 vi.mock("../src/agents/critic.js", () => ({
   runCritic: vi.fn(async () => ({

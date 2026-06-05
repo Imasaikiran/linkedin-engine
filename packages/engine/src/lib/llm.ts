@@ -25,10 +25,16 @@ export interface CompleteResult {
   cost_usd: number;
 }
 
-export function makeClient(): Anthropic {
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) throw new Error('ANTHROPIC_API_KEY not set');
-  return new Anthropic({ apiKey: key });
+// Per-call ceiling and retry budget for every Anthropic request. Centralized
+// here so the timeout applies to every node, not just one. 120s covers a slow
+// completion without letting a hung call stall a whole run; maxRetries handles
+// transient 429/5xx with the SDK's built-in backoff.
+const CLIENT_TIMEOUT_MS = 120_000;
+const CLIENT_MAX_RETRIES = 2;
+
+export function makeClient(apiKey = process.env.ANTHROPIC_API_KEY): Anthropic {
+  if (!apiKey) throw new Error('ANTHROPIC_API_KEY not set');
+  return new Anthropic({ apiKey, timeout: CLIENT_TIMEOUT_MS, maxRetries: CLIENT_MAX_RETRIES });
 }
 
 export function estimateCostUsd(p: { inputTokens: number; outputTokens: number; model: Model }): number {

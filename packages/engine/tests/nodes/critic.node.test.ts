@@ -1,5 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
 
+// makeClient() throws on a missing key; the agent module is mocked so the
+// client is built but never used. A dummy key keeps construction from throwing.
+process.env.ANTHROPIC_API_KEY = "test-key";
+
 vi.mock("../../src/agents/critic.js", () => ({
   runCritic: vi.fn(async () => ({
     verdicts: [

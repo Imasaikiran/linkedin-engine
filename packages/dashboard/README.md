@@ -23,6 +23,7 @@ Set two environment variables in the Vercel project:
 - `SUPABASE_URL` - your project URL
 - `SUPABASE_ANON_KEY` - the public anon key (Settings -> API). The dashboard reads
   via the row-level-security public-read policy, so the anon key is the right one
-  and is safe to expose. Do NOT use the service_role key here.
+  and is safe to expose. The dashboard reads ONLY this key; there is no
+  service_role fallback. Do NOT use the service_role key here.
 
 The page revalidates every 60 seconds.

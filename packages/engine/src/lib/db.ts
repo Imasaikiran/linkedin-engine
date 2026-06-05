@@ -4,6 +4,18 @@ import type { DayOutcome } from "../state.js";
 
 const log = makeLogger({ name: "db" });
 
+// Hard ceiling on any single Supabase HTTP call. The DB layer is best-effort,
+// so a hung request must not stall a run; after this the fetch aborts and
+// supabase-js surfaces it as a normal error that the callers already log.
+const DB_FETCH_TIMEOUT_MS = 10_000;
+
+/** Wrap fetch so every Supabase request aborts after DB_FETCH_TIMEOUT_MS. */
+function timeoutFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), DB_FETCH_TIMEOUT_MS);
+  return fetch(input, { ...init, signal: controller.signal }).finally(() => clearTimeout(timer));
+}
+
 let cached: SupabaseClient | null | undefined;
 
 /**
@@ -15,7 +27,13 @@ function getClient(): SupabaseClient | null {
   if (cached !== undefined) return cached;
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE;
-  cached = url && key ? createClient(url, key, { auth: { persistSession: false } }) : null;
+  cached =
+    url && key
+      ? createClient(url, key, {
+          auth: { persistSession: false },
+          global: { fetch: timeoutFetch },
+        })
+      : null;
   return cached;
 }
 

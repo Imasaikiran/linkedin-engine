@@ -1,3 +1,16 @@
+# INFORMATIONAL, NOT BLOCKING.
+#
+# This workflow runs the LLM judge on recent drafts and reports a quality score.
+# It needs a paid ANTHROPIC_API_KEY and live drafts, so it is intentionally
+# report-only and is NOT a required check. A flaky model call or a missing key
+# must never block a merge.
+#
+# The BLOCKING eval gate is the deterministic voice regression test
+# (packages/eval/tests/voiceRegression.test.ts), run by ci.yml via `pnpm -r test`.
+# It needs no API key: it replays the calibrated voice gate over the approved
+# golden corpus and FAILS the build if a model, prompt, or gate change starts
+# rejecting the author's own known-good posts. That is what protects quality on
+# every merge. This judge report is the human-readable score on top of it.
 name: eval
 on:
   pull_request:

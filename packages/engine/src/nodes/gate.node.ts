@@ -1,10 +1,9 @@
 import path from "node:path";
-import Anthropic from "@anthropic-ai/sdk";
 import { runFactGate } from "../gates/factGate.js";
 import { runVoiceGateWrapped } from "../gates/voiceGate.js";
 import { runJudge } from "../gates/judge.js";
 import { observe } from "../lib/trace.js";
-import { resolveModelId } from "../lib/llm.js";
+import { makeClient, resolveModelId } from "../lib/llm.js";
 import type { GraphStateValue, Day, DayOutcome } from "../state.js";
 import type { Claim } from "../lib/schema.js";
 
@@ -32,7 +31,7 @@ export async function gateNode(state: GraphStateValue): Promise<Partial<GraphSta
     };
   }
 
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY ?? "" });
+  const client = makeClient();
   const judgeModel = resolveModelId(brand.agents.critic.model);
   const goldenDir = path.join(state.profile.path, brand.judge.golden_dir);
   let judgeCost = 0;
