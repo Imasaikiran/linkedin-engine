@@ -75,8 +75,12 @@ that file, not code.
 
 ## Status
 
-v2 MVP. The engine, graph, tracing, and fact gate are live. The LLM judge,
-Supabase stats, and the public dashboard land next. See
-[DESIGN.md](./docs/v2/DESIGN.md) section 14 for the rollout.
+v2 is live. The LangGraph engine, Langfuse tracing, Supabase run stats, and the
+read-only dashboard all ship. Three gates run in blocking mode: a deterministic
+fact gate (every claim must cite a scouted source), a deterministic voice gate
+(rhythm and banned-phrase rules), and an LLM judge scored against a golden corpus.
+See [DESIGN.md](./docs/v2/DESIGN.md) section 14 and
+[docs/v2/judge-calibration.md](./docs/v2/judge-calibration.md) for how the gates
+were calibrated.
 
 MIT licensed. The engine never posts to LinkedIn. A human always posts.

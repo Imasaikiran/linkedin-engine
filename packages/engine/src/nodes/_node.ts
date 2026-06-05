@@ -1,4 +1,26 @@
 import { observe } from "../lib/trace.js";
+import type { GraphStateValue } from "../state.js";
+
+/**
+ * Decide whether the run should abort after a node spent `thisNodeCost`.
+ * Returns an empty object when within budget, or an abort patch otherwise.
+ * Cost is folded into state separately by the caller; this never returns cost.
+ * startedAt === 0 disables the wall-time check (unit tests that do not set it).
+ */
+export function budgetAbort(
+  state: GraphStateValue,
+  thisNodeCost: number,
+): { aborted: true; abortReason: string } | Record<string, never> {
+  const projected = state.costUsd + thisNodeCost;
+  if (projected > state.profile.brand.budgets.cost_usd_per_run) {
+    return { aborted: true, abortReason: "cost-cap-exceeded" };
+  }
+  const wallMs = state.profile.brand.budgets.wall_time_seconds * 1000;
+  if (state.startedAt !== 0 && Date.now() - state.startedAt > wallMs) {
+    return { aborted: true, abortReason: "wall-time-exceeded" };
+  }
+  return {};
+}
 
 /**
  * Wrap an agent call as a traced unit. `fn` returns the agent's value plus its

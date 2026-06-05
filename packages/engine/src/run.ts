@@ -67,25 +67,28 @@ export async function run(opts: {
   }
 
   // Persist run stats + scouted sources to Supabase. Both no-op without keys.
+  // Skipped on --dry-run so test runs do not pollute the production stats.
   const published = final.days.filter((d) => d.status === "published").length;
   const url = traceUrl(runId);
-  await upsertRun({
-    id: runId,
-    week,
-    profile: opts.profileDir,
-    published,
-    skipped: final.days.length - published,
-    cost_usd: final.costUsd,
-    trace_url: url,
-    aborted: final.aborted,
-    days: final.days,
-  });
-  if (final.scout) {
-    await recordSources(
-      [...final.scout.trending_topics, ...final.scout.recent_launches]
-        .filter((t) => t.url)
-        .map((t) => ({ url: t.url!, first_seen_week: week, title: t.title, excerpt: t.summary })),
-    );
+  if (!opts.dryRun) {
+    await upsertRun({
+      id: runId,
+      week,
+      profile: opts.profileDir,
+      published,
+      skipped: final.days.length - published,
+      cost_usd: final.costUsd,
+      trace_url: url,
+      aborted: final.aborted,
+      days: final.days,
+    });
+    if (final.scout) {
+      await recordSources(
+        [...final.scout.trending_topics, ...final.scout.recent_launches]
+          .filter((t) => t.url)
+          .map((t) => ({ url: t.url!, first_seen_week: week, title: t.title, excerpt: t.summary })),
+      );
+    }
   }
 
   return {

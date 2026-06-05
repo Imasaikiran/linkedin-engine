@@ -57,4 +57,4 @@ these on posts. You enforce them on yourself everywhere else.
 - Typecheck everything: `pnpm -r run typecheck`
 - Test the engine: `pnpm --filter @linkedin-engine/engine test`
 - Run the pipeline: `pnpm pipeline --profile examples/sai-voice`
-- Dry run (cost-capped, no publish): `pnpm pipeline --profile examples/sai-voice --dry-run`
+- Dry run (writes drafts locally, skips the Supabase stats write): `pnpm pipeline --profile examples/sai-voice --dry-run`
