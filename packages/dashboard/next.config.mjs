@@ -5,7 +5,11 @@ const csp = [
   "connect-src 'self' https://*.supabase.co",
   "img-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
-  "script-src 'self'",
+  // Next App Router streams content via inline bootstrap scripts, so 'unsafe-inline'
+  // is required without nonce middleware. This page renders no user-generated HTML
+  // (React escapes the read-only Supabase data), so the script-injection surface is
+  // effectively zero. The high-value protections (frame-ancestors, HSTS, nosniff) stay.
+  "script-src 'self' 'unsafe-inline'",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

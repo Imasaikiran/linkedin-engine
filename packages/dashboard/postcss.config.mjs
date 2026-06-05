@@ -1,3 +1,3 @@
-// Local config so Next does not walk up the tree and pick up an ancestor
-// postcss.config (the home dir has a Tailwind one). The dashboard uses plain CSS.
-export default { plugins: {} };
+// Local config so Next uses Tailwind v4 here and does not walk up the tree to an
+// ancestor postcss.config (the home dir has one).
+export default { plugins: { "@tailwindcss/postcss": {} } };
