@@ -1,6 +1,5 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { runDrafter, type DrafterSource } from "../agents/drafter.js";
-import { resolveModelId } from "../lib/llm.js";
+import { makeClient, resolveModelId } from "../lib/llm.js";
 import { traced, budgetAbort } from "./_node.js";
 import type { GraphStateValue, Day } from "../state.js";
 import type { Draft } from "../lib/schema.js";
@@ -16,7 +15,7 @@ function sourcesByDay(state: GraphStateValue): Record<Day, DrafterSource[]> {
 }
 
 export async function draftNode(state: GraphStateValue): Promise<Partial<GraphStateValue>> {
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY ?? "" });
+  const client = makeClient();
   const model = resolveModelId(state.profile.brand.agents.drafter.model);
   const empty: Record<Day, string[]> = { mon: [], wed: [], fri: [] };
   const { value, costUsd } = await traced(

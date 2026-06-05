@@ -1,11 +1,10 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { runStrategist } from "../agents/strategist.js";
-import { resolveModelId } from "../lib/llm.js";
+import { makeClient, resolveModelId } from "../lib/llm.js";
 import { traced, budgetAbort } from "./_node.js";
 import type { GraphStateValue } from "../state.js";
 
 export async function strategistNode(state: GraphStateValue): Promise<Partial<GraphStateValue>> {
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY ?? "" });
+  const client = makeClient();
   const model = resolveModelId(state.profile.brand.agents.strategist.model);
   const { value, costUsd } = await traced(
     "strategist",

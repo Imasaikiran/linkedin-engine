@@ -33,14 +33,17 @@ jobs:
         run: pnpm pipeline --profile examples/sai-voice
       # Cost is capped in the engine (budgets.cost_usd_per_run, mid-run abort) and
       # run stats land in Supabase, so there is no data/runs summary to assert here.
-      - name: commit drafts
+      # main is branch-protected (required CI check), so generated drafts are
+      # archived to the unprotected weekly-drafts branch, not committed to main.
+      - name: archive drafts to weekly-drafts
         if: always()
         run: |
           git config user.name "linkedin-engine-bot"
           git config user.email "bot@users.noreply.github.com"
           git add drafts/ posted/ || true
-          git diff --cached --quiet || git commit -m "chore: weekly pipeline run [skip ci]"
-          git push
+          git diff --cached --quiet && echo "no draft changes" && exit 0
+          git commit -m "chore: weekly pipeline run [skip ci]"
+          git push -f origin HEAD:refs/heads/weekly-drafts
       - name: upload logs
         if: always()
         uses: actions/upload-artifact@v4

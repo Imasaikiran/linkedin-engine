@@ -1,6 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
 import path from "node:path";
 
+// Nodes now build their client via makeClient(), which throws on a missing key.
+// Agents are mocked, so the client is built but never used; a dummy key keeps
+// construction from throwing.
+process.env.ANTHROPIC_API_KEY = "test-key";
+
 vi.mock("../src/agents/scout.js", () => ({
   runScout: vi.fn(async () => ({
     source: "web_search",
