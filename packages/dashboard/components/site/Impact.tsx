@@ -2,8 +2,8 @@ import { SectionHeader } from "./SectionHeader";
 
 const POINTS = [
   {
-    stat: "3 a week",
-    title: "You show up",
+    stat: "3 posts",
+    title: "Every week",
     body: "Three posts a week for twelve weeks is enough to get known in a small niche. Most people never keep it going that long.",
   },
   {
