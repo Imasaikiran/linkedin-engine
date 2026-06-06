@@ -40,8 +40,8 @@ export async function DashboardSection() {
       <div className="mx-auto max-w-5xl px-6 py-20 md:py-28">
         <SectionHeader
           eyebrow="The dashboard"
-          title="Every run, in the open."
-          lead="No black box. This is the live run health: how many drafts published, what each run cost, and a link to the full trace. It updates as the cron fires."
+          title="See exactly what it did."
+          lead="Every run is public: how many posts it published, what each one cost, and a link to the full step-by-step record. It updates on its own each time the job runs."
         />
 
         {runs === null ? (

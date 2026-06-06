@@ -2,19 +2,19 @@ import { SectionHeader } from "./SectionHeader";
 
 const POINTS = [
   {
-    stat: "3 / week",
-    title: "Enough to be known",
-    body: "Three posts a week for twelve weeks is enough to start being known in a small niche. Most people never get there.",
+    stat: "3 a week",
+    title: "You show up",
+    body: "Three posts a week for twelve weeks is enough to get known in a small niche. Most people never keep it going that long.",
   },
   {
-    stat: "0 drift",
-    title: "The voice holds",
-    body: "The gates reject slow drift into generic AI writing. Your voice stays consistent over months, not just one post.",
+    stat: "Still you",
+    title: "It stays in your style",
+    body: "The style checks stop it drifting into generic AI writing. Week twelve still sounds like week one.",
   },
   {
-    stat: "< $2 / mo",
-    title: "Cheaper than coffee",
-    body: "Under fifty cents a run, hard-capped in config. Runs on free tiers and a cron job. No server to maintain.",
+    stat: "~$2 / mo",
+    title: "Almost free",
+    body: "Under fifty cents per run. It runs on free tiers and a scheduled job. No server, no subscription, no per-seat fee.",
   },
 ];
 
@@ -23,9 +23,9 @@ export function Impact() {
     <section className="border-t border-line bg-line-soft/40">
       <div className="mx-auto max-w-5xl px-6 py-20 md:py-28">
         <SectionHeader
-          eyebrow="Goal and impact"
-          title="Publish in your voice, sustainably, for the price of nothing."
-          lead="The aim is simple: any working professional can publish three honest, voice-faithful posts a week, with full transparency over how the writing happened."
+          eyebrow="What you get"
+          title="Show up every week, in your own style, for a couple of dollars a month."
+          lead="The idea is simple. Anyone with a job can put out three posts a week that sound like them, and see exactly how each one was written."
         />
         <div className="mt-12 grid gap-6 sm:grid-cols-3">
           {POINTS.map((p) => (
@@ -37,9 +37,9 @@ export function Impact() {
           ))}
         </div>
         <p className="mt-12 max-w-2xl border-l-2 border-accent pl-5 text-base leading-relaxed text-ink-soft">
-          For the open-source community, this is a small, complete, real reference of a multi-step
-          agent system. Not a toy, not a tutorial. A working system that ships posts every week,
-          readable in an afternoon and runnable in thirty minutes.
+          Building with AI yourself? This is a small, complete example you can read in an afternoon
+          and run in half an hour. Not a demo, not a tutorial. A real tool that puts out posts every
+          week, with all the code in the open.
         </p>
       </div>
     </section>
