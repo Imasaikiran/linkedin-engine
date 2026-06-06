@@ -17,12 +17,6 @@ export function Nav() {
             How it works
           </a>
           <a
-            href="#dashboard"
-            className="hidden rounded-md px-3 py-2 text-sm text-muted transition-colors hover:text-ink sm:block"
-          >
-            Dashboard
-          </a>
-          <a
             href="#try"
             className="hidden rounded-md px-3 py-2 text-sm text-muted transition-colors hover:text-ink sm:block"
           >
