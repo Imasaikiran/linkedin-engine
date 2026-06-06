@@ -28,8 +28,8 @@ export function Hero() {
               </a>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <a href="#dashboard">
-                See a real run
+              <a href={`${GITHUB}/tree/main/drafts`}>
+                Read posts it wrote
                 <ArrowRight className="h-4 w-4" />
               </a>
             </Button>
