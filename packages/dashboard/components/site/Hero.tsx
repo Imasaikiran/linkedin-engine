@@ -35,7 +35,7 @@ export function Hero() {
             </Button>
           </div>
           <p className="mt-6 font-mono text-xs text-muted">
-            MIT licensed - about $2 a month - it never posts for you, you always do that
+            MIT licensed - about $2 a month - it never posts for you
           </p>
         </div>
 

@@ -7,8 +7,8 @@ const POINTS = [
     body: "Three posts a week for twelve weeks is enough to get known in a small niche. Most people never keep it going that long.",
   },
   {
-    stat: "Still you",
-    title: "It stays in your style",
+    stat: "Week 12",
+    title: "Still sounds like you",
     body: "The style checks stop it drifting into generic AI writing. Week twelve still sounds like week one.",
   },
   {
