@@ -10,31 +10,32 @@ export function Hero() {
       <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">
-            Open source - self hosted
+            Open source - runs on your own machine
           </p>
           <h1 className="mt-5 font-serif text-[2.6rem] leading-[1.05] tracking-tight text-ink sm:text-6xl">
-            An agent that writes in <span className="italic text-accent">your</span> voice.
+            Post on LinkedIn every week, in <span className="italic text-accent">your own words</span>.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
-            Three LinkedIn drafts a week, grounded in real sources, with a brand gate that rejects
-            anything generic. Every run is traced in the open. You edit for five minutes and post.
+            It reads what is new in your field each week, writes three posts in your style, and
+            checks them so nothing fake or generic slips through. You read them on Sunday, edit for
+            five minutes, and post.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Button asChild size="lg">
               <a href="#try">
                 <GithubMark className="h-4 w-4" />
-                Fork and run it
+                Get it on GitHub
               </a>
             </Button>
             <Button asChild size="lg" variant="outline">
               <a href="#dashboard">
-                See it run
+                See a real run
                 <ArrowRight className="h-4 w-4" />
               </a>
             </Button>
           </div>
           <p className="mt-6 font-mono text-xs text-muted">
-            MIT licensed - under $2 / month - the engine never posts for you
+            MIT licensed - about $2 a month - it never posts for you, you always do that
           </p>
         </div>
 

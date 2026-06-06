@@ -8,7 +8,7 @@ export function Footer() {
           <div>
             <p className="font-mono text-sm text-ink">linkedin-engine</p>
             <p className="mt-2 max-w-sm text-sm text-muted">
-              The engine writes drafts. It refuses to write bad ones. A human always posts.
+              It writes the drafts and checks them. You read, edit, and post. It never posts for you.
             </p>
           </div>
           <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">

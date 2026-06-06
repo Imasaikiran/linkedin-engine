@@ -20,14 +20,14 @@ const STEPS = [
   },
   {
     n: "03",
-    title: "Make it your voice",
-    body: "Copy the template profile and edit brand.yaml: your role, banned phrases, weekly cadence.",
+    title: "Make it sound like you",
+    body: "Copy the starter profile and edit one file: what you do, words you never use, what to post each day.",
     code: "cp -r examples/_template examples/my-voice\n# edit examples/my-voice/brand.yaml",
   },
   {
     n: "04",
     title: "Run it",
-    body: "About ninety seconds. Three drafts land in drafts/, each with a trace link.",
+    body: "About ninety seconds. Three drafts show up in the drafts folder, each with a link to how it was written.",
     code: "pnpm pipeline --profile examples/my-voice",
   },
 ];
@@ -37,8 +37,8 @@ export function TryIt() {
     <section id="try" className="mx-auto max-w-5xl px-6 py-20 md:py-28">
       <SectionHeader
         eyebrow="Try it"
-        title="Run it yourself in thirty minutes."
-        lead="It is self-hosted, so you run it on your machine with your own key. Nothing to sign up for, no data leaves your control."
+        title="Run it yourself in about thirty minutes."
+        lead="It runs on your own computer with your own key. Nothing to sign up for, and none of your data leaves your control."
       />
 
       <div className="mt-12 grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
@@ -68,21 +68,21 @@ export function TryIt() {
         <div className="flex items-start gap-3">
           <KeyRound className="mt-0.5 h-5 w-5 shrink-0 text-muted" strokeWidth={1.75} />
           <p className="text-sm leading-relaxed text-muted">
-            You bring one Anthropic key. The engine never posts to LinkedIn and never touches your
-            account. It writes drafts; you post.
+            You bring one Anthropic key. It never logs into LinkedIn and never touches your account.
+            It writes the drafts. You post them.
           </p>
         </div>
         <div className="flex shrink-0 gap-3">
           <Button asChild>
             <a href={GITHUB}>
               <GithubMark className="h-4 w-4" />
-              Fork on GitHub
+              Get it on GitHub
             </a>
           </Button>
           <Button asChild variant="outline">
             <a href={`${GITHUB}/blob/main/CONTRIBUTING.md`}>
               <Play className="h-4 w-4" />
-              Read the guide
+              Read the setup guide
             </a>
           </Button>
         </div>

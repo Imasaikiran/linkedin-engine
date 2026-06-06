@@ -2,16 +2,16 @@ import { Search, Compass, PenTool, Eye, ArrowDown } from "lucide-react";
 import { SectionHeader } from "./SectionHeader";
 
 const NODES = [
-  { icon: Search, name: "Scout", model: "Haiku", job: "Finds sources from the last seven days." },
-  { icon: Compass, name: "Strategist", model: "Sonnet", job: "Picks one angle per day, pinned to its pillar." },
-  { icon: PenTool, name: "Drafter x3", model: "Sonnet", job: "Writes three drafts, each citing its sources." },
-  { icon: Eye, name: "Critic x3", model: "Sonnet", job: "Reads each draft like a target reader." },
+  { icon: Search, name: "Find", model: "Step 1", job: "Reads what is new in your field this week." },
+  { icon: Compass, name: "Plan", model: "Step 2", job: "Picks one angle for each of the three posts." },
+  { icon: PenTool, name: "Write", model: "Step 3", job: "Writes the three drafts, one for each day." },
+  { icon: Eye, name: "Review", model: "Step 4", job: "Reads each draft the way your audience would." },
 ];
 
 const GATES = [
-  { name: "Fact gate", detail: "Every claim must cite a scouted source.", kind: "deterministic" },
-  { name: "Voice gate", detail: "Rhythm, banned phrases, no dashes.", kind: "deterministic" },
-  { name: "Judge", detail: "Scored 1-5 against a golden corpus.", kind: "LLM" },
+  { name: "Fact check", detail: "Every number or claim has to trace to a real source it found. No made-up stats.", kind: "automatic" },
+  { name: "Style check", detail: "Catches generic phrasing and anything that drifts from how you write.", kind: "automatic" },
+  { name: "Quality score", detail: "Scores each draft against your best past posts. Low scores are held back.", kind: "AI" },
 ];
 
 export function HowItWorks() {
@@ -19,8 +19,8 @@ export function HowItWorks() {
     <section id="how" className="mx-auto max-w-5xl px-6 py-20 md:py-28">
       <SectionHeader
         eyebrow="How it works"
-        title="A graph of small agents, with gates that can say no."
-        lead="The hard problem in agent-written content is not generating text. It is knowing when not to publish. Each step does one job, and three gates stand between a draft and your feed."
+        title="How it writes a post"
+        lead="Writing the words is the easy part. The hard part is catching the bad ones before they go out. So every draft runs through three checks, and anything that fails is held back instead of posted."
       />
 
       <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -47,8 +47,8 @@ export function HowItWorks() {
 
       <div className="rounded-xl border border-line bg-band p-6 sm:p-8">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h3 className="font-serif text-xl text-band-ink">Three gates, all blocking</h3>
-          <span className="font-mono text-xs text-band-muted">draft - or - SKIPPED</span>
+          <h3 className="font-serif text-xl text-band-ink">Three checks before a draft is kept</h3>
+          <span className="font-mono text-xs text-band-muted">keep - or - hold back</span>
         </div>
         <div className="mt-6 grid gap-px overflow-hidden rounded-lg border border-band-line bg-band-line sm:grid-cols-3">
           {GATES.map((g) => (
@@ -64,8 +64,9 @@ export function HowItWorks() {
           ))}
         </div>
         <p className="mt-5 text-sm leading-relaxed text-band-muted">
-          A draft that fails any gate is written as a SKIPPED file with the reason, never published.
-          Factual accuracy stays with the critic and you. Every model call is one Langfuse span.
+          If a draft fails a check, it is saved with the reason instead of posted, so you can see
+          what went wrong. You still read each draft before it goes out, the same as you would any
+          post.
         </p>
       </div>
     </section>

@@ -4,18 +4,18 @@ import { SectionHeader } from "./SectionHeader";
 const WALLS = [
   {
     icon: Clock,
-    title: "You run out of time",
-    body: "A real post takes thirty to ninety minutes. After a busy week, nothing goes out and the audience forgets.",
+    title: "No time",
+    body: "A good post takes thirty to ninety minutes to write. After a busy week you skip it, then you skip the next one.",
   },
   {
     icon: Bot,
-    title: "Generic AI content",
-    body: "Most tools write posts that sound like everyone else. It reads as off and quietly hurts your credibility.",
+    title: "Generic AI posts",
+    body: "Most AI tools write posts that sound like everyone else. People notice, and it makes you look worse, not better.",
   },
   {
     icon: PenLine,
     title: "Ghostwriters drift",
-    body: "Hiring works, but it costs money, takes back and forth, and the voice still drifts away from yours.",
+    body: "Hiring someone works, but it costs money, takes back and forth, and slowly stops sounding like you.",
   },
 ];
 
@@ -25,8 +25,8 @@ export function Problem() {
       <div className="mx-auto max-w-5xl px-6 py-20 md:py-28">
         <SectionHeader
           eyebrow="The problem"
-          title="Writing got faster. Writing in your voice did not."
-          lead="Most people who want to post regularly hit one of three walls. The result is always the same: posting stops, and the personal brand resets to zero."
+          title="Why most people stop posting"
+          lead="Almost everyone who tries to post regularly hits one of these three walls. Then the posts stop, and the audience forgets you."
         />
         <div className="mt-12 grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-3">
           {WALLS.map((w) => (
