@@ -51,7 +51,12 @@ export async function run(opts: {
   };
 
   const final = (await withTrace(
-    { runId, name: "linkedin-engine-run", metadata: { week, profile: opts.profileDir } },
+    {
+      runId,
+      name: "linkedin-engine-run",
+      metadata: { week, profile: opts.profileDir },
+      makePublic: profile.brand.tracing.public,
+    },
     async () => graph.invoke(initial, { recursionLimit: 50 }),
   )) as typeof GraphAnnotation.State;
   await flushTracing();
