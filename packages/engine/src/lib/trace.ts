@@ -45,6 +45,11 @@ export interface TraceMeta {
   runId: string;
   name: string;
   metadata: Record<string, string>;
+  /**
+   * Mark the trace world-readable. Off by default so a forked profile's drafts
+   * and brand context are not exposed; the public demo profile opts in.
+   */
+  makePublic?: boolean;
 }
 
 /** Open one trace (root span) for a whole run. The body's value passes through. */
@@ -54,7 +59,7 @@ export async function withTrace<T>(meta: TraceMeta, body: () => Promise<T>): Pro
     meta.name,
     async (span) => {
       span.update({ input: meta.metadata });
-      setActiveTraceAsPublic();
+      if (meta.makePublic) setActiveTraceAsPublic();
       const tid = getActiveTraceId();
       if (tid) traceIdByRun.set(meta.runId, tid);
       return body();
@@ -108,14 +113,17 @@ export async function observe<T>(
 }
 
 /**
- * Build the public trace URL for a run id. Relies on the captured trace id, not
- * the `enabled` flag, so it still works after flushTracing() has shut the SDK
- * down (run.ts flushes before reading the URL).
+ * Build the trace URL for a run id. Relies on the captured trace id, not the
+ * `enabled` flag, so it still works after flushTracing() has shut the SDK down
+ * (run.ts flushes before reading the URL). When LANGFUSE_PROJECT_ID is set, it
+ * builds the full deep link the Langfuse UI uses; otherwise it falls back to a
+ * host-level link.
  */
 export function traceUrl(runId: string): string | undefined {
   const tid = traceIdByRun.get(runId);
   if (!tid) return undefined;
-  return `${host}/trace/${tid}`;
+  const projectId = process.env.LANGFUSE_PROJECT_ID;
+  return projectId ? `${host}/project/${projectId}/traces/${tid}` : `${host}/trace/${tid}`;
 }
 
 /** Flush pending spans. Call once at the end of a run. Never throws. */

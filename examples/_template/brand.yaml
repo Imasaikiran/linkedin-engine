@@ -117,3 +117,6 @@ judge:
   threshold: 3.5
   golden_dir: golden
   mode: log_only
+
+tracing:
+  public: false  # keep your traces private; set true only to share them

@@ -125,3 +125,6 @@ judge:
   threshold: 3.0         # calibrated: leave-one-out over the golden corpus rejects 0 approved posts at 3.0 (1 at 3.5)
   golden_dir: golden
   mode: blocking         # blocks genuine slop (score <= 2) without rejecting the author's approved style
+
+tracing:
+  public: true   # demo profile: traces are public on purpose

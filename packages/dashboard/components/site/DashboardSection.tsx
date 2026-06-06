@@ -31,6 +31,10 @@ async function fetchRuns(): Promise<RunRow[] | null> {
 
 const cost = (n: number) => `$${Number(n).toFixed(4)}`;
 const when = (iso: string) => new Date(iso).toISOString().slice(0, 10);
+// Only render a trace link if it is a real https URL. The value comes from the
+// DB; this blocks a javascript: or data: URL if a row were ever tampered with.
+const safeHttps = (u: string | null): string | undefined =>
+  u && /^https:\/\//i.test(u) ? u : undefined;
 
 export async function DashboardSection() {
   const runs = await fetchRuns();
@@ -127,9 +131,10 @@ function Stats({ runs }: { runs: RunRow[] }) {
                 <Td>{cost(r.cost_usd)}</Td>
                 <Td className="text-muted">{when(r.created_at)}</Td>
                 <Td>
-                  {r.trace_url ? (
+                  {safeHttps(r.trace_url) ? (
                     <a
-                      href={r.trace_url}
+                      href={safeHttps(r.trace_url)}
+                      rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-accent hover:underline"
                     >
                       open <ExternalLink className="h-3 w-3" />

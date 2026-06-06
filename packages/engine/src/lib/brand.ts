@@ -140,6 +140,17 @@ export const JudgeSchema = z
   })
   .default({ threshold: 3.5, golden_dir: 'golden', mode: 'log_only' });
 
+// ---------- tracing ----------
+// When `public` is true, the run's Langfuse trace is marked world-readable so
+// anyone with the trace URL can see it (used for the public demo profile). It
+// defaults to FALSE: a forked profile's trace, which contains draft bodies and
+// the brand context, stays private unless the owner opts in.
+export const TracingSchema = z
+  .object({
+    public: z.boolean().default(false),
+  })
+  .default({ public: false });
+
 // ---------- root ----------
 export const BrandSchema = z.object({
   identity: IdentitySchema,
@@ -152,6 +163,7 @@ export const BrandSchema = z.object({
   quality: QualitySchema,
   gates: GatesSchema,
   judge: JudgeSchema,
+  tracing: TracingSchema,
 });
 export type Brand = z.infer<typeof BrandSchema>;
 
