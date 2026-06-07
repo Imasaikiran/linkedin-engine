@@ -221,7 +221,7 @@ gates:
   fact_mode: "blocking" | "log_only"      # log_only for first 48h
 ```
 
-The v1 fields `identity.role: "Senior AI PM..."` and `identity.goal: "Land an AI PM role..."` move into `examples/sai-voice/brand.yaml` only. The schema does not name them; the example does.
+The v1 fields `identity.role: "Senior AI PM..."` and `identity.goal: "..."` move into `examples/sai-voice/brand.yaml` only. The schema does not name them; the example does.
 
 ### 5.2 Environment variables
 

@@ -8,7 +8,7 @@
 
 ## 1. Goal
 
-Build a local-first content engine that produces 3 LinkedIn post drafts per week (Mon/Wed/Fri), grounded in real sources, written in a human voice, optimized to support a 90-day plan to land an AI PM role at a frontier model company (Anthropic, OpenAI, DeepMind, Mistral, Cohere, xAI).
+Build a local-first content engine that produces 3 LinkedIn post drafts per week (Mon/Wed/Fri), grounded in real sources, written in a human voice, so you stay consistent without sounding like a bot.
 
 The engine drafts. The user posts manually.
 

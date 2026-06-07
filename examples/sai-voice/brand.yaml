@@ -95,7 +95,7 @@ sources:
       - "top AI PM LinkedIn posts last 7 days"
       - "OpenAI Anthropic product launch this week"
       - "AI product manager framework {today_year_month}"
-      - "frontier model company hiring product"
+      - "AI agent engineering and LLM evals {today_year_month}"
   voice_corpus:
     dir: voice-corpus/external
     samples_per_draft: 3

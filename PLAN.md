@@ -9,7 +9,7 @@
 The existing 6-stage pipeline (scrape → cluster → score → angle → draft → polish) is correctness-focused, not quality-focused. It guarantees no hallucinations, no em-dashes, right cadence — but produces drafts that read as "any tech blogger." Three root causes:
 
 1. **No live research.** Hard-coded RSS list. Doesn't know what AI PMs are actually posting about this week or what's getting engagement.
-2. **No PM-specific reasoning.** Single LLM call writes a draft from a pillar template. No agent ever asks "would a frontier-lab PM read past line 1?"
+2. **No reader-specific reasoning.** Single LLM call writes a draft from a pillar template. No agent ever asks "would the target reader read past line 1?"
 3. **Configuration is scattered.** Pillar configs in `pillars.yaml`, prompts in `prompts/pillars/*.md`, voice rules in `gate.ts`, retry logic in `pipeline.ts`. Changing positioning requires touching 4 files. Days, not minutes.
 
 ---
@@ -70,7 +70,7 @@ flowchart TD
 | Trend Scout | Haiku 4.5 | WebSearch + RSS aggregation; returns "what's hot in AI PM this week" | $0.001 | 25s parallel |
 | PM Strategist | Sonnet 4.6 | Picks 3 angles using brand.yaml positioning + scout output + 4-week dedupe | $0.01 | 10s |
 | Drafter (×3 parallel) | Sonnet 4.6 | Writes per pillar template from brand.yaml | $0.01×3 | 15s |
-| PM Critic (×3 parallel) | Sonnet 4.6 | Reads as a frontier-lab PM. Returns `{verdict: approve OR fix, reasons: []}` | $0.005×3 | 10s |
+| Critic (×3 parallel) | Sonnet 4.6 | Reads as the target audience (from the profile). Returns `{verdict: approve OR fix, reasons: []}` | $0.005×3 | 10s |
 | Drafter retry (×N) | Sonnet 4.6 | Surgical fix per critic feedback. Max 2 loops. | $0.005×N | 15s |
 | Deterministic Gates | none (regex) | Voice + per-claim hallucination check, FREE | $0 | <1s |
 
@@ -87,7 +87,7 @@ This is the entire interface. To change strategy, you edit this file. Nothing el
 
 identity:
   role: "Senior AI PM building 0→1 products at AI startups"
-  goal: "Land an AI PM role at a frontier model company"
+  goal: "Be known for clear, honest writing about building with LLMs"
   audience:
     primary: "AI PMs and eng leads at OpenAI, Anthropic, Google DeepMind"
     secondary: "AI investors, technical founders, applied ML engineers"
@@ -160,7 +160,7 @@ sources:
       - "top AI PM LinkedIn posts last 7 days"
       - "OpenAI Anthropic product launch this week"
       - "AI product manager framework {today_year_month}"
-      - "frontier model company hiring product"
+      - "AI agent engineering and LLM evals {today_year_month}"
   voice_corpus:
     dir: data/voice-corpus
     samples_per_draft: 3
@@ -225,12 +225,12 @@ quality:
 ### Task 5: PM Critic agent (parallel ×3)
 - Create `src/agents/critic.ts`
 - Input: draft + `Brand`
-- Single Sonnet call. Reads draft "as a frontier-lab PM."
+- Single Sonnet call. Reads draft "as the target audience" (from the profile).
 - Returns: `{verdict: 'approve' | 'fix', reasons: string[], severity: 'block' | 'soft'}`
 - Specific checks: PM signal present, audience-coded, hook strength, save-worthy artifact, engagement pattern match
 - Run all 3 in parallel
 - Test: snapshot tests on a generic blog-style draft (should fix) and a PM-coded draft (should approve)
-- Commit: `feat(agents): PM critic with frontier-lab persona`
+- Commit: `feat(agents): critic reads target audience from profile`
 
 ### Task 6: Orchestrator with retry loop
 - Create `src/agents/orchestrator.ts`

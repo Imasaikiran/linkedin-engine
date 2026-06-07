@@ -762,7 +762,7 @@ Read `examples/sai-voice/brand.yaml`. Replace the `identity` block's job-hunt fr
 ```yaml
 identity:
   role: "Senior AI PM building 0→1 products at AI startups"
-  goal: "Land an AI PM role at a frontier model company"
+  goal: "Be known for clear, honest writing about building with LLMs"
 ```
 to:
 ```yaml
