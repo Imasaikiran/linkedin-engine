@@ -10,15 +10,15 @@ export function Hero() {
       <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">
-            Open source - runs on your own machine
+            Open source AI agent - runs on your own machine
           </p>
           <h1 className="mt-5 font-serif text-[2.6rem] leading-[1.05] tracking-tight text-ink sm:text-6xl">
             Post on LinkedIn every week, in <span className="italic text-accent">your own words</span>.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">
-            It reads what is new in your field each week, writes three posts in your style, and
-            checks them so nothing fake or generic slips through. You read them on Sunday, edit for
-            five minutes, and post.
+            An AI agent that reads what is new in your field each week, writes three posts in your
+            style, and checks them so nothing fake or generic slips through. You read them on Sunday,
+            edit for five minutes, and post.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Button asChild size="lg">

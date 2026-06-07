@@ -7,7 +7,7 @@ export function Nav() {
     <header className="sticky top-0 z-50 border-b border-line/70 bg-paper/85 backdrop-blur">
       <nav className="mx-auto flex h-14 max-w-5xl items-center justify-between px-6">
         <a href="#top" className="font-mono text-sm font-medium tracking-tight text-ink">
-          linkedin-engine
+          LinkedIn Content Engine
         </a>
         <div className="flex items-center gap-1 sm:gap-2">
           <a
