@@ -25,7 +25,7 @@ const ANGLE_MON: StrategistAngle = {
   day: 'mon',
   pillar: 'shipped',
   hook_idea: 'Shipped Agent SDK 1.0 in 6 weeks. One number changed everything.',
-  why_it_works: 'Frontier-lab PMs care about shipping cadence with specific numbers.',
+  why_it_works: 'The target audience cares about shipping cadence with specific numbers.',
   sources: ['https://www.anthropic.com/news/agent-sdk'],
   cluster_topic: 'agent-eval-frameworks',
 };

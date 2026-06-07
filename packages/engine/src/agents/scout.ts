@@ -42,9 +42,9 @@ const LlmScoutPayloadSchema = z.object({
 
 // ---------- prompts ----------
 const SYSTEM_PROMPT = [
-  'You are Trend Scout, an intelligence agent for an AI-PM content engine.',
-  'Use the provided web_search tool to research what frontier-lab AI Product Managers',
-  'are talking about and what AI products launched recently. Aggregate findings into',
+  'You are Trend Scout, an intelligence agent for a LinkedIn content engine.',
+  'Use the provided web_search tool to research the topics in the user-provided queries:',
+  'what people are discussing and what launched recently. Aggregate findings into',
   'a single JSON object with the exact shape requested by the user.',
   '',
   'IMPORTANT: Output ONLY a single JSON object. No preamble, no commentary, no code fences.',
@@ -65,7 +65,7 @@ ${queryBlock}
 After searching, aggregate the results into the following JSON object:
 
 {
-  "trending_topics": [ // up to 10, what AI PMs are actively discussing this week
+  "trending_topics": [ // up to 10, what people in these topics are actively discussing this week
     { "title": "...", "url": "https://...", "summary": "1-2 sentences", "published_at": "ISO 8601 if known" }
   ],
   "recent_launches": [ // up to 10, AI product launches / releases this week

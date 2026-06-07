@@ -1,35 +1,104 @@
-# linkedin-engine
+# LinkedIn Content Engine
 
-An open-source agent that writes three LinkedIn drafts a week in your voice,
-grounded in real sources, with every run fully traced. You give it a profile that
-describes your voice. A graph of small agents does the rest. A human posts.
+**An open-source AI agent that writes three LinkedIn posts a week in your voice.**
+
+You give it a profile that describes how you write and what you care about. Every
+week the agent reads what is new in your field, drafts three posts in your style,
+and runs each one through quality gates so nothing fake or generic gets through.
+It writes the drafts. You read them, edit for five minutes, and post. The agent
+never posts for you.
 
 It writes drafts. It refuses to write bad ones. It shows its work.
 
-## How it works
+## What it does
 
+- **Finds what is worth posting about.** Pulls real sources from the last seven
+  days in the topics you list (launches, announcements, trends).
+- **Writes in your voice, not a generic one.** It reads your own past posts as
+  voice samples and mirrors your rhythm, not LinkedIn boilerplate.
+- **Checks itself before it ships.** Three gates run on every draft: a fact gate
+  (every claim must cite a source the agent actually read), a voice gate (banned
+  phrases, dashes, broken rhythm), and an LLM judge scored against your best
+  posts. A draft that fails is held back with the reason, not published.
+- **Shows its work.** Every model call is a Langfuse span, so a whole run is one
+  readable trace you can open and inspect.
+- **Costs about $2 a month** and runs on free tiers plus a GitHub Actions cron.
+  No server.
+
+## How it works (technical)
+
+The agent is a [LangGraph](https://github.com/langchain-ai/langgraphjs)
+`StateGraph`. Each node is small and single-purpose: it reads the shared
+`brand.yaml`, does one job, writes its result onto graph state, and emits a
+Langfuse span. The graph wiring lives in
+[`packages/engine/src/graph.ts`](./packages/engine/src/graph.ts).
+
+| Node | Model | Job |
+|---|---|---|
+| **scout** | Haiku | Find sources from the last 7 days (web search, RSS fallback). |
+| **strategist** | Sonnet | Pick one angle per day, pinned to that day's pillar in `brand.yaml`. |
+| **draft** | Sonnet x3 | Write three drafts in parallel. Each emits `claims[]` with source URLs. |
+| **critic** | Sonnet x3 | Read each draft like a target reader. Returns approve / fix-soft / fix-block. |
+| **gate** | none | Deterministic. Fact gate, voice gate, then the LLM judge. Decides publish or skip. |
+
+Two decision points make the "when not to publish" logic explicit:
+
+- **The retry loop.** A conditional edge from `critic` back to `draft`. If any
+  day comes back `fix-block` and there is retry budget left
+  (`max_retry_loops`, default 2), that day is redrafted. Otherwise the run moves
+  on to the gates.
+- **The publish/skip fork.** The `gate` node runs the fact gate, voice gate, and
+  judge. A draft that passes all three is written to `drafts/YYYY-WW/{day}.md`.
+  One that fails is written to `{day}.SKIPPED.md` with the reason.
+
+Other technical notes:
+
+- **`brand.yaml` is the single source of truth.** Voice rules, banned phrases,
+  rhythm bands, per-day pillars, agent models, budgets, and gate modes all live
+  there. To change strategy you edit that file, not code. The engine never
+  hardcodes a voice; the profile path comes from `--profile`.
+- **Gates are deterministic.** They never call an LLM and never throw on a bad
+  draft. They return `{ pass, ... }` and the caller decides.
+- **Cost is tracked on graph state.** The run aborts if it crosses the profile's
+  `budgets.cost_usd_per_run` cap.
+- **Every LLM call goes through `observe()`** so it lands in a Langfuse span with
+  token and cost metadata. A run is one trace, one span per node.
+
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full map.
+
+## Architecture
+
+```mermaid
+flowchart TD
+    P["brand.yaml<br/>voice rules, pillars, budgets, your past posts"] --> S
+
+    subgraph RUN["one LangGraph run = one Langfuse trace"]
+        S["scout - Haiku<br/>find sources, last 7 days"] --> ST["strategist - Sonnet<br/>one angle per day"]
+        ST --> DR["draft x3 - Sonnet<br/>parallel, each cites its sources"]
+        DR --> CR["critic x3 - Sonnet<br/>reads each draft like a real reader"]
+        CR -->|"fix-block: redraft, up to 2 retries"| DR
+        CR -->|approve| G{"gates<br/>fact + voice + judge"}
+    end
+
+    G -->|pass| PUB["drafts/YYYY-WW/day.md"]
+    G -->|fail| SKIP["drafts/YYYY-WW/day.SKIPPED.md<br/>with the reason"]
+    PUB --> H["you: review Sunday,<br/>edit 5 min, post manually"]
 ```
-brand.yaml (your voice)  ->  scout -> strategist -> draft x3 -> critic x3
-                                                                    |
-                                                  approve | fix-block (retry <=2)
-                                                                    v
-                                              fact gate + voice gate (deterministic)
-                                                                    |
-                                                                    v
-                                          drafts/YYYY-WW/{mon,wed,fri}.md
-```
 
-Every model call is a Langfuse span, so a whole run is one readable trace. See
-[ARCHITECTURE.md](./ARCHITECTURE.md) for the full map.
+## User journey
 
-- **Scout** (Haiku) finds sources from the last seven days.
-- **Strategist** (Sonnet) picks one angle per day, pinned to that day's pillar.
-- **Drafter** (Sonnet, x3 parallel) writes, each draft emitting its claims with source URLs.
-- **Critic** (Sonnet, x3) reads each draft like a target reader.
-- **Fact gate** (deterministic) rejects any claim whose source was not actually scouted.
-- **Voice gate** (deterministic) rejects banned phrases, broken rhythm, dashes.
-
-Skipped days write `{day}.SKIPPED.md` with the reason. Nothing posts automatically.
+1. **Set up once.** Fork the repo, add your Anthropic API key, and write your
+   `brand.yaml`: your topics, your voice rules, your per-day pillars. Drop a few
+   of your own past posts into the profile so the agent learns your tone.
+2. **It runs on a schedule.** A GitHub Actions cron runs the agent for you. No
+   server to keep alive. (Run it by hand any time with `pnpm pipeline`.)
+3. **The agent does the loop.** scout to strategist to draft to critic to gates.
+   Bad drafts get retried, then held back if they still fail.
+4. **You get three drafts.** Published drafts land in `drafts/YYYY-WW/`. Skipped
+   days sit next to them with the reason they were held back.
+5. **You review on Sunday.** Read the three, edit for about five minutes, post
+   the ones you like. Verify any numbers or facts first.
+6. **You post.** Manually, always. The agent never touches LinkedIn.
 
 ## Quick start (about 30 minutes)
 
@@ -48,17 +117,6 @@ cp -r examples/_template examples/my-voice
 # edit examples/my-voice/brand.yaml
 pnpm pipeline --profile examples/my-voice
 ```
-
-## What it costs
-
-Under fifty cents a run, capped in `brand.yaml`. The whole thing runs on free
-tiers and a GitHub Actions cron. No server.
-
-## Single source of truth
-
-`brand.yaml` owns everything tunable: voice rules, banned phrases, rhythm bands,
-per-day pillars, agent models, budgets, gate modes. To change strategy you edit
-that file, not code.
 
 ## Demo
 

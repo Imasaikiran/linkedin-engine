@@ -1,17 +1,17 @@
 # linkedin-engine — one-pager
 
-> **An autonomous content engine that writes 3 source-grounded LinkedIn posts per week, designed to land an AI PM role at a frontier model company.**
+> **An autonomous content engine that writes 3 source-grounded LinkedIn posts per week, in your own voice, so you stay consistent without sounding like a bot.**
 
 ---
 
 ## Why
 
-Building public credibility for an AI PM role requires consistent, high-signal LinkedIn presence. Manual writing fails for three reasons:
+Building public credibility requires consistent, high-signal LinkedIn presence. Manual writing fails for three reasons:
 
 | Failure mode | Cost |
 |---|---|
 | Skipping weeks when busy | Algorithm punishes inconsistency, audience forgets |
-| AI-slop shortcuts | Burns credibility with the exact frontier-lab audience you want to reach |
+| AI-slop shortcuts | Burns credibility with the audience you want to reach |
 | Hallucinated facts | One bad stat undoes months of trust |
 
 The engine removes those failure modes by automating the boring parts (sourcing, drafting, gating) while keeping the human in the loop for taste (editing + posting).
@@ -113,4 +113,4 @@ budgets:
 
 Production. Agentic pipeline lives at `src/agentic-pipeline.ts`. Legacy 6-stage pipeline retired in Task 11. Cron armed Sun + Wed 00:30 UTC. Drafts land in [`drafts/`](drafts/) on every run.
 
-**Next milestone:** ship 12 weeks (Apr → Jul 2026) of consistent, high-quality posts. Portfolio for AI PM applications.
+**Next milestone:** ship 12 weeks (Apr → Jul 2026) of consistent, high-quality posts.

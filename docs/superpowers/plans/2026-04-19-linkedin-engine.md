@@ -3032,7 +3032,7 @@ git commit -m "ci: weekly pipeline cron + manual stage rerun workflow"
 ```markdown
 # linkedin-engine
 
-3 LinkedIn drafts per week (Mon/Wed/Fri), source-grounded, human voice. Designed to support a 90-day plan to land an AI PM role at a frontier model company.
+3 LinkedIn drafts per week (Mon/Wed/Fri), source-grounded, human voice. So you stay consistent without sounding like a bot.
 
 ## What you read
 

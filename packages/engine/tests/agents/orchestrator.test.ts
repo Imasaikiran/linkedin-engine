@@ -51,7 +51,7 @@ const STRATEGIST_PAYLOAD = {
       day: 'mon',
       pillar: 'shipped',
       hook_idea: 'Shipped Agent SDK 1.0 in 6 weeks',
-      why_it_works: 'Frontier-lab PMs care about shipping cadence with specific numbers.',
+      why_it_works: 'The target audience cares about shipping cadence with specific numbers.',
       sources: ['https://www.anthropic.com/news/agent-sdk'],
       cluster_topic: 'agent-sdk',
     },
@@ -153,7 +153,7 @@ function makeRoutedClient(handlers: Handlers) {
         text = r.text;
         if (r.usage) usage = r.usage;
       }
-    } else if (system.includes('PM Strategist')) {
+    } else if (system.includes('Strategist')) {
       const r = handlers.strategist?.();
       if (r) {
         text = r.text;
@@ -181,7 +181,7 @@ function makeRoutedClient(handlers: Handlers) {
         if (r.usage) usage = r.usage;
         if (r.delayMs) delayMs = r.delayMs;
       }
-    } else if (system.includes('Senior Product Manager')) {
+    } else if (system.includes('critique a draft')) {
       const day: 'mon' | 'wed' | 'fri' = userMsg.includes('DAY: mon')
         ? 'mon'
         : userMsg.includes('DAY: wed')
@@ -333,7 +333,7 @@ describe('runOrchestrator — parallelism', () => {
           usage: { input_tokens: 200, output_tokens: 200 },
         };
       }
-      if (system.includes('PM Strategist')) {
+      if (system.includes('Strategist')) {
         return {
           content: [{ type: 'text', text: JSON.stringify(STRATEGIST_PAYLOAD) }],
           usage: { input_tokens: 400, output_tokens: 300 },
@@ -354,7 +354,7 @@ describe('runOrchestrator — parallelism', () => {
           usage: { input_tokens: 500, output_tokens: 400 },
         };
       }
-      if (system.includes('Senior Product Manager')) {
+      if (system.includes('critique a draft')) {
         criticInFlight++;
         criticPeak = Math.max(criticPeak, criticInFlight);
         await criticAllStarted.promise;
@@ -506,7 +506,7 @@ describe('runOrchestrator — recentAngles dedupe', () => {
           usage: { input_tokens: 100, output_tokens: 100 },
         };
       }
-      if (system.includes('PM Strategist')) {
+      if (system.includes('Strategist')) {
         strategistUserPrompt = userMsg;
         return {
           content: [{ type: 'text', text: JSON.stringify(STRATEGIST_PAYLOAD) }],
@@ -524,7 +524,7 @@ describe('runOrchestrator — recentAngles dedupe', () => {
           usage: { input_tokens: 300, output_tokens: 200 },
         };
       }
-      if (system.includes('Senior Product Manager')) {
+      if (system.includes('critique a draft')) {
         return {
           content: [{ type: 'text', text: JSON.stringify(APPROVE_VERDICT) }],
           usage: { input_tokens: 100, output_tokens: 100 },
@@ -608,7 +608,7 @@ describe('runOrchestrator — surgical retry prompt', () => {
           usage: { input_tokens: 100, output_tokens: 100 },
         };
       }
-      if (system.includes('PM Strategist')) {
+      if (system.includes('Strategist')) {
         return {
           content: [{ type: 'text', text: JSON.stringify(STRATEGIST_PAYLOAD) }],
           usage: { input_tokens: 200, output_tokens: 200 },
@@ -633,7 +633,7 @@ describe('runOrchestrator — surgical retry prompt', () => {
           usage: { input_tokens: 300, output_tokens: 200 },
         };
       }
-      if (system.includes('Senior Product Manager')) {
+      if (system.includes('critique a draft')) {
         const day: 'mon' | 'wed' | 'fri' = userMsg.includes('DAY: mon')
           ? 'mon'
           : userMsg.includes('DAY: wed')
@@ -712,7 +712,7 @@ describe('runOrchestrator — partial retry failure resilience', () => {
           usage: { input_tokens: 100, output_tokens: 100 },
         };
       }
-      if (system.includes('PM Strategist')) {
+      if (system.includes('Strategist')) {
         return {
           content: [{ type: 'text', text: JSON.stringify(STRATEGIST_PAYLOAD) }],
           usage: { input_tokens: 200, output_tokens: 200 },
@@ -748,7 +748,7 @@ describe('runOrchestrator — partial retry failure resilience', () => {
           usage: { input_tokens: 300, output_tokens: 200 },
         };
       }
-      if (system.includes('Senior Product Manager')) {
+      if (system.includes('critique a draft')) {
         const day: 'mon' | 'wed' | 'fri' = userMsg.includes('DAY: mon')
           ? 'mon'
           : userMsg.includes('DAY: wed')
