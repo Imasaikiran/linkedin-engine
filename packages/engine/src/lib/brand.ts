@@ -151,6 +151,17 @@ export const TracingSchema = z
   })
   .default({ public: false });
 
+// ---------- output ----------
+// Where this profile writes its drafts. Omit it and drafts go to the shared repo
+// `drafts/` (the demo + cron behaviour). A personal profile sets `drafts_dir`
+// (relative to the profile dir) so its drafts land in its own git-excluded
+// folder, never the public one.
+export const OutputSchema = z
+  .object({
+    drafts_dir: z.string().min(1).optional(),
+  })
+  .optional();
+
 // ---------- root ----------
 export const BrandSchema = z.object({
   identity: IdentitySchema,
@@ -164,6 +175,7 @@ export const BrandSchema = z.object({
   gates: GatesSchema,
   judge: JudgeSchema,
   tracing: TracingSchema,
+  output: OutputSchema,
 });
 export type Brand = z.infer<typeof BrandSchema>;
 

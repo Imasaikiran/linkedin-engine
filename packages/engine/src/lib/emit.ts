@@ -1,7 +1,23 @@
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, isAbsolute, resolve } from "node:path";
 import { stringify as stringifyYaml } from "yaml";
 import type { DayOutcome, Day } from "../state.js";
+
+/**
+ * Decide where a profile's drafts are written. Default (no `draftsDir`): the
+ * shared repo `drafts/`, which the demo and the cron use. A relative `draftsDir`
+ * resolves against the profile's own directory; an absolute one is used as-is.
+ * This lets a personal profile keep its drafts in its own git-excluded folder
+ * so they can never be committed to the public repo.
+ */
+export function resolveDraftsRoot(opts: {
+  repoRoot: string;
+  profileDir: string;
+  draftsDir?: string;
+}): string {
+  if (!opts.draftsDir) return join(opts.repoRoot, "drafts");
+  return isAbsolute(opts.draftsDir) ? opts.draftsDir : resolve(opts.profileDir, opts.draftsDir);
+}
 
 export interface EmitParams {
   draftsRoot: string;
