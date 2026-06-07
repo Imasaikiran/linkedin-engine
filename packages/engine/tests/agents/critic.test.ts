@@ -325,7 +325,7 @@ describe('buildCriticPrompt', () => {
     expect(system).toContain(brand.identity.positioning);
 
     // Checklist items.
-    expect(system).toContain('PM signal');
+    expect(system).toContain('Point of view');
     expect(system).toContain('Audience-coded');
     expect(system).toContain('Hook strength');
     expect(system).toContain('Save-worthy');
