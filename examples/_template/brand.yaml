@@ -120,3 +120,9 @@ judge:
 
 tracing:
   public: false  # keep your traces private; set true only to share them
+
+# output:
+#   # Where this profile writes its drafts. Omit to use the shared repo `drafts/`.
+#   # A relative path resolves against THIS profile's folder, so a personal
+#   # profile can keep drafts in its own git-excluded folder (never the public one).
+#   drafts_dir: drafts

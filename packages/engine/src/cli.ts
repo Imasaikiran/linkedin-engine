@@ -2,7 +2,7 @@ import { join, resolve, isAbsolute, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { config as loadEnv } from "dotenv";
 import { run } from "./run.js";
-import { emitDrafts } from "./lib/emit.js";
+import { emitDrafts, resolveDraftsRoot } from "./lib/emit.js";
 import { makeLogger } from "./lib/log.js";
 
 const log = makeLogger({ name: "cli" });
@@ -35,7 +35,7 @@ async function main(): Promise<void> {
 
   const result = await run({ profileDir, dryRun });
   emitDrafts({
-    draftsRoot: join(repoRoot, "drafts"),
+    draftsRoot: resolveDraftsRoot({ repoRoot, profileDir, draftsDir: result.draftsDir }),
     week: result.week,
     drafts: result.drafts,
     days: result.days,

@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { emitDrafts } from "../../src/lib/emit.js";
+import { emitDrafts, resolveDraftsRoot } from "../../src/lib/emit.js";
 
 describe("emitDrafts", () => {
   it("writes a published draft and a SKIPPED sidecar", () => {
@@ -52,5 +52,29 @@ describe("emitDrafts", () => {
     });
     expect(existsSync(path.join(root, week, "mon.SKIPPED.md"))).toBe(true);
     expect(existsSync(path.join(root, week, "mon.md"))).toBe(false);
+  });
+});
+
+describe("resolveDraftsRoot", () => {
+  it("defaults to <repoRoot>/drafts when no draftsDir is set", () => {
+    expect(resolveDraftsRoot({ repoRoot: "/repo", profileDir: "/repo/examples/sai-voice" })).toBe(
+      path.join("/repo", "drafts"),
+    );
+  });
+
+  it("resolves a relative draftsDir against the profile dir (keeps it out of public drafts/)", () => {
+    expect(
+      resolveDraftsRoot({
+        repoRoot: "/repo",
+        profileDir: "/repo/examples/my-voice",
+        draftsDir: "drafts",
+      }),
+    ).toBe(path.resolve("/repo/examples/my-voice", "drafts"));
+  });
+
+  it("uses an absolute draftsDir as-is", () => {
+    expect(
+      resolveDraftsRoot({ repoRoot: "/repo", profileDir: "/repo/examples/p", draftsDir: "/tmp/out" }),
+    ).toBe("/tmp/out");
   });
 });

@@ -19,6 +19,8 @@ export interface RunResult {
   drafts: Record<Day, { post_text?: string } | undefined>;
   aborted: boolean;
   abortReason?: string;
+  /** Raw `brand.output.drafts_dir` (if set). The CLI resolves it to a path. */
+  draftsDir?: string;
 }
 
 export function computeIsoWeek(d: Date): string {
@@ -106,5 +108,6 @@ export async function run(opts: {
     drafts,
     aborted: final.aborted,
     abortReason: final.abortReason,
+    draftsDir: profile.brand.output?.drafts_dir,
   };
 }
